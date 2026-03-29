@@ -75,8 +75,8 @@ function getWordCount(el) {
 const SUGGESTED_TAGS = [
   'Victoria', 'New South Wales', 'Queensland', 'South Australia', 'Western Australia',
   'Tasmania', 'Northern Territory', 'ACT',
-  'Craft Beer', 'Wine', 'Cider', 'Spirits', 'Mead', 'Kombucha',
-  'Brewery', 'Winery', 'Distillery', 'Cellar Door',
+  'Ceramics', 'Textiles', 'Woodwork', 'Metalwork', 'Glass', 'Leather',
+  'Maker', 'Studio', 'Maker', 'Studio',
   'Region Guide', 'News', 'Events', 'Interview', 'History',
 ]
 
@@ -123,9 +123,9 @@ function TagInput({ tags = [], onChange, suggestions = SUGGESTED_TAGS, freeform 
           onClick={() => inputRef.current?.focus()}
         >
           {tags.map(tag => (
-            <span key={tag} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '3px 8px', background: 'rgba(200,148,58,0.12)', border: '1px solid rgba(200,148,58,0.3)', borderRadius: 3, fontSize: 11, fontWeight: 600, color: 'var(--amber)', fontFamily: 'var(--font-sans)' }}>
+            <span key={tag} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '3px 8px', background: 'rgba(200,148,58,0.12)', border: '1px solid rgba(200,148,58,0.3)', borderRadius: 3, fontSize: 11, fontWeight: 600, color: 'var(--primary)', fontFamily: 'var(--font-sans)' }}>
               {tag}
-              <button onClick={e => { e.stopPropagation(); removeTag(tag) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--amber)', padding: 0, lineHeight: 1, fontSize: 13, opacity: 0.7 }}>×</button>
+              <button onClick={e => { e.stopPropagation(); removeTag(tag) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', padding: 0, lineHeight: 1, fontSize: 13, opacity: 0.7 }}>×</button>
             </span>
           ))}
           <input
@@ -416,7 +416,7 @@ function WYSIWYGEditor({ value, onUploadImage, uploading }) {
 
   const TB = ({ title, active, onClick, children, extraStyle = {} }) => (
     <button title={title} onMouseDown={e => { e.preventDefault(); onClick() }}
-      style={{ padding: '5px 9px', border: 'none', borderRadius: 3, cursor: 'pointer', background: active ? 'rgba(200,148,58,0.15)' : 'transparent', color: active ? 'var(--amber)' : 'var(--text-2)', fontSize: 13, fontWeight: 600, lineHeight: 1, transition: 'all 0.1s', fontFamily: 'var(--font-sans)', ...extraStyle }}>
+      style={{ padding: '5px 9px', border: 'none', borderRadius: 3, cursor: 'pointer', background: active ? 'rgba(200,148,58,0.15)' : 'transparent', color: active ? 'var(--primary)' : 'var(--text-2)', fontSize: 13, fontWeight: 600, lineHeight: 1, transition: 'all 0.1s', fontFamily: 'var(--font-sans)', ...extraStyle }}>
       {children}
     </button>
   )
@@ -541,18 +541,18 @@ function WYSIWYGEditor({ value, onUploadImage, uploading }) {
         [contenteditable] em, [contenteditable] i { font-style:italic }
         [contenteditable] s { text-decoration:line-through; opacity:0.6 }
         [contenteditable] code { font-family:'Menlo','Monaco',monospace; font-size:0.83em; background:var(--bg-2); border:1px solid var(--border); padding:2px 5px; border-radius:3px }
-        [contenteditable] a { color:var(--amber); text-decoration:underline; text-underline-offset:2px }
+        [contenteditable] a { color:var(--primary); text-decoration:underline; text-underline-offset:2px }
         [contenteditable] ul { padding-left:1.5em; margin:0.4em 0 0.7em }
         [contenteditable] ol { padding-left:1.5em; margin:0.4em 0 0.7em }
         [contenteditable] li { margin-bottom:0.3em }
-        [contenteditable] blockquote { border-left:3px solid var(--amber); margin:1.2em 0; padding:3px 0 3px 18px; color:var(--text-2); font-style:italic; font-size:1.05em }
+        [contenteditable] blockquote { border-left:3px solid var(--primary); margin:1.2em 0; padding:3px 0 3px 18px; color:var(--text-2); font-style:italic; font-size:1.05em }
         [contenteditable] blockquote p { margin:0 }
         [contenteditable] hr { border:none; border-top:1px solid var(--border); margin:2em 0 }
         [contenteditable] figure { margin:1.5em 0 }
         [contenteditable] figure img { max-width:100%; height:auto; display:block; border-radius:3px }
         [contenteditable] figcaption { margin-top:7px; font-size:13px; color:var(--text-3); font-family:var(--font-sans); font-style:italic; text-align:center }
         [contenteditable] img { max-width:100%; height:auto; display:block; border-radius:3px; margin:1em 0 }
-        [contenteditable]:focus { caret-color:var(--amber) }
+        [contenteditable]:focus { caret-color:var(--primary) }
         [contenteditable] ::selection { background:rgba(200,148,58,0.2) }
       `}</style>
     </div>
@@ -635,7 +635,7 @@ function ArticleEditor({ article, onSave, onCancel }) {
         <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 22, fontWeight: 400, color: 'var(--text)', margin: 0 }}>{article ? 'Edit Article' : 'New Article'}</h2>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
           {saved && <span style={{ fontSize: 12, color: '#4a7c59', fontFamily: 'var(--font-sans)', display: 'flex', alignItems: 'center', gap: 4 }}>✓ Saved</span>}
-          {(uploading || heroUploading) && <span style={{ fontSize: 12, color: 'var(--amber)', fontFamily: 'var(--font-sans)' }}>Uploading...</span>}
+          {(uploading || heroUploading) && <span style={{ fontSize: 12, color: 'var(--primary)', fontFamily: 'var(--font-sans)' }}>Uploading...</span>}
           <span style={{ fontSize: 11, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>⌘S to save</span>
           <button onClick={() => handleSave('draft')} disabled={!!saving} style={{ padding: '9px 20px', border: '1px solid var(--border)', borderRadius: 3, background: 'var(--bg-2)', color: 'var(--text-2)', fontSize: 11, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.07em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', opacity: saving ? 0.6 : 1 }}>
             {saving === 'draft' ? 'Saving…' : 'Save Draft'}
@@ -676,7 +676,7 @@ function ArticleEditor({ article, onSave, onCancel }) {
             </div>
           </div>
           <div style={{ padding: 20, border: '1px solid var(--border)', borderRadius: 3, background: 'var(--bg-2)' }}>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 16, fontFamily: 'var(--font-sans)' }}>SEO</div>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 16, fontFamily: 'var(--font-sans)' }}>SEO</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
                 <label style={lbl}>Meta Title</label>
@@ -719,7 +719,7 @@ function ArticleEditor({ article, onSave, onCancel }) {
             ) : (
               <div>
                 <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '24px 12px', border: '2px dashed var(--border)', borderRadius: 3, cursor: heroUploading ? 'wait' : 'pointer', color: 'var(--text-3)', textAlign: 'center', transition: 'border-color 0.15s, background 0.15s', marginBottom: 10 }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--amber)'; e.currentTarget.style.background = 'rgba(200,148,58,0.04)' }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.background = 'rgba(200,148,58,0.04)' }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'transparent' }}>
                   {heroUploading ? <span style={{ fontSize: 12, fontFamily: 'var(--font-sans)' }}>Uploading...</span> : <>
                     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
@@ -792,14 +792,14 @@ function ArticlesTab() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 30, fontWeight: 400, letterSpacing: '-0.02em', color: 'var(--text)', margin: 0 }}>Articles</h1>
-        <button onClick={() => setEditing('new')} style={{ padding: '10px 22px', background: 'var(--amber)', color: 'var(--bg)', border: 'none', borderRadius: 3, fontSize: 11, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', display: 'flex', alignItems: 'center', gap: 7 }}>
+        <button onClick={() => setEditing('new')} style={{ padding: '10px 22px', background: 'var(--primary)', color: 'var(--bg)', border: 'none', borderRadius: 3, fontSize: 11, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', display: 'flex', alignItems: 'center', gap: 7 }}>
           <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.2"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
           New Article
         </button>
       </div>
       <div style={{ display: 'flex', gap: 20, marginBottom: 24, borderBottom: '1px solid var(--border)' }}>
         {['all','published','draft'].map(f => (
-          <button key={f} onClick={() => setFilter(f)} style={{ padding: '8px 0', border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: filter === f ? 'var(--text)' : 'var(--text-3)', borderBottom: filter === f ? '2px solid var(--amber)' : '2px solid transparent', marginBottom: -1, fontFamily: 'var(--font-sans)' }}>
+          <button key={f} onClick={() => setFilter(f)} style={{ padding: '8px 0', border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: filter === f ? 'var(--text)' : 'var(--text-3)', borderBottom: filter === f ? '2px solid var(--primary)' : '2px solid transparent', marginBottom: -1, fontFamily: 'var(--font-sans)' }}>
             {f} <span style={{ opacity: 0.5 }}>({counts[f] ?? 0})</span>
           </button>
         ))}
@@ -808,7 +808,7 @@ function ArticlesTab() {
       : articles.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '80px 0' }}>
           <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-2)', marginBottom: 8, fontFamily: 'var(--font-sans)' }}>No articles yet</div>
-          <button onClick={() => setEditing('new')} style={{ padding: '11px 28px', background: 'var(--amber)', color: 'var(--bg)', border: 'none', borderRadius: 3, fontSize: 11, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)' }}>+ New Article</button>
+          <button onClick={() => setEditing('new')} style={{ padding: '11px 28px', background: 'var(--primary)', color: 'var(--bg)', border: 'none', borderRadius: 3, fontSize: 11, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)' }}>+ New Article</button>
         </div>
       ) : articles.map(article => (
         <div key={article.id} style={{ padding: '13px 18px', marginBottom: 6, border: '1px solid var(--border)', borderRadius: 3, display: 'flex', alignItems: 'center', gap: 14, borderLeft: `3px solid ${article.status === 'published' ? '#4a7c59' : 'var(--border)'}`, transition: 'background 0.1s' }}
@@ -821,7 +821,7 @@ function ArticlesTab() {
               {article.category && <span>{article.category}</span>}
               {article.author && <span>by {article.author}</span>}
               {article.reading_time && <span>{article.reading_time} min</span>}
-              {(article.tags || []).slice(0, 3).map(t => <span key={t} style={{ color: 'var(--amber)', opacity: 0.7 }}>{t}</span>)}
+              {(article.tags || []).slice(0, 3).map(t => <span key={t} style={{ color: 'var(--primary)', opacity: 0.7 }}>{t}</span>)}
             </div>
           </div>
           <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', padding: '3px 9px', borderRadius: 12, background: article.status === 'published' ? 'rgba(74,124,89,0.12)' : 'var(--bg-2)', color: article.status === 'published' ? '#4a7c59' : 'var(--text-3)', whiteSpace: 'nowrap', fontFamily: 'var(--font-sans)' }}>{article.status}</div>
@@ -837,7 +837,7 @@ function ArticlesTab() {
 }
 
 // ─── Partners Tab ─────────────────────────────────────────────────────────────
-const VERTICALS = ['craft-beer', 'wine', 'cider', 'spirits', 'mead', 'kombucha', 'sake', 'perry']
+const VERTICALS = ['ceramics', 'textiles', 'woodwork', 'metalwork', 'glass', 'leather', 'printmaking', 'jewellery']
 const TIERS = [
   { value: 'standard', label: 'Standard', desc: '1 vertical · 2 submissions/month' },
   { value: 'premium', label: 'Premium', desc: 'Multiple verticals · 6 submissions/month · priority review' },
@@ -898,7 +898,7 @@ function PartnerForm({ partner, onSave, onCancel }) {
         </button>
         <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 22, fontWeight: 400, color: 'var(--text)', margin: 0 }}>{partner ? 'Edit Partner' : 'Add Partner'}</h2>
         <div style={{ marginLeft: 'auto' }}>
-          <button onClick={handleSave} disabled={saving} style={{ padding: '9px 24px', border: 'none', borderRadius: 3, background: 'var(--amber)', color: 'var(--bg)', fontSize: 11, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.07em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', opacity: saving ? 0.6 : 1 }}>
+          <button onClick={handleSave} disabled={saving} style={{ padding: '9px 24px', border: 'none', borderRadius: 3, background: 'var(--primary)', color: 'var(--bg)', fontSize: 11, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.07em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', opacity: saving ? 0.6 : 1 }}>
             {saving ? 'Saving…' : partner ? 'Save Changes' : 'Create Partner'}
           </button>
         </div>
@@ -944,7 +944,7 @@ function PartnerForm({ partner, onSave, onCancel }) {
             <label style={lbl}>Tier</label>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {TIERS.map(t => (
-                <label key={t.value} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 12px', border: `1px solid ${form.tier === t.value ? 'var(--amber)' : 'var(--border)'}`, borderRadius: 3, cursor: 'pointer', background: form.tier === t.value ? 'rgba(200,148,58,0.06)' : 'transparent' }}>
+                <label key={t.value} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 12px', border: `1px solid ${form.tier === t.value ? 'var(--primary)' : 'var(--border)'}`, borderRadius: 3, cursor: 'pointer', background: form.tier === t.value ? 'rgba(200,148,58,0.06)' : 'transparent' }}>
                   <input type="radio" name="tier" value={t.value} checked={form.tier === t.value} onChange={() => setForm(f => ({ ...f, tier: t.value, verticals: t.value === 'standard' ? f.verticals.slice(0, 1) : f.verticals }))} style={{ marginTop: 2 }} />
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', fontFamily: 'var(--font-sans)' }}>{t.label}</div>
@@ -959,7 +959,7 @@ function PartnerForm({ partner, onSave, onCancel }) {
             <label style={lbl}>Verticals {form.tier === 'standard' && <span style={{ opacity: 0.5, fontWeight: 400 }}>(max 1)</span>}</label>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {VERTICALS.map(v => (
-                <button key={v} onClick={() => toggleVertical(v)} style={{ padding: '5px 12px', border: `1px solid ${form.verticals.includes(v) ? 'var(--amber)' : 'var(--border)'}`, borderRadius: 3, background: form.verticals.includes(v) ? 'rgba(200,148,58,0.12)' : 'transparent', color: form.verticals.includes(v) ? 'var(--amber)' : 'var(--text-3)', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-sans)', letterSpacing: '0.04em' }}>
+                <button key={v} onClick={() => toggleVertical(v)} style={{ padding: '5px 12px', border: `1px solid ${form.verticals.includes(v) ? 'var(--primary)' : 'var(--border)'}`, borderRadius: 3, background: form.verticals.includes(v) ? 'rgba(200,148,58,0.12)' : 'transparent', color: form.verticals.includes(v) ? 'var(--primary)' : 'var(--text-3)', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-sans)', letterSpacing: '0.04em' }}>
                   {v}
                 </button>
               ))}
@@ -1005,7 +1005,7 @@ function PartnersTab() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 30, fontWeight: 400, letterSpacing: '-0.02em', color: 'var(--text)', margin: 0 }}>Partners</h1>
-        <button onClick={() => setEditing('new')} style={{ padding: '10px 22px', background: 'var(--amber)', color: 'var(--bg)', border: 'none', borderRadius: 3, fontSize: 11, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', display: 'flex', alignItems: 'center', gap: 7 }}>
+        <button onClick={() => setEditing('new')} style={{ padding: '10px 22px', background: 'var(--primary)', color: 'var(--bg)', border: 'none', borderRadius: 3, fontSize: 11, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', display: 'flex', alignItems: 'center', gap: 7 }}>
           <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.2"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
           Add Partner
         </button>
@@ -1015,16 +1015,16 @@ function PartnersTab() {
         <div style={{ textAlign: 'center', padding: '80px 0' }}>
           <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-2)', marginBottom: 8, fontFamily: 'var(--font-sans)' }}>No partners yet</div>
           <div style={{ fontSize: 14, color: 'var(--text-3)', marginBottom: 28, fontFamily: 'var(--font-sans)' }}>Add your first partner to get started.</div>
-          <button onClick={() => setEditing('new')} style={{ padding: '11px 28px', background: 'var(--amber)', color: 'var(--bg)', border: 'none', borderRadius: 3, fontSize: 11, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)' }}>+ Add Partner</button>
+          <button onClick={() => setEditing('new')} style={{ padding: '11px 28px', background: 'var(--primary)', color: 'var(--bg)', border: 'none', borderRadius: 3, fontSize: 11, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)' }}>+ Add Partner</button>
         </div>
       ) : partners.map(p => (
-        <div key={p.id} style={{ padding: '16px 18px', marginBottom: 8, border: '1px solid var(--border)', borderRadius: 3, display: 'flex', alignItems: 'center', gap: 14, borderLeft: `3px solid ${p.active ? TIER_COLOR[p.tier] || 'var(--amber)' : 'var(--border)'}`, opacity: p.active ? 1 : 0.6 }}>
+        <div key={p.id} style={{ padding: '16px 18px', marginBottom: 8, border: '1px solid var(--border)', borderRadius: 3, display: 'flex', alignItems: 'center', gap: 14, borderLeft: `3px solid ${p.active ? TIER_COLOR[p.tier] || 'var(--primary)' : 'var(--border)'}`, opacity: p.active ? 1 : 0.6 }}>
           {p.logo_url && <div style={{ width: 40, height: 40, borderRadius: 3, overflow: 'hidden', flexShrink: 0, background: 'var(--bg-2)' }}><img src={p.logo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} /></div>}
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', marginBottom: 3, fontFamily: 'var(--font-sans)' }}>{p.org_name}</div>
             <div style={{ fontSize: 11, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', display: 'flex', gap: 10, flexWrap: 'wrap' }}>
               <span>{p.contact_email}</span>
-              {(p.verticals || []).map(v => <span key={v} style={{ color: 'var(--amber)', opacity: 0.8 }}>{v}</span>)}
+              {(p.verticals || []).map(v => <span key={v} style={{ color: 'var(--primary)', opacity: 0.8 }}>{v}</span>)}
             </div>
           </div>
           <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', padding: '3px 9px', borderRadius: 12, background: `${TIER_COLOR[p.tier] || '#888'}18`, color: TIER_COLOR[p.tier] || '#888', whiteSpace: 'nowrap', fontFamily: 'var(--font-sans)' }}>{p.tier}</div>
@@ -1148,18 +1148,18 @@ function SubmissionsTab() {
           <div>
             {s.hero_image_url && <div style={{ aspectRatio: '16/9', overflow: 'hidden', borderRadius: 3, marginBottom: 20, background: 'var(--bg-2)' }}><img src={s.hero_image_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /></div>}
             <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 28, fontWeight: 400, color: 'var(--text)', marginBottom: 12, letterSpacing: '-0.01em' }}>{s.title || 'Untitled'}</h1>
-            {s.excerpt && <p style={{ fontSize: 16, color: 'var(--text-2)', lineHeight: 1.6, marginBottom: 24, borderLeft: '3px solid var(--amber)', paddingLeft: 16, fontStyle: 'italic' }}>{s.excerpt}</p>}
+            {s.excerpt && <p style={{ fontSize: 16, color: 'var(--text-2)', lineHeight: 1.6, marginBottom: 24, borderLeft: '3px solid var(--primary)', paddingLeft: 16, fontStyle: 'italic' }}>{s.excerpt}</p>}
             <div style={{ fontSize: 15, lineHeight: 1.8, color: 'var(--text-2)', fontFamily: 'var(--font-serif)' }} dangerouslySetInnerHTML={{ __html: mdToHtml(s.body) }} />
             <div style={{ marginTop: 32, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
               <p style={{ fontSize: 11, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>
-                <strong style={{ color: 'var(--amber)' }}>Partner content.</strong> Produced in partnership with {s.partners?.org_name}. Editorial standards apply.
+                <strong style={{ color: 'var(--primary)' }}>Partner content.</strong> Produced in partnership with {s.partners?.org_name}. Editorial standards apply.
               </p>
             </div>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div style={{ padding: 16, border: '1px solid var(--border)', borderRadius: 3, background: 'var(--bg-2)' }}>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 12, fontFamily: 'var(--font-sans)' }}>Submission Details</div>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 12, fontFamily: 'var(--font-sans)' }}>Submission Details</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {[
                   ['Partner', s.partners?.org_name],
@@ -1177,7 +1177,7 @@ function SubmissionsTab() {
                   <div>
                     <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 6, fontFamily: 'var(--font-sans)' }}>Tags</div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                      {s.tags.map(t => <span key={t} style={{ padding: '2px 8px', background: 'rgba(200,148,58,0.12)', border: '1px solid rgba(200,148,58,0.2)', borderRadius: 3, fontSize: 10, color: 'var(--amber)', fontFamily: 'var(--font-sans)' }}>{t}</span>)}
+                      {s.tags.map(t => <span key={t} style={{ padding: '2px 8px', background: 'rgba(200,148,58,0.12)', border: '1px solid rgba(200,148,58,0.2)', borderRadius: 3, fontSize: 10, color: 'var(--primary)', fontFamily: 'var(--font-sans)' }}>{t}</span>)}
                     </div>
                   </div>
                 )}
@@ -1185,7 +1185,7 @@ function SubmissionsTab() {
             </div>
 
             <div style={{ padding: 16, border: '1px solid var(--border)', borderRadius: 3, background: 'var(--bg-2)' }}>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 8, fontFamily: 'var(--font-sans)' }}>Reviewer Notes</div>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 8, fontFamily: 'var(--font-sans)' }}>Reviewer Notes</div>
               <textarea
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
@@ -1196,7 +1196,7 @@ function SubmissionsTab() {
             </div>
 
             <div style={{ padding: 16, border: '1px solid var(--border)', borderRadius: 3, background: 'var(--bg-2)' }}>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 10, fontFamily: 'var(--font-sans)' }}>Feed Settings</div>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 10, fontFamily: 'var(--font-sans)' }}>Feed Settings</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <div>
                   <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 5, fontFamily: 'var(--font-sans)' }}>Publish Until</div>
@@ -1220,7 +1220,7 @@ function SubmissionsTab() {
       </div>
       <div style={{ display: 'flex', gap: 20, marginBottom: 24, borderBottom: '1px solid var(--border)' }}>
         {['under_review', 'approved', 'rejected', 'draft', 'all'].map(f => (
-          <button key={f} onClick={() => setFilter(f)} style={{ padding: '8px 0', border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: filter === f ? 'var(--text)' : 'var(--text-3)', borderBottom: filter === f ? '2px solid var(--amber)' : '2px solid transparent', marginBottom: -1, fontFamily: 'var(--font-sans)', whiteSpace: 'nowrap' }}>
+          <button key={f} onClick={() => setFilter(f)} style={{ padding: '8px 0', border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: filter === f ? 'var(--text)' : 'var(--text-3)', borderBottom: filter === f ? '2px solid var(--primary)' : '2px solid transparent', marginBottom: -1, fontFamily: 'var(--font-sans)', whiteSpace: 'nowrap' }}>
             {f.replace('_', ' ')}
           </button>
         ))}
@@ -1297,10 +1297,10 @@ export default function AdminPage() {
 
   return (
     <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 20px' }}>
-      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 8, fontFamily: 'var(--font-sans)' }}>Admin</div>
+      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 8, fontFamily: 'var(--font-sans)' }}>Admin</div>
       <div style={{ display: 'flex', gap: 28, borderBottom: '2px solid var(--border)', marginBottom: 36 }}>
         {[['claims','Listing Claims'],['articles','Articles'],['partners','Partners'],['submissions','Submissions'],['analytics','Analytics'],['newsletter','Newsletter', '/admin/newsletter']].map(([t, label, href]) => (
-          <button key={t} onClick={() => href ? window.location.href = href : setTab(t)} style={{ padding: '12px 0', border: 'none', background: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-sans)', color: tab === t ? 'var(--text)' : 'var(--text-3)', borderBottom: tab === t ? '2px solid var(--amber)' : '2px solid transparent', marginBottom: -2 }}>{label}</button>
+          <button key={t} onClick={() => href ? window.location.href = href : setTab(t)} style={{ padding: '12px 0', border: 'none', background: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-sans)', color: tab === t ? 'var(--text)' : 'var(--text-3)', borderBottom: tab === t ? '2px solid var(--primary)' : '2px solid transparent', marginBottom: -2 }}>{label}</button>
         ))}
       </div>
       {tab === 'analytics' && <AnalyticsDashboard />}
@@ -1320,7 +1320,7 @@ export default function AdminPage() {
           </div>
           <div style={{ display: 'flex', gap: 20, marginBottom: 24, borderBottom: '1px solid var(--border)' }}>
             {['pending','approved','rejected','all'].map(f => (
-              <button key={f} onClick={() => setFilter(f)} style={{ padding: '8px 0', border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: filter === f ? 'var(--text)' : 'var(--text-3)', borderBottom: filter === f ? '2px solid var(--amber)' : '2px solid transparent', marginBottom: -1, fontFamily: 'var(--font-sans)' }}>{f}</button>
+              <button key={f} onClick={() => setFilter(f)} style={{ padding: '8px 0', border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: filter === f ? 'var(--text)' : 'var(--text-3)', borderBottom: filter === f ? '2px solid var(--primary)' : '2px solid transparent', marginBottom: -1, fontFamily: 'var(--font-sans)' }}>{f}</button>
             ))}
           </div>
           {loading ? <div style={{ color: 'var(--text-3)', fontSize: 14, fontFamily: 'var(--font-sans)' }}>Loading...</div> : claims.length === 0 ? (
@@ -1341,8 +1341,8 @@ export default function AdminPage() {
               <div style={{ display: 'flex', gap: 8 }}>
                 {claim.status !== 'approved' && <button onClick={() => updateStatus(claim.id, 'approved')} disabled={updating === claim.id} style={{ background: '#4a7c59', color: '#fff', padding: '8px 18px', border: 'none', borderRadius: 3, fontSize: 11, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', opacity: updating === claim.id ? 0.6 : 1 }}>✓ Approve</button>}
                 {claim.status !== 'rejected' && <button onClick={() => updateStatus(claim.id, 'rejected')} disabled={updating === claim.id} style={{ background: '#8b4a4a', color: '#fff', padding: '8px 18px', border: 'none', borderRadius: 3, fontSize: 11, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', opacity: updating === claim.id ? 0.6 : 1 }}>✕ Reject</button>}
-                {claim.status !== 'pending' && <button onClick={() => updateStatus(claim.id, 'pending')} disabled={updating === claim.id} style={{ background: 'rgba(200,148,58,0.12)', color: 'var(--amber)', border: '1px solid rgba(200,148,58,0.3)', padding: '8px 18px', borderRadius: 3, fontSize: 11, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)' }}>↺ Pending</button>}
-                <a href={`mailto:${claim.contact_email}?subject=Your listing claim on Small Batch Atlas — ${claim.venue_name}`} style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', color: 'var(--text-2)', padding: '8px 18px', borderRadius: 3, fontSize: 11, fontWeight: 700, textDecoration: 'none', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)' }}>✉ Email</a>
+                {claim.status !== 'pending' && <button onClick={() => updateStatus(claim.id, 'pending')} disabled={updating === claim.id} style={{ background: 'rgba(200,148,58,0.12)', color: 'var(--primary)', border: '1px solid rgba(200,148,58,0.3)', padding: '8px 18px', borderRadius: 3, fontSize: 11, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)' }}>↺ Pending</button>}
+                <a href={`mailto:${claim.contact_email}?subject=Your listing claim on Craft Atlas — ${claim.venue_name}`} style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', color: 'var(--text-2)', padding: '8px 18px', borderRadius: 3, fontSize: 11, fontWeight: 700, textDecoration: 'none', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)' }}>✉ Email</a>
               </div>
             </div>
           ))}

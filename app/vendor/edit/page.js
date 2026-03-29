@@ -10,18 +10,20 @@ import { isValidVideoUrl } from '@/lib/video-embed'
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const TYPE_COLORS = {
-  distillery: '#c8943a',
-  brewery:    '#4a7c59',
-  winery:     '#8b4a6b',
-  cidery:     '#c45d3e',
-  meadery:    '#d4a843',
+  ceramics_clay:        '#c8943a',
+  visual_art:           '#4a7c59',
+  jewellery_metalwork:  '#8b4a6b',
+  textile_fibre:        '#c45d3e',
+  wood_furniture:       '#d4a843',
+  glass:                '#5a8a9a',
+  printmaking:          '#7a6a5a',
 }
 
 const FEATURE_OPTIONS = [
-  'Cellar Door', 'Tours', 'Tastings', 'Restaurant', 'Bar', 'Cafe',
-  'Outdoor Seating', 'Live Music', 'Events', 'Functions', 'Kids Friendly',
+  'Studio', 'Gallery', 'Workshop Space', 'Retail Shop', 'Cafe',
+  'Outdoor Seating', 'Live Demos', 'Workshops & Events', 'Functions', 'Kids Friendly',
   'Dog Friendly', 'Wheelchair Accessible', 'Parking', 'Group Bookings',
-  'Online Shop', 'Gift Shop', 'Accommodation',
+  'Online Shop', 'Gift Shop', 'Commissions Available',
 ]
 
 const SOCIAL_PLATFORMS = [
@@ -32,8 +34,6 @@ const SOCIAL_PLATFORMS = [
   { key: 'youtube',  label: 'YouTube',   icon: '▶', placeholder: 'https://youtube.com/@yourvenue' },
 ]
 
-const AWARD_LEVELS = ['Gold', 'Silver', 'Bronze', 'Trophy', 'Best in Show', 'Finalist', 'Winner', 'Other']
-
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
 const TABS = [
@@ -41,9 +41,9 @@ const TABS = [
   { id: 'images',   label: 'Images',   icon: '▦' },
   { id: 'hours',    label: 'Hours',    icon: '◷' },
   { id: 'features', label: 'Features', icon: '✦' },
-  { id: 'menu',     label: 'Menu',     icon: '◈' },
-  { id: 'awards',   label: 'Awards',   icon: '◆' },
-  { id: 'events',   label: 'Events',   icon: '◉', premiumOnly: false },
+  { id: 'practice', label: 'Practice', icon: '◈' },
+  { id: 'materials',label: 'Materials',icon: '◆' },
+  { id: 'events',   label: 'Workshops & Events',   icon: '◉', premiumOnly: false },
   { id: 'premium',  label: 'Premium',  icon: '★', premiumOnly: true },
 ]
 
@@ -78,7 +78,7 @@ const inputStyle = {
 
 function UpgradeHint({ feature, requiredTier }) {
   const isP = requiredTier === 'premium'
-  const color = isP ? '#b8860b' : '#4a7c59'
+  const color = isP ? '#C1603A' : '#4a7c59'
   return (
     <div style={{
       border: `1px solid ${color}30`,
@@ -118,8 +118,8 @@ function AddButton({ onClick, label }) {
       style={{
         display: 'inline-flex', alignItems: 'center', gap: 7,
         padding: '9px 16px', background: hover ? 'rgba(200,148,58,0.06)' : 'none',
-        border: `1px dashed ${hover ? 'var(--amber)' : 'var(--border-2)'}`,
-        color: hover ? 'var(--amber)' : 'var(--text-3)',
+        border: `1px dashed ${hover ? 'var(--primary)' : 'var(--border-2)'}`,
+        color: hover ? 'var(--primary)' : 'var(--text-3)',
         borderRadius: 3, fontSize: 12, cursor: 'pointer',
         fontFamily: 'var(--font-sans)',
         transition: 'all 0.15s', fontWeight: 600,
@@ -221,8 +221,11 @@ function VendorEditInner() {
   const [galleryImages, setGalleryImages] = useState([])
   const [openingHours, setOpeningHours] = useState(DAYS.map(day => ({ day, hours: '', closed: false })))
   const [socialLinks, setSocialLinks] = useState({})
-  const [drinksMenu, setDrinksMenu] = useState([])
-  const [awards, setAwards] = useState([])
+  const [practiceDescription, setPracticeDescription] = useState('')
+  const [materials, setMaterials] = useState([])
+  const [materialInput, setMaterialInput] = useState('')
+  const [commissionAvailable, setCommissionAvailable] = useState(false)
+  const [experiencesAndClasses, setExperiencesAndClasses] = useState(false)
   const [featuredVideoUrl, setFeaturedVideoUrl] = useState('')
   const [seasonalHighlights, setSeasonalHighlights] = useState([])
   const [promotions, setPromotions] = useState([])
@@ -268,17 +271,19 @@ function VendorEditInner() {
       setHeroImage(venueData.hero_image_url || '')
       setGalleryImages(venueData.gallery_images || [])
       setSocialLinks(venueData.social_links || {})
-      setDrinksMenu(venueData.drinks_menu || [])
+      setPracticeDescription(venueData.practice_description || '')
+      setMaterials(venueData.materials || [])
+      setCommissionAvailable(venueData.commission_available || false)
+      setExperiencesAndClasses(venueData.experiences_and_classes || false)
       setTags(venueData.tags || [])
-      setAwards(venueData.awards || [])
       setFeaturedVideoUrl(venueData.featured_video_url || '')
       setSeasonalHighlights(venueData.seasonal_highlights || [])
       setPromotions(venueData.promotions || [])
       setFeaturedOnHomepage(venueData.featured_on_homepage ?? true)
 
-      if (venueData.cellar_door_hours && typeof venueData.cellar_door_hours === 'object') {
+      if (venueData.opening_hours && typeof venueData.opening_hours === 'object') {
         setOpeningHours(DAYS.map(day => {
-          const val = venueData.cellar_door_hours[day.toLowerCase()] || ''
+          const val = venueData.opening_hours[day.toLowerCase()] || ''
           return { day, hours: val === 'Closed' ? '' : val, closed: val === 'Closed' }
         }))
       }
@@ -316,7 +321,11 @@ function VendorEditInner() {
       features: features.length > 0 ? features : null,
       hero_image_url: heroImage || null,
       gallery_images: galleryImages.length > 0 ? galleryImages : null,
-      cellar_door_hours: Object.keys(hours).length > 0 ? hours : null,
+      opening_hours: Object.keys(hours).length > 0 ? hours : null,
+      practice_description: practiceDescription.trim() || null,
+      materials: materials.length > 0 ? materials : null,
+      commission_available: commissionAvailable,
+      experiences_and_classes: experiencesAndClasses,
       updated_at: new Date().toISOString(),
     }
 
@@ -324,12 +333,6 @@ function VendorEditInner() {
       const cleanLinks = {}
       Object.entries(socialLinks).forEach(([k, v]) => { if (v?.trim()) cleanLinks[k] = v.trim() })
       updates.social_links = Object.keys(cleanLinks).length > 0 ? cleanLinks : null
-    }
-    if (canUse('drinksMenu', tier)) {
-      updates.drinks_menu = drinksMenu.filter(d => d.name?.trim()).length > 0 ? drinksMenu.filter(d => d.name?.trim()) : null
-    }
-    if (canUse('awards', tier)) {
-      updates.awards = awards.filter(a => a.title?.trim()).length > 0 ? awards.filter(a => a.title?.trim()) : null
     }
     if (canUse('featuredVideo', tier)) updates.featured_video_url = featuredVideoUrl.trim() || null
     if (canUse('seasonalHighlights', tier)) {
@@ -427,14 +430,6 @@ function VendorEditInner() {
   const mkUpdate = (setter) => (i, field, value) => { setter(p => p.map((item, idx) => idx === i ? { ...item, [field]: value } : item)); markDirty() }
   const mkRemove = (setter) => (i) => { setter(p => p.filter((_, idx) => idx !== i)) }
 
-  const addDrink    = mkAdd(setDrinksMenu, { name: '', style: '', description: '' })
-  const updateDrink = mkUpdate(setDrinksMenu)
-  const removeDrink = mkRemove(setDrinksMenu)
-
-  const addAward    = mkAdd(setAwards, { title: '', year: new Date().getFullYear().toString(), body: '', level: '' })
-  const updateAward = mkUpdate(setAwards)
-  const removeAward = mkRemove(setAwards)
-
   const addHighlight    = mkAdd(setSeasonalHighlights, { name: '', description: '', tag: '' })
   const updateHighlight = mkUpdate(setSeasonalHighlights)
   const removeHighlight = mkRemove(setSeasonalHighlights)
@@ -443,16 +438,30 @@ function VendorEditInner() {
   const updatePromotion = mkUpdate(setPromotions)
   const removePromotion = mkRemove(setPromotions)
 
+  // Materials helpers
+  function addMaterial() {
+    const trimmed = materialInput.trim()
+    if (trimmed && !materials.includes(trimmed)) {
+      setMaterials(prev => [...prev, trimmed])
+      markDirty()
+    }
+    setMaterialInput('')
+  }
+  function removeMaterial(i) {
+    setMaterials(prev => prev.filter((_, idx) => idx !== i))
+    markDirty()
+  }
+
   // Tab completion
   const tabHasContent = {
-    details:  !!(description || phone || website || address),
-    images:   !!(heroImage || galleryImages.length),
-    hours:    openingHours.some(h => h.hours || h.closed),
-    features: features.length > 0,
-    menu:     drinksMenu.filter(d => d.name?.trim()).length > 0,
-    awards:   awards.filter(a => a.title?.trim()).length > 0,
-    events:   events.filter(e => e.title?.trim()).length > 0,
-    premium:  !!(featuredVideoUrl || seasonalHighlights.length || promotions.length),
+    details:   !!(description || phone || website || address),
+    images:    !!(heroImage || galleryImages.length),
+    hours:     openingHours.some(h => h.hours || h.closed),
+    features:  features.length > 0,
+    practice:  !!practiceDescription.trim(),
+    materials: materials.length > 0,
+    events:    events.filter(e => e.title?.trim()).length > 0,
+    premium:   !!(featuredVideoUrl || seasonalHighlights.length || promotions.length),
   }
 
   if (loading) return (
@@ -464,7 +473,7 @@ function VendorEditInner() {
   if (!venue) return (
     <div style={{ padding: '80px 24px', textAlign: 'center' }}>
       <div style={{ fontFamily: 'var(--font-serif)', fontSize: 24, color: 'var(--text)', marginBottom: 12 }}>No venue linked</div>
-      <Link href="/vendor/dashboard" style={{ fontSize: 13, color: 'var(--amber)', textDecoration: 'none' }}>← Back to Dashboard</Link>
+      <Link href="/vendor/dashboard" style={{ fontSize: 13, color: 'var(--primary)', textDecoration: 'none' }}>← Back to Dashboard</Link>
     </div>
   )
 
@@ -478,7 +487,7 @@ function VendorEditInner() {
   return (
     <div style={{ maxWidth: 980, margin: '0 auto', padding: '0 24px 80px' }}>
       <style>{`
-        .vendor-input:focus { border-color: var(--amber) !important; }
+        .vendor-input:focus { border-color: var(--primary) !important; }
         .tab-btn { transition: all 0.15s; }
         .tab-btn:hover { color: var(--text) !important; }
         .feature-btn { transition: all 0.12s; }
@@ -516,7 +525,7 @@ function VendorEditInner() {
                   <span style={{ color: 'var(--border-2)', fontSize: 11 }}>/</span>
                   <span style={{
                     fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase',
-                    color: tier === 'standard' ? '#b8860b' : '#4a7c59',
+                    color: '#4a7c59',
                     fontFamily: 'var(--font-sans)',
                   }}>
                     ★ {tierConfig.name}
@@ -564,7 +573,7 @@ function VendorEditInner() {
             }}>Preview ↗</Link>
             <button onClick={handleSave} disabled={saving} style={{
               padding: '11px 28px',
-              background: saveStatus === 'saved' ? '#4a7c59' : saveStatus === 'error' ? '#8b4a4a' : 'var(--amber)',
+              background: saveStatus === 'saved' ? '#4a7c59' : saveStatus === 'error' ? '#8b4a4a' : 'var(--primary)',
               color: saveStatus === 'saved' || saveStatus === 'error' ? '#fff' : '#1a1208',
               border: 'none', borderRadius: 3,
               fontSize: 12, fontWeight: 700, cursor: saving ? 'wait' : 'pointer',
@@ -597,7 +606,7 @@ function VendorEditInner() {
             fontSize: 11, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase',
             fontFamily: 'var(--font-sans)',
             color: activeTab === tab.id ? 'var(--text)' : 'var(--text-3)',
-            borderBottom: activeTab === tab.id ? '2px solid var(--amber)' : '2px solid transparent',
+            borderBottom: activeTab === tab.id ? '2px solid var(--primary)' : '2px solid transparent',
             cursor: 'pointer', position: 'relative',
           }}>
             {tab.label}
@@ -626,11 +635,11 @@ function VendorEditInner() {
                   padding: '11px 12px',
                   background: isActive ? 'rgba(200,148,58,0.09)' : 'none',
                   border: 'none',
-                  borderLeft: `2px solid ${isActive ? 'var(--amber)' : 'transparent'}`,
+                  borderLeft: `2px solid ${isActive ? 'var(--primary)' : 'transparent'}`,
                   borderRadius: isActive ? '0 3px 3px 0' : '0 3px 3px 0',
                   fontSize: 13, fontWeight: isActive ? 600 : 400,
                   fontFamily: 'var(--font-sans)',
-                  color: isActive ? 'var(--text)' : isPremiumTab ? 'var(--amber)' : 'var(--text-2)',
+                  color: isActive ? 'var(--text)' : isPremiumTab ? 'var(--primary)' : 'var(--text-2)',
                   cursor: 'pointer', textAlign: 'left',
                   transition: 'all 0.12s',
                   marginLeft: -1,
@@ -641,7 +650,7 @@ function VendorEditInner() {
                   </span>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                     {tabHasContent[tab.id] && (
-                      <span style={{ width: 5, height: 5, borderRadius: '50%', background: isActive ? 'var(--amber)' : '#4a7c59', flexShrink: 0 }} />
+                      <span style={{ width: 5, height: 5, borderRadius: '50%', background: isActive ? 'var(--primary)' : '#4a7c59', flexShrink: 0 }} />
                     )}
                   </span>
                 </button>
@@ -653,7 +662,7 @@ function VendorEditInner() {
           <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
             <button onClick={handleSave} disabled={saving} style={{
               width: '100%', padding: '10px 0',
-              background: saveStatus === 'saved' ? '#4a7c59' : saveStatus === 'error' ? '#8b4a4a' : 'var(--amber)',
+              background: saveStatus === 'saved' ? '#4a7c59' : saveStatus === 'error' ? '#8b4a4a' : 'var(--primary)',
               color: saveStatus === 'saved' || saveStatus === 'error' ? '#fff' : '#1a1208',
               border: 'none', borderRadius: 3,
               fontSize: 11, fontWeight: 700, cursor: saving ? 'wait' : 'pointer',
@@ -684,7 +693,7 @@ function VendorEditInner() {
                   value={description}
                   onChange={e => { setDescription(e.target.value); markDirty() }}
                   rows={6}
-                  placeholder="Tell visitors what makes your venue special — your story, what to expect, what you make…"
+                  placeholder="Tell visitors what makes your studio special — your story, what to expect, what you make…"
                   style={{ ...inputStyle, resize: 'vertical' }}
                 />
                 <div style={{ fontSize: 11, color: descLen > 450 ? (descLen > 490 ? '#c04b4b' : '#c8943a') : 'var(--text-3)', marginTop: 6, fontFamily: 'var(--font-sans)', textAlign: 'right' }}>
@@ -788,7 +797,7 @@ function VendorEditInner() {
                       justifyContent: 'center', gap: 10, cursor: 'pointer',
                       background: 'var(--bg-2)', transition: 'all 0.15s',
                     }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--amber)'; e.currentTarget.style.background = 'rgba(200,148,58,0.04)' }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.background = 'rgba(200,148,58,0.04)' }}
                     onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-2)'; e.currentTarget.style.background = 'var(--bg-2)' }}
                   >
                     <div style={{ fontSize: 36 }}>📷</div>
@@ -831,7 +840,7 @@ function VendorEditInner() {
                         justifyContent: 'center', gap: 6, cursor: 'pointer', background: 'var(--bg-2)',
                         transition: 'all 0.15s',
                       }}
-                      onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--amber)'; e.currentTarget.style.background = 'rgba(200,148,58,0.04)' }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.background = 'rgba(200,148,58,0.04)' }}
                       onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-2)'; e.currentTarget.style.background = 'var(--bg-2)' }}
                     >
                       <div style={{ fontSize: 24, color: 'var(--text-3)' }}>+</div>
@@ -944,98 +953,168 @@ function VendorEditInner() {
                   )
                 })}
               </div>
-              <div style={{ fontSize: 12, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>
+
+              {/* Commission Available toggle */}
+              <div style={{ borderTop: '1px solid var(--border)', paddingTop: 20, marginTop: 20 }}>
+                <div
+                  onClick={() => { setCommissionAvailable(v => !v); markDirty() }}
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '16px 20px', borderRadius: 4, cursor: 'pointer',
+                    border: `1px solid ${commissionAvailable ? 'rgba(74,124,89,0.4)' : 'var(--border)'}`,
+                    background: commissionAvailable ? 'rgba(74,124,89,0.06)' : 'var(--bg)',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', fontFamily: 'var(--font-sans)', marginBottom: 2 }}>
+                      {commissionAvailable ? '✓ Commissions available' : 'Commissions not available'}
+                    </div>
+                    <div style={{ fontSize: 11, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>
+                      Let visitors know you accept commission work
+                    </div>
+                  </div>
+                  <div style={{
+                    width: 44, height: 24, borderRadius: 12, position: 'relative', flexShrink: 0,
+                    background: commissionAvailable ? '#4a7c59' : '#ccc',
+                    transition: 'background 0.2s ease',
+                  }}>
+                    <div style={{
+                      position: 'absolute', top: 3, left: commissionAvailable ? 23 : 3,
+                      width: 18, height: 18, borderRadius: '50%', background: '#fff',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                      transition: 'left 0.2s ease',
+                    }} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Experiences & Classes toggle — Standard tier only */}
+              {tier === 'standard' && (
+                <div style={{ marginTop: 12 }}>
+                  <div
+                    onClick={() => { setExperiencesAndClasses(v => !v); markDirty() }}
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '16px 20px', borderRadius: 4, cursor: 'pointer',
+                      border: `1px solid ${experiencesAndClasses ? 'rgba(74,124,89,0.4)' : 'var(--border)'}`,
+                      background: experiencesAndClasses ? 'rgba(74,124,89,0.06)' : 'var(--bg)',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', fontFamily: 'var(--font-sans)', marginBottom: 2 }}>
+                        {experiencesAndClasses ? '✓ Experiences & classes offered' : 'Experiences & classes not listed'}
+                      </div>
+                      <div style={{ fontSize: 11, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>
+                        Show visitors you offer workshops, classes, or experiences
+                      </div>
+                    </div>
+                    <div style={{
+                      width: 44, height: 24, borderRadius: 12, position: 'relative', flexShrink: 0,
+                      background: experiencesAndClasses ? '#4a7c59' : '#ccc',
+                      transition: 'background 0.2s ease',
+                    }}>
+                      <div style={{
+                        position: 'absolute', top: 3, left: experiencesAndClasses ? 23 : 3,
+                        width: 18, height: 18, borderRadius: '50%', background: '#fff',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                        transition: 'left 0.2s ease',
+                      }} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div style={{ fontSize: 12, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', marginTop: 16 }}>
                 {features.length} {features.length === 1 ? 'feature' : 'features'} selected
               </div>
             </div>
           )}
 
-          {/* MENU */}
-          {activeTab === 'menu' && (
+          {/* PRACTICE */}
+          {activeTab === 'practice' && (
             <div>
               {canUse('drinksMenu', tier) ? (
                 <>
                   <SectionHeader
-                    icon="🍺"
-                    title="Drinks Menu"
-                    description="List what you make, brew, or distil. Helps visitors know what to expect before they visit."
+                    icon="🎨"
+                    title="Practice Description"
+                    description="Describe your creative practice — your methods, inspirations, and what makes your work unique."
                   />
-                  {drinksMenu.map((drink, i) => (
-                    <Card key={i}>
-                      <RemoveBtn onClick={() => removeDrink(i)} />
-                      <div className="vendor-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
-                        <div>
-                          <label style={{ ...labelStyle, fontSize: 9 }}>Product Name</label>
-                          <input className="vendor-input" value={drink.name} onChange={e => updateDrink(i, 'name', e.target.value)} placeholder="e.g. Pale Ale, Shiraz, London Dry Gin" style={{ ...inputStyle, marginBottom: 0 }} />
-                        </div>
-                        <div>
-                          <label style={{ ...labelStyle, fontSize: 9 }}>Style / Category</label>
-                          <input className="vendor-input" value={drink.style || ''} onChange={e => updateDrink(i, 'style', e.target.value)} placeholder="e.g. IPA, Single Malt, Pinot Noir" style={{ ...inputStyle, marginBottom: 0 }} />
-                        </div>
-                      </div>
-                      <div>
-                        <label style={{ ...labelStyle, fontSize: 9 }}>Tasting Notes <span style={{ opacity: 0.5, fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(optional)</span></label>
-                        <input className="vendor-input" value={drink.description || ''} onChange={e => updateDrink(i, 'description', e.target.value)} placeholder="A brief description or tasting note" style={{ ...inputStyle, marginBottom: 0 }} />
-                      </div>
-                    </Card>
-                  ))}
-                  <AddButton onClick={addDrink} label="Add Product" />
+                  <div style={{ marginBottom: 20 }}>
+                    <label style={labelStyle}>Practice Description</label>
+                    <textarea
+                      className="vendor-input"
+                      value={practiceDescription}
+                      onChange={e => { setPracticeDescription(e.target.value); markDirty() }}
+                      rows={8}
+                      placeholder="Describe your creative practice, techniques, and what visitors can expect to see in your studio..."
+                      style={{ ...inputStyle, resize: 'vertical' }}
+                    />
+                  </div>
                 </>
-              ) : <UpgradeHint feature="Drinks menu & product list" requiredTier="standard" />}
+              ) : <UpgradeHint feature="Practice description" requiredTier="standard" />}
             </div>
           )}
 
-          {/* AWARDS */}
-          {activeTab === 'awards' && (
+          {/* MATERIALS */}
+          {activeTab === 'materials' && (
             <div>
               {canUse('awards', tier) ? (
                 <>
                   <SectionHeader
-                    icon="🏅"
-                    title="Awards & Accolades"
-                    description="Showcase your medals, trophies, and accolades. These display prominently on your listing."
+                    icon="🧶"
+                    title="Materials"
+                    description="List the materials you work with. These display on your listing to help visitors understand your craft."
                   />
-                  {awards.map((award, i) => (
-                    <Card key={i}>
-                      <RemoveBtn onClick={() => removeAward(i)} />
-                      <div className="vendor-grid-2" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12, marginBottom: 12 }}>
-                        <div>
-                          <label style={{ ...labelStyle, fontSize: 9 }}>Award Title</label>
-                          <input className="vendor-input" value={award.title} onChange={e => updateAward(i, 'title', e.target.value)} placeholder="e.g. Best Small Batch Gin" style={{ ...inputStyle, marginBottom: 0 }} />
-                        </div>
-                        <div>
-                          <label style={{ ...labelStyle, fontSize: 9 }}>Year</label>
-                          <input className="vendor-input" value={award.year || ''} onChange={e => updateAward(i, 'year', e.target.value)} placeholder="2024" style={{ ...inputStyle, marginBottom: 0 }} />
-                        </div>
-                      </div>
-                      <div className="vendor-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                        <div>
-                          <label style={{ ...labelStyle, fontSize: 9 }}>Awarding Body</label>
-                          <input className="vendor-input" value={award.body || ''} onChange={e => updateAward(i, 'body', e.target.value)} placeholder="e.g. Royal Melbourne Fine Food Awards" style={{ ...inputStyle, marginBottom: 0 }} />
-                        </div>
-                        <div>
-                          <label style={{ ...labelStyle, fontSize: 9 }}>Medal Level</label>
-                          <select className="vendor-input" value={award.level || ''} onChange={e => updateAward(i, 'level', e.target.value)} style={{ ...inputStyle, marginBottom: 0, cursor: 'pointer' }}>
-                            <option value="">Select level…</option>
-                            {AWARD_LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
-                          </select>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
-                  <AddButton onClick={addAward} label="Add Award" />
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
+                    {materials.map((mat, i) => (
+                      <span key={i} style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 6,
+                        background: `${color}12`, border: `1px solid ${color}30`,
+                        padding: '6px 12px', borderRadius: 2,
+                        fontSize: 13, color: color, fontFamily: 'var(--font-sans)',
+                      }}>
+                        {mat}
+                        <button onClick={() => removeMaterial(i)} style={{
+                          background: 'none', border: 'none', color: color, cursor: 'pointer',
+                          fontSize: 14, padding: 0, lineHeight: 1, opacity: 0.6,
+                        }}>×</button>
+                      </span>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <input
+                      className="vendor-input"
+                      value={materialInput}
+                      onChange={e => setMaterialInput(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addMaterial() } }}
+                      placeholder="e.g. Stoneware, Porcelain, Raku clay"
+                      style={{ ...inputStyle, flex: 1 }}
+                    />
+                    <button onClick={addMaterial} style={{
+                      padding: '11px 20px', background: 'var(--primary)', color: '#1a1208',
+                      border: 'none', borderRadius: 3, fontSize: 12, fontWeight: 700,
+                      cursor: 'pointer', fontFamily: 'var(--font-sans)',
+                      letterSpacing: '0.06em', textTransform: 'uppercase', flexShrink: 0,
+                    }}>Add</button>
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', marginTop: 8 }}>
+                    {materials.length} {materials.length === 1 ? 'material' : 'materials'} listed
+                  </div>
                 </>
-              ) : <UpgradeHint feature="Awards & accolades" requiredTier="standard" />}
+              ) : <UpgradeHint feature="Materials list" requiredTier="standard" />}
             </div>
           )}
 
-          {/* EVENTS */}
+          {/* WORKSHOPS & EVENTS */}
           {activeTab === 'events' && (
             <div>
               <SectionHeader
                 icon="📅"
-                title="Events"
-                description="Add upcoming events, releases, and special occasions. These appear on your listing page."
+                title="Workshops & Events"
+                description="Add upcoming workshops, exhibitions, and special events. These appear on your listing page."
               />
               {events.map((event, i) => (
                 <Card key={i}>
@@ -1043,17 +1122,17 @@ function VendorEditInner() {
                   <div className="vendor-grid-2" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12, marginBottom: 12 }}>
                     <div>
                       <label style={{ ...labelStyle, fontSize: 9 }}>Event Title</label>
-                      <input className="vendor-input" value={event.title} onChange={e => updateEvent(i, 'title', e.target.value)} placeholder="e.g. Winter Barrel Release, Open Day" style={{ ...inputStyle, marginBottom: 0 }} />
+                      <input className="vendor-input" value={event.title} onChange={e => updateEvent(i, 'title', e.target.value)} placeholder="e.g. Pottery Workshop, Open Studio Day" style={{ ...inputStyle, marginBottom: 0 }} />
                     </div>
                     <div>
                       <label style={{ ...labelStyle, fontSize: 9 }}>Type</label>
                       <select className="vendor-input" value={event.event_type} onChange={e => updateEvent(i, 'event_type', e.target.value)} style={{ ...inputStyle, marginBottom: 0, cursor: 'pointer' }}>
-                        <option value="release">🍾 Release</option>
-                        <option value="tasting">🥃 Tasting</option>
+                        <option value="release">🎨 Release</option>
+                        <option value="workshop">🛠 Workshop</option>
                         <option value="tour">🚶 Tour</option>
                         <option value="open_day">🎪 Open Day</option>
                         <option value="collaboration">🤝 Collaboration</option>
-                        <option value="food_pairing">🍽️ Food Pairing</option>
+                        <option value="exhibition">🖼 Exhibition</option>
                         <option value="other">📅 Other</option>
                       </select>
                     </div>
@@ -1078,7 +1157,7 @@ function VendorEditInner() {
                       <input className="vendor-input" value={event.ticket_url || ''} onChange={e => updateEvent(i, 'ticket_url', e.target.value)} placeholder="https://..." style={{ ...inputStyle, marginBottom: 0 }} />
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 26 }}>
-                      <input type="checkbox" id={`free-${i}`} checked={event.is_free} onChange={e => updateEvent(i, 'is_free', e.target.checked)} style={{ width: 16, height: 16, cursor: 'pointer', accentColor: 'var(--amber)' }} />
+                      <input type="checkbox" id={`free-${i}`} checked={event.is_free} onChange={e => updateEvent(i, 'is_free', e.target.checked)} style={{ width: 16, height: 16, cursor: 'pointer', accentColor: 'var(--primary)' }} />
                       <label htmlFor={`free-${i}`} style={{ fontSize: 13, color: 'var(--text)', fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>Free entry</label>
                     </div>
                   </div>
@@ -1097,7 +1176,7 @@ function VendorEditInner() {
                 <SectionHeader
                   icon="⭐"
                   title="Featured on Homepage"
-                  description="Opt in to have your venue featured on the Small Batch Atlas homepage, visible to all visitors."
+                  description="Opt in to have your venue featured on the Craft Atlas homepage, visible to all visitors."
                 />
                 {tier === 'standard' ? (
                   <div
@@ -1105,8 +1184,8 @@ function VendorEditInner() {
                     style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                       padding: '16px 20px', borderRadius: 4, cursor: 'pointer',
-                      border: `1px solid ${featuredOnHomepage ? 'rgba(184,134,11,0.4)' : 'var(--border)'}`,
-                      background: featuredOnHomepage ? 'rgba(184,134,11,0.06)' : 'var(--bg)',
+                      border: `1px solid ${featuredOnHomepage ? 'rgba(193,96,58,0.4)' : 'var(--border)'}`,
+                      background: featuredOnHomepage ? 'rgba(193,96,58,0.06)' : 'var(--bg)',
                       transition: 'all 0.15s ease',
                     }}
                   >
@@ -1116,13 +1195,13 @@ function VendorEditInner() {
                       </div>
                       <div style={{ fontSize: 11, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>
                         {featuredOnHomepage
-                          ? 'Your venue is visible on the Small Batch Atlas homepage — click to opt out'
+                          ? 'Your venue is visible on the Craft Atlas homepage — click to opt out'
                           : 'You\'ve opted out of homepage placement — click to opt back in'}
                       </div>
                     </div>
                     <div style={{
                       width: 44, height: 24, borderRadius: 12, position: 'relative', flexShrink: 0,
-                      background: featuredOnHomepage ? 'var(--amber)' : '#ccc',
+                      background: featuredOnHomepage ? 'var(--primary)' : '#ccc',
                       transition: 'background 0.2s ease',
                     }}>
                       <div style={{
@@ -1164,8 +1243,8 @@ function VendorEditInner() {
               <div style={{ paddingBottom: 32, marginBottom: 32, borderBottom: '1px solid var(--border)' }}>
                 <SectionHeader
                   icon="🌿"
-                  title="Currently Pouring / Seasonal Highlights"
-                  description="What's on right now — new releases, seasonal specials, what's on tap this week."
+                  title="Current Highlights"
+                  description="What's on right now — new collections, seasonal work, featured pieces."
                 />
                 {canUse('seasonalHighlights', tier) ? (
                   <>
@@ -1175,11 +1254,11 @@ function VendorEditInner() {
                         <div className="vendor-grid-2" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12, marginBottom: 12 }}>
                           <div>
                             <label style={{ ...labelStyle, fontSize: 9 }}>Name</label>
-                            <input className="vendor-input" value={item.name} onChange={e => updateHighlight(i, 'name', e.target.value)} placeholder="e.g. Autumn Harvest Ale" style={{ ...inputStyle, marginBottom: 0 }} />
+                            <input className="vendor-input" value={item.name} onChange={e => updateHighlight(i, 'name', e.target.value)} placeholder="e.g. Spring Collection" style={{ ...inputStyle, marginBottom: 0 }} />
                           </div>
                           <div>
                             <label style={{ ...labelStyle, fontSize: 9 }}>Tag</label>
-                            <input className="vendor-input" value={item.tag || ''} onChange={e => updateHighlight(i, 'tag', e.target.value)} placeholder="New Release" style={{ ...inputStyle, marginBottom: 0 }} />
+                            <input className="vendor-input" value={item.tag || ''} onChange={e => updateHighlight(i, 'tag', e.target.value)} placeholder="New Collection" style={{ ...inputStyle, marginBottom: 0 }} />
                           </div>
                         </div>
                         <div>
@@ -1208,7 +1287,7 @@ function VendorEditInner() {
                         <div className="vendor-grid-2" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12, marginBottom: 12 }}>
                           <div>
                             <label style={{ ...labelStyle, fontSize: 9 }}>Offer Title</label>
-                            <input className="vendor-input" value={promo.title} onChange={e => updatePromotion(i, 'title', e.target.value)} placeholder="e.g. 10% off tastings this month" style={{ ...inputStyle, marginBottom: 0 }} />
+                            <input className="vendor-input" value={promo.title} onChange={e => updatePromotion(i, 'title', e.target.value)} placeholder="e.g. 10% off workshops this month" style={{ ...inputStyle, marginBottom: 0 }} />
                           </div>
                           <div>
                             <label style={{ ...labelStyle, fontSize: 9 }}>Valid Until</label>

@@ -15,8 +15,8 @@ export async function generateMetadata({ params }) {
   if (!venue) return {}
 
   return {
-    title: `Claim ${venue.name} | Small Batch Atlas`,
-    description: `Claim your listing for ${venue.name} and start managing your presence on Small Batch Atlas.`,
+    title: `Claim ${venue.name} | Craft Atlas`,
+    description: `Claim your listing for ${venue.name} and start managing your presence on Craft Atlas.`,
   }
 }
 
@@ -44,7 +44,7 @@ export default async function ClaimVenueServerPage({ params }) {
             {venue.name} has already been claimed by its owner.
           </p>
           <a href={`/venue/${venue.slug}`} style={{
-            display: 'inline-block', padding: '12px 24px', background: 'var(--amber)',
+            display: 'inline-block', padding: '12px 24px', background: 'var(--primary)',
             color: 'white', textDecoration: 'none', borderRadius: 2
           }}>
             View Listing

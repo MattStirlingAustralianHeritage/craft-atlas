@@ -5,8 +5,8 @@ import Link from 'next/link'
 import { getSupabase } from '@/lib/supabase'
 import { TYPE_COLORS } from '@/lib/constants'
 
-const AMBER = '#b8862b'
-const TYPES = ['All', 'Distillery', 'Brewery', 'Winery', 'Cidery', 'Meadery']
+const AMBER = '#C1603A'
+const TYPES = ['All', 'Maker', 'Maker', 'Studio', 'Maker', 'Maker']
 
 const REGIONS = [
   { label: 'All of Australia', center: [134, -27], zoom: 3.8 },
@@ -186,7 +186,7 @@ function TrailBuilderInner() {
     supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) {
         setLoading(false)
-        window.dispatchEvent(new CustomEvent('sba:openauth'))
+        window.dispatchEvent(new CustomEvent('ca:openauth'))
         return
       }
       setUser(user)
@@ -283,7 +283,7 @@ function TrailBuilderInner() {
               </div>
               ${isAdded
                 ? `<button data-venue-id="${props.id}" data-action="remove" style="width:100%;padding:7px 0;background:transparent;border:1px solid #c8943a;color:#c8943a;border-radius:2px;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;">Remove from trail</button>`
-                : `<button data-venue-id="${props.id}" data-action="add" style="width:100%;padding:7px 0;background:#b8862b;border:none;color:#fff;border-radius:2px;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;">+ Add to trail</button>`
+                : `<button data-venue-id="${props.id}" data-action="add" style="width:100%;padding:7px 0;background:#C1603A;border:none;color:#fff;border-radius:2px;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;">+ Add to trail</button>`
               }
             </div>`
           ).addTo(map)

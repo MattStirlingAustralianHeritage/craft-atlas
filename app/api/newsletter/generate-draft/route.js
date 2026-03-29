@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import Anthropic from '@anthropic-ai/sdk'
 
 const supabase = createClient(
-  process.env.SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
@@ -13,10 +13,12 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    // Check admin auth
+    // Check admin auth — supports both query param (admin UI) and Vercel cron header
     const { searchParams } = new URL(request.url)
     const password = searchParams.get('key')
-    if (password !== process.env.ADMIN_PASSWORD) {
+    const cronSecret = request.headers.get('authorization')?.replace('Bearer ', '')
+    const isAuthed = password === process.env.ADMIN_PASSWORD || cronSecret === process.env.CRON_SECRET
+    if (!isAuthed) {
       return Response.json({ error: 'Unauthorised' }, { status: 401 })
     }
 
@@ -71,7 +73,7 @@ export async function POST(request) {
       max_tokens: 600,
       messages: [{
         role: 'user',
-        content: `You are the editor of Small Batch Atlas, a curated Australian craft beverage directory and publication. Write a newsletter intro and subject line for this month's issue.
+        content: `You are the editor of Craft Atlas, a curated directory and publication for Australian makers, artists and studios. Write a newsletter intro and subject line for this month's issue.
 
 Voice: Editorial, measured, place-based. Knowledgeable but not precious. No marketing language. No exclamation marks. Think a thoughtful food/travel editor, not a brand.
 
@@ -93,8 +95,8 @@ No preamble, no explanation, no markdown. Just the JSON.`
       generated = JSON.parse(completion.content[0].text)
     } catch {
       generated = {
-        subject: `Small Batch Atlas — ${new Date().toLocaleString('en-AU', { month: 'long', year: 'numeric' })}`,
-        intro: 'This month on Small Batch Atlas, we\'ve been focused on what makes a producer worth seeking out — the specificity of place, the patience of process, and the people behind it.'
+        subject: `Craft Atlas — ${new Date().toLocaleString('en-AU', { month: 'long', year: 'numeric' })}`,
+        intro: 'This month on Craft Atlas, we\'ve been focused on what makes a maker worth seeking out — the specificity of place, the patience of process, and the people behind the work.'
       }
     }
 

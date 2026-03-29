@@ -10,8 +10,8 @@ export async function generateMetadata({ params }) {
   const { data: trail } = await supabase.from('user_trails').select('name, description').eq('short_code', params.shortcode).single()
   if (!trail) return {}
   return {
-    title: `${trail.name} | Small Batch Atlas`,
-    description: trail.description || `A user-curated tasting trail on Small Batch Atlas.`,
+    title: `${trail.name} | Craft Atlas`,
+    description: trail.description || `A user-curated maker trail on Craft Atlas.`,
   }
 }
 
@@ -46,7 +46,7 @@ export default async function SharedTrailPage({ params }) {
       {/* Hero */}
       <section style={{ background: '#1c1a17', padding: '64px 24px 48px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 12, fontFamily: 'var(--font-sans)' }}>
+          <div style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 12, fontFamily: 'var(--font-sans)' }}>
             Community trail
           </div>
           <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(24px, 4vw, 40px)', fontWeight: 400, color: '#fff', lineHeight: 1.15, marginBottom: 16 }}>
@@ -76,7 +76,7 @@ export default async function SharedTrailPage({ params }) {
                   {i < validStops.length - 1 && (
                     <div style={{ position: 'absolute', left: 17, top: 40, width: 1, height: 'calc(100% + 8px)', background: 'var(--border)' }} />
                   )}
-                  <div style={{ flexShrink: 0, width: 36, height: 36, borderRadius: '50%', background: 'var(--amber)', color: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 13, marginTop: 2, fontFamily: 'var(--font-sans)', zIndex: 1 }}>
+                  <div style={{ flexShrink: 0, width: 36, height: 36, borderRadius: '50%', background: 'var(--primary)', color: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 13, marginTop: 2, fontFamily: 'var(--font-sans)', zIndex: 1 }}>
                     {i + 1}
                   </div>
                   <div style={{ flex: 1, background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 3, overflow: 'hidden' }}>
@@ -91,7 +91,7 @@ export default async function SharedTrailPage({ params }) {
                         {venue.type && <span style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-3)', fontFamily: 'var(--font-sans)', whiteSpace: 'nowrap', marginTop: 4 }}>{venue.type}</span>}
                       </div>
                       {stop.note && <p style={{ fontSize: 13, color: 'var(--text-2)', lineHeight: 1.65, fontFamily: 'var(--font-sans)', marginTop: 8, borderTop: '1px solid var(--border)', paddingTop: 10 }}>{stop.note}</p>}
-                      <a href={`/venue/${venue.slug}`} style={{ display: 'inline-block', marginTop: 10, fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--amber)', textDecoration: 'none', fontFamily: 'var(--font-sans)' }}>View listing →</a>
+                      <a href={`/venue/${venue.slug}`} style={{ display: 'inline-block', marginTop: 10, fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--primary)', textDecoration: 'none', fontFamily: 'var(--font-sans)' }}>View listing →</a>
                     </div>
                   </div>
                 </div>
@@ -109,7 +109,7 @@ export default async function SharedTrailPage({ params }) {
       {/* What to know before you go */}
       <section style={{ maxWidth: 1100, margin: '0 auto', padding: '56px 24px 80px' }}>
         <div style={{ borderTop: '1px solid var(--border)', paddingTop: 48 }}>
-          <div style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 12, fontFamily: 'var(--font-sans)' }}>
+          <div style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 12, fontFamily: 'var(--font-sans)' }}>
             Plan your visit
           </div>
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: 400, color: 'var(--text)', marginBottom: 36, lineHeight: 1.2 }}>
@@ -134,7 +134,7 @@ export default async function SharedTrailPage({ params }) {
             <div>
               <div style={{ fontFamily: 'var(--font-serif)', fontSize: 20, color: 'var(--text)', marginBottom: 6 }}>Build your own trail</div>
               <div style={{ fontSize: 13, color: 'var(--text-2)', fontFamily: 'var(--font-sans)', lineHeight: 1.5 }}>
-                Plan a custom route across Australia's craft drink makers.<br />
+                Plan a custom route across Australia's craft makers.<br />
                 Save and share with anyone.
               </div>
             </div>
@@ -142,7 +142,7 @@ export default async function SharedTrailPage({ params }) {
               <Link href="/trails" style={{ display: 'inline-block', padding: '11px 24px', border: '1px solid var(--border)', color: 'var(--text-2)', textDecoration: 'none', fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', borderRadius: 2 }}>
                 All Trails
               </Link>
-              <Link href="/trails/builder" style={{ display: 'inline-block', padding: '11px 24px', background: 'var(--amber)', color: 'var(--bg)', textDecoration: 'none', fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', borderRadius: 2 }}>
+              <Link href="/trails/builder" style={{ display: 'inline-block', padding: '11px 24px', background: 'var(--primary)', color: 'var(--bg)', textDecoration: 'none', fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', borderRadius: 2 }}>
                 Build a trail →
               </Link>
             </div>

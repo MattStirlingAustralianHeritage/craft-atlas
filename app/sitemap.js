@@ -1,7 +1,7 @@
 import { createServerSupabase } from '@/lib/supabase'
 import { REGION_INFO } from '@/lib/constants'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.smallbatchatlas.com.au'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.craftatlas.com.au'
 
 export default async function sitemap() {
   const supabase = await createServerSupabase()

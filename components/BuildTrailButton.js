@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 
-const AMBER = '#b8862b'
+const PRIMARY = '#C1603A'
 
 function TrailAuthModal({ onClose }) {
   return (
@@ -9,15 +9,15 @@ function TrailAuthModal({ onClose }) {
       <div onClick={e => e.stopPropagation()} style={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 6, padding: '40px 36px', maxWidth: 400, width: '100%', textAlign: 'center', boxShadow: '0 8px 40px rgba(0,0,0,0.18)' }}>
         <div style={{ fontSize: 28, marginBottom: 16 }}>🗺️</div>
         <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 22, fontWeight: 400, color: 'var(--text)', marginBottom: 10, lineHeight: 1.3 }}>Create an account to build trails</h2>
-        <p style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--text-2)', lineHeight: 1.6, marginBottom: 28 }}>Plan and save curated routes across Australia's best craft beverage makers. Free to join.</p>
+        <p style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--text-2)', lineHeight: 1.6, marginBottom: 28 }}>Plan and save curated routes across Australia's best Australian makers. Free to join.</p>
         <button
-          onClick={() => { window.dispatchEvent(new CustomEvent('sba:openauth')); onClose() }}
-          style={{ display: 'block', width: '100%', padding: '12px 0', background: AMBER, color: '#fff', border: 'none', borderRadius: 3, fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', cursor: 'pointer', marginBottom: 10 }}
+          onClick={() => { window.dispatchEvent(new CustomEvent('ca:openauth')); onClose() }}
+          style={{ display: 'block', width: '100%', padding: '12px 0', background: PRIMARY, color: '#fff', border: 'none', borderRadius: 3, fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', cursor: 'pointer', marginBottom: 10 }}
         >
           Sign up — it's free
         </button>
         <button
-          onClick={() => { window.dispatchEvent(new CustomEvent('sba:openauth')); onClose() }}
+          onClick={() => { window.dispatchEvent(new CustomEvent('ca:openauth')); onClose() }}
           style={{ display: 'block', width: '100%', padding: '11px 0', background: 'transparent', color: 'var(--text-2)', border: '1px solid var(--border)', borderRadius: 3, fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', cursor: 'pointer' }}
         >
           Sign in

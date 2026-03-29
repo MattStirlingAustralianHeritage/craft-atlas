@@ -19,8 +19,6 @@ export async function POST(request) {
       message,
     } = await request.json()
 
-    console.log('Received data:', { venueId, venueName, tier, contactName, contactEmail })
-
     if (!venueId || !tier || !contactName || !contactEmail) {
       return Response.json({ error: 'Missing required fields' }, { status: 400 })
     }
@@ -38,8 +36,6 @@ export async function POST(request) {
       return Response.json({ error: 'Price ID not configured' }, { status: 500 })
     }
 
-    console.log('Using price ID:', priceId)
-
     // Create a Stripe customer
     const customer = await stripe.customers.create({
       email: contactEmail,
@@ -50,8 +46,6 @@ export async function POST(request) {
         tier: tier,
       },
     })
-
-    console.log('Created customer:', customer.id)
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
 
@@ -82,9 +76,6 @@ export async function POST(request) {
       },
       allow_promotion_codes: true,
     })
-
-    console.log('Created session:', session.id)
-    console.log('Session URL:', session.url)
 
     return Response.json({ url: session.url, sessionId: session.id })
   } catch (error) {

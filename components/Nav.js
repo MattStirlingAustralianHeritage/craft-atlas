@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import NavAuth from './NavAuth'
 
-const AMBER = '#b8862b'
+const PRIMARY = '#C1603A'
 
 export default function Nav() {
   const pathname = usePathname()
@@ -38,7 +38,7 @@ export default function Nav() {
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '0 24px',
-        background: 'rgba(245,240,232,0.97)',
+        background: 'rgba(250,247,242,0.97)',
         backdropFilter: 'blur(12px)',
         borderBottom: '1px solid var(--border)',
         zIndex: 200,
@@ -47,7 +47,7 @@ export default function Nav() {
         {/* Logo */}
         <Link href="/" onClick={() => setMenuOpen(false)} style={{ textDecoration: 'none', display: 'flex', alignItems: 'baseline', gap: 6, flexShrink: 0 }}>
           <span style={{ fontFamily: 'var(--font-sans)', fontSize: 16, fontWeight: 600, color: 'var(--text)', letterSpacing: '0.02em', whiteSpace: 'nowrap' }}>
-            Small Batch
+            Craft
           </span>
           <span style={{ fontFamily: 'var(--font-serif)', fontSize: 18, fontStyle: 'italic', color: 'var(--text)', letterSpacing: '0.01em' }}>
             Atlas
@@ -59,7 +59,7 @@ export default function Nav() {
           {links.map(link => (
             <Link key={link.href} href={link.href} style={{
               fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase',
-              color: pathname === link.href ? 'var(--amber)' : 'var(--text-2)',
+              color: pathname === link.href ? 'var(--primary)' : 'var(--text-2)',
               textDecoration: 'none', fontFamily: 'var(--font-sans)', transition: 'color 0.15s ease',
             }}>
               {link.label.toUpperCase()}
@@ -70,7 +70,7 @@ export default function Nav() {
             color: 'var(--text-3)', textDecoration: 'none', fontFamily: 'var(--font-sans)',
             padding: '6px 14px', border: '1px solid var(--border)', borderRadius: 2,
           }}>
-            For Venues
+            For Makers
           </Link>
           <NavAuth />
         </div>
@@ -109,7 +109,7 @@ export default function Nav() {
         <div className="nav-mobile" style={{
           display: 'flex',
           position: 'fixed', top: 64, left: 0, right: 0, bottom: 0,
-          background: 'rgba(245,240,232,0.99)',
+          background: 'rgba(250,247,242,0.99)',
           flexDirection: 'column',
           zIndex: 199,
           overflowY: 'auto',
@@ -120,7 +120,7 @@ export default function Nav() {
               display: 'block', padding: '16px 28px',
               fontFamily: 'var(--font-sans)', fontSize: 15, fontWeight: 600,
               letterSpacing: '0.08em', textTransform: 'uppercase', textDecoration: 'none',
-              color: pathname === link.href ? AMBER : 'var(--text)',
+              color: pathname === link.href ? PRIMARY : 'var(--text)',
               borderBottom: '1px solid var(--border)',
             }}>
               {link.label}
@@ -132,7 +132,7 @@ export default function Nav() {
             letterSpacing: '0.08em', textTransform: 'uppercase', textDecoration: 'none',
             color: 'var(--text-3)', borderBottom: '1px solid var(--border)',
           }}>
-            For Venues
+            For Makers
           </Link>
         </div>
       )}

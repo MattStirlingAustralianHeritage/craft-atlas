@@ -2,8 +2,8 @@ import Link from 'next/link'
 import { createClient } from '@supabase/supabase-js'
 
 export const metadata = {
-  title: 'Journal — Small Batch Atlas',
-  description: 'Stories, guides and tasting trails from Australia\'s craft drinks regions.',
+  title: 'Journal — Craft Atlas',
+  description: 'Stories, guides and maker trails from Australia\'s craft regions.',
 }
 
 export const revalidate = 60
@@ -35,14 +35,14 @@ export default async function JournalPage() {
       {/* Header */}
       <section style={{ padding: '90px 24px 80px', textAlign: 'center', borderBottom: '1px solid var(--border)', background: 'var(--bg-2)' }}>
         <div style={{ maxWidth: 600, margin: '0 auto' }}>
-          <div style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 16, fontFamily: 'var(--font-sans)' }}>
+          <div style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 16, fontFamily: 'var(--font-sans)' }}>
             Journal
           </div>
           <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 400, color: 'var(--text)', lineHeight: 1.2, marginBottom: 24 }}>
-            Stories from the cellar door
+            Stories from the studio
           </h1>
           <p style={{ fontSize: 16, color: 'var(--text-2)', lineHeight: 1.7, marginBottom: 0, fontFamily: 'var(--font-sans)' }}>
-            Region guides, tasting trails, and stories from Australia&apos;s craft drinks producers.
+            Region guides, maker trails, and stories from Australia&apos;s makers and studios.
           </p>
         </div>
       </section>
@@ -86,7 +86,7 @@ export default async function JournalPage() {
                     {/* Category + partner badge */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, flexWrap: 'wrap' }}>
                       {article.category && (
-                        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--amber)', fontFamily: 'var(--font-sans)' }}>
+                        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--primary)', fontFamily: 'var(--font-sans)' }}>
                           {article.category}
                         </span>
                       )}

@@ -6,11 +6,11 @@ import PageTracker from '@/components/PageTracker'
 
 export const metadata = {
   title: {
-    default: "Small Batch Atlas — Australia's Craft Drinks Directory",
-    template: '%s | Small Batch Atlas',
+    default: "Craft Atlas — Australian Makers & Studios",
+    template: '%s | Craft Atlas',
   },
-  description: "Discover Australia's distilleries, breweries and wineries. From the Barossa to the Tamar, every cellar door, taproom and tasting room.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.smallbatchatlas.com.au'),
+  description: "Discover Australian makers, artists and studios. Ceramics, visual art, jewellery, textiles, woodwork, glass and printmaking — curated, independent, beautifully mapped.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.craftatlas.com.au'),
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: '32x32' },

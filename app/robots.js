@@ -1,4 +1,4 @@
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.smallbatchatlas.com.au'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.craftatlas.com.au'
 
 export default function robots() {
   return {

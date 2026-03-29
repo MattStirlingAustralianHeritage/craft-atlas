@@ -39,7 +39,7 @@ export default function RegionMap({ venues }) {
           id: 'region-venue-dots', type: 'circle', source: 'region-venues',
           paint: {
             'circle-radius': 7,
-            'circle-color': ['match', ['get', 'type'], 'distillery', '#c8943a', 'brewery', '#4a7c59', 'winery', '#8b4a6b', 'cidery', '#c45d3e', 'meadery', '#d4a843', '#c8943a'],
+            'circle-color': ['match', ['get', 'type'], 'ceramics_clay', '#C1603A', 'visual_art', '#7A8C7E', 'jewellery_metalwork', '#C49A3C', 'textile_fibre', '#8B6B8A', 'wood_furniture', '#8A7055', 'glass', '#5A8A9A', 'printmaking', '#6B7A5A', '#C1603A'],
             'circle-stroke-width': 2, 'circle-stroke-color': '#ffffff',
           },
         })

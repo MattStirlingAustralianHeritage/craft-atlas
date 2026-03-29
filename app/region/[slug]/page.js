@@ -12,8 +12,8 @@ export async function generateMetadata({ params }) {
   const region = REGION_INFO[slug]
   const regionName = region ? region.name : slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
   return {
-    title: `${regionName} — Distilleries, Breweries & Wineries`,
-    description: region ? region.description : `Explore distilleries, breweries and wineries in ${regionName}, Australia.`,
+    title: `${regionName} — Makers & Studios`,
+    description: region ? region.description : `Explore makers and studios in ${regionName}, Australia.`,
   }
 }
 
@@ -29,8 +29,8 @@ export default async function RegionPage({ params }) {
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(venueListJsonLd(venues || [], {
-        name: `${regionName} — Craft Drinks Venues`,
-        description: `${(venues || []).length} distilleries, breweries and wineries in ${regionName}`,
+        name: `${regionName} — Australian Makers Venues`,
+        description: `${(venues || []).length} makers and studios in ${regionName}`,
         path: `/region/${slug}`,
       })) }} />
       <style>{`
@@ -74,7 +74,7 @@ export default async function RegionPage({ params }) {
         <div style={{ maxWidth: 480, margin: '0 auto' }}>
           <div style={{ fontFamily: 'var(--font-serif)', fontSize: 22, color: 'var(--text)', marginBottom: 12 }}>Explore {regionName} on the map</div>
           <p style={{ fontSize: 14, color: 'var(--text-2)', lineHeight: 1.6, fontFamily: 'var(--font-sans)', marginBottom: 24 }}>See all {(venues || []).length} venues plotted on an interactive map.</p>
-          <Link href={`/map?region=${encodeURIComponent(regionName)}`} style={{ display: 'inline-block', padding: '12px 28px', background: 'var(--amber)', color: 'var(--bg)', borderRadius: 2, fontSize: 12, fontWeight: 600, textDecoration: 'none', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)' }}>Open in Map View</Link>
+          <Link href={`/map?region=${encodeURIComponent(regionName)}`} style={{ display: 'inline-block', padding: '12px 28px', background: 'var(--primary)', color: 'var(--bg)', borderRadius: 2, fontSize: 12, fontWeight: 600, textDecoration: 'none', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)' }}>Open in Map View</Link>
         </div>
       </section>
     </div>

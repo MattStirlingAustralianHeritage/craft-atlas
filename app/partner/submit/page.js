@@ -47,11 +47,11 @@ function PreviewPane({ title, excerpt, bodyMd, region, vertical, heroImageUrl, o
       ) : (
         <article>
           <div style={{ marginBottom: '16px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            {vertical && <span style={{ fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#b8862b', fontWeight: '600' }}>{vertical}</span>}
+            {vertical && <span style={{ fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#C1603A', fontWeight: '600' }}>{vertical}</span>}
             {region && <span style={{ fontSize: '11px', letterSpacing: '0.06em', color: 'var(--text-3)' }}>{region}</span>}
           </div>
           {title && <h1 style={{ fontSize: '22px', fontWeight: '300', lineHeight: '1.3', color: 'var(--text)', margin: '0 0 16px 0', letterSpacing: '-0.01em' }}>{title}</h1>}
-          {excerpt && <p style={{ fontSize: '15px', lineHeight: '1.6', color: 'var(--text-2)', margin: '0 0 24px 0', borderLeft: '2px solid #b8862b', paddingLeft: '16px', fontStyle: 'italic' }}>{excerpt}</p>}
+          {excerpt && <p style={{ fontSize: '15px', lineHeight: '1.6', color: 'var(--text-2)', margin: '0 0 24px 0', borderLeft: '2px solid #C1603A', paddingLeft: '16px', fontStyle: 'italic' }}>{excerpt}</p>}
           {heroImageUrl && (
             <div style={{ marginBottom: '24px', aspectRatio: '16/9', background: '#1a1a18', borderRadius: '2px', overflow: 'hidden' }}>
               <img src={heroImageUrl} alt="Hero" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { e.target.style.display = 'none' }} />
@@ -60,7 +60,7 @@ function PreviewPane({ title, excerpt, bodyMd, region, vertical, heroImageUrl, o
           {bodyHtml && <div className="preview-body" style={{ fontSize: '14px', lineHeight: '1.75', color: 'var(--text-2)' }} dangerouslySetInnerHTML={{ __html: bodyHtml }} />}
           <div style={{ marginTop: '40px', paddingTop: '20px', borderTop: '1px solid #1e1e1c' }}>
             <p style={{ fontSize: '11px', color: 'var(--text-3)', letterSpacing: '0.04em', lineHeight: '1.6', margin: 0 }}>
-              <span style={{ color: '#b8862b', fontWeight: '600' }}>Partner content.</span>{' '}
+              <span style={{ color: '#C1603A', fontWeight: '600' }}>Partner content.</span>{' '}
               Produced in partnership with {orgName || '[Organisation]'}. Editorial standards apply.
             </p>
           </div>
@@ -70,9 +70,9 @@ function PreviewPane({ title, excerpt, bodyMd, region, vertical, heroImageUrl, o
             .preview-body p { margin:0 0 16px; }
             .preview-body ul, .preview-body ol { padding-left:20px; margin-bottom:16px; }
             .preview-body li { margin-bottom:6px; }
-            .preview-body blockquote { border-left:2px solid #b8862b; padding-left:16px; margin:24px 0; font-style:italic; color:#aaa; }
+            .preview-body blockquote { border-left:2px solid #C1603A; padding-left:16px; margin:24px 0; font-style:italic; color:#aaa; }
             .preview-body strong { color:#e8e4dc; font-weight:600; }
-            .preview-body a { color:#b8862b; }
+            .preview-body a { color:#C1603A; }
             .preview-body hr { border:none; border-top:1px solid #1e1e1c; margin:28px 0; }
             .preview-body figure img { max-width:100%; border-radius:2px; }
           `}</style>
@@ -215,7 +215,7 @@ function PartnerSubmit() {
           {saved && !saving && <span style={{ fontSize: '11px', color: '#5a9e6f' }}>✓ Saved</span>}
           {saving && <span style={{ fontSize: '11px', color: 'var(--text-3)' }}>Saving…</span>}
           {error && <span style={{ fontSize: '11px', color: '#c05353' }}>{error}</span>}
-          <button onClick={handleSubmit} disabled={submitting} style={{ background: submitting ? '#555' : '#b8862b', color: '#111110', border: 'none', padding: '9px 20px', fontSize: '11px', fontWeight: '700', letterSpacing: '0.1em', textTransform: 'uppercase', cursor: submitting ? 'not-allowed' : 'pointer', borderRadius: '2px' }}>
+          <button onClick={handleSubmit} disabled={submitting} style={{ background: submitting ? '#555' : '#C1603A', color: '#111110', border: 'none', padding: '9px 20px', fontSize: '11px', fontWeight: '700', letterSpacing: '0.1em', textTransform: 'uppercase', cursor: submitting ? 'not-allowed' : 'pointer', borderRadius: '2px' }}>
             {submitting ? 'Submitting…' : 'Submit for Review'}
           </button>
         </div>
@@ -227,7 +227,7 @@ function PartnerSubmit() {
         {/* LEFT: Editor */}
         <div style={{ borderRight: '1px solid #1a1a18', overflowY: 'auto', padding: '40px 40px 80px 40px' }}>
           <div style={{ marginBottom: '32px' }}>
-            <p style={{ fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#b8862b', fontWeight: '600', margin: '0 0 6px 0' }}>{partner?.org_name}</p>
+            <p style={{ fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#C1603A', fontWeight: '600', margin: '0 0 6px 0' }}>{partner?.org_name}</p>
             <p style={{ fontSize: '12px', color: 'var(--text-3)', margin: 0 }}>Partner editorial submission</p>
           </div>
           <div style={{ marginBottom: '24px' }}>

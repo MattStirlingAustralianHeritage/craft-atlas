@@ -49,7 +49,7 @@ export async function generateMetadata({ params }) {
   const article = await getArticle(params.slug)
   if (!article) return { title: 'Not Found' }
   return {
-    title: article.meta_title || `${article.title} — Small Batch Atlas`,
+    title: article.meta_title || `${article.title} — Craft Atlas`,
     description: article.meta_description || article.deck,
   }
 }
@@ -86,7 +86,7 @@ export default async function ArticlePage({ params }) {
         {/* Category + partner badge */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
           {article.category && (
-            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--amber)', fontFamily: 'var(--font-sans)' }}>
+            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--primary)', fontFamily: 'var(--font-sans)' }}>
               {article.category}
             </span>
           )}
@@ -104,7 +104,7 @@ export default async function ArticlePage({ params }) {
 
         {/* Deck */}
         {article.deck && (
-          <p style={{ fontSize: 18, lineHeight: 1.6, color: 'var(--text-2)', margin: '0 0 28px 0', fontFamily: 'var(--font-sans)', borderLeft: '3px solid var(--amber)', paddingLeft: 18, fontStyle: 'italic' }}>
+          <p style={{ fontSize: 18, lineHeight: 1.6, color: 'var(--text-2)', margin: '0 0 28px 0', fontFamily: 'var(--font-sans)', borderLeft: '3px solid var(--primary)', paddingLeft: 18, fontStyle: 'italic' }}>
             {article.deck}
           </p>
         )}
@@ -137,10 +137,10 @@ export default async function ArticlePage({ params }) {
         {article.is_partner_content && (
           <div style={{ marginTop: 48, padding: '20px 24px', background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 3 }}>
             <p style={{ fontSize: 12, lineHeight: 1.65, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', margin: 0 }}>
-              <span style={{ color: 'var(--amber)', fontWeight: 700 }}>Partner content.</span>{' '}
+              <span style={{ color: 'var(--primary)', fontWeight: 700 }}>Partner content.</span>{' '}
               Produced in partnership with{' '}
               {article.partners?.slug ? (
-                <Link href={`/partners/${article.partners.slug}`} style={{ color: 'var(--amber)', textDecoration: 'none' }}>
+                <Link href={`/partners/${article.partners.slug}`} style={{ color: 'var(--primary)', textDecoration: 'none' }}>
                   {article.partners.org_name}
                 </Link>
               ) : (
@@ -167,10 +167,10 @@ export default async function ArticlePage({ params }) {
         .journal-body p { margin: 0 0 1em; }
         .journal-body strong, .journal-body b { font-weight: 700; color: var(--text); }
         .journal-body em, .journal-body i { font-style: italic; }
-        .journal-body a { color: var(--amber); text-decoration: underline; text-underline-offset: 2px; }
+        .journal-body a { color: var(--primary); text-decoration: underline; text-underline-offset: 2px; }
         .journal-body ul, .journal-body ol { padding-left: 1.5em; margin: 0.5em 0 1em; }
         .journal-body li { margin-bottom: 0.4em; }
-        .journal-body blockquote { border-left: 3px solid var(--amber); margin: 1.5em 0; padding: 4px 0 4px 20px; color: var(--text-2); font-style: italic; font-size: 1.05em; }
+        .journal-body blockquote { border-left: 3px solid var(--primary); margin: 1.5em 0; padding: 4px 0 4px 20px; color: var(--text-2); font-style: italic; font-size: 1.05em; }
         .journal-body blockquote p { margin: 0; }
         .journal-body hr { border: none; border-top: 1px solid var(--border); margin: 2.5em 0; }
         .journal-body code { font-family: 'Menlo', 'Monaco', monospace; font-size: 0.83em; background: var(--bg-2); border: 1px solid var(--border); padding: 2px 5px; border-radius: 3px; }

@@ -23,12 +23,12 @@ export default function RegionFilters({ venues, regionName }) {
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
           <button onClick={() => setTypeFilter('All')} style={{
             padding: '7px 14px', borderRadius: 2, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 500, letterSpacing: '0.04em', fontFamily: 'var(--font-sans)',
-            background: typeFilter === 'All' ? '#b8862b' : 'rgba(139,117,87,0.1)', color: typeFilter === 'All' ? '#fff' : '#5a4a3a', transition: 'all 0.15s',
+            background: typeFilter === 'All' ? '#C1603A' : 'rgba(139,117,87,0.1)', color: typeFilter === 'All' ? '#fff' : '#5a4a3a', transition: 'all 0.15s',
           }}>All ({venues.length})</button>
           {types.map(t => (
             <button key={t} onClick={() => setTypeFilter(t)} style={{
               padding: '7px 14px', borderRadius: 2, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 500, letterSpacing: '0.04em', fontFamily: 'var(--font-sans)',
-              background: typeFilter === t ? (TYPE_COLORS[t] || '#b8862b') : 'rgba(139,117,87,0.1)', color: typeFilter === t ? '#fff' : '#5a4a3a', transition: 'all 0.15s',
+              background: typeFilter === t ? (TYPE_COLORS[t] || '#C1603A') : 'rgba(139,117,87,0.1)', color: typeFilter === t ? '#fff' : '#5a4a3a', transition: 'all 0.15s',
             }}>{TYPE_LABELS[t] || t} ({typeCounts[t]})</button>
           ))}
         </div>
@@ -56,7 +56,7 @@ export default function RegionFilters({ venues, regionName }) {
               <div style={{ fontFamily: 'var(--font-serif)', fontSize: 18, color: 'var(--text)', marginBottom: 6, lineHeight: 1.3 }}>{v.name}</div>
               {v.google_rating && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-                  <span style={{ color: '#b8862b', fontSize: 13 }}>★ {v.google_rating.toFixed(1)}</span>
+                  <span style={{ color: '#C1603A', fontSize: 13 }}>★ {v.google_rating.toFixed(1)}</span>
                   {v.google_rating_count && <span style={{ fontSize: 11, color: 'var(--text-3)' }}>({v.google_rating_count.toLocaleString()})</span>}
                 </div>
               )}
@@ -78,7 +78,7 @@ export default function RegionFilters({ venues, regionName }) {
       </div>
 
       {sorted.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '48px 0', color: 'var(--text-3)', fontSize: 14 }}>No venues found in this region.</div>
+        <div style={{ textAlign: 'center', padding: '48px 0', color: 'var(--text-3)', fontSize: 14 }}>No makers found in this region.</div>
       )}
     </section>
   )

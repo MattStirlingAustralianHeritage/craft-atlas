@@ -85,7 +85,7 @@ export default function VendorLoginPage() {
     )
   }
 
-  const title = mode === 'signup' ? 'Create account' : mode === 'reset' ? 'Reset password' : 'Vendor sign in'
+  const title = mode === 'signup' ? 'Create account' : mode === 'reset' ? 'Reset password' : 'Maker sign in'
   const submitLabel = mode === 'signup' ? 'Create account' : mode === 'reset' ? 'Send reset link' : 'Sign in'
 
   if (resetSent) {
@@ -101,7 +101,7 @@ export default function VendorLoginPage() {
             : `We've sent a password reset link to ${email}.`}
         </p>
         <button onClick={() => { setMode('login'); setResetSent(false) }} style={{
-          fontSize: 13, color: 'var(--amber)', background: 'none', border: 'none',
+          fontSize: 13, color: 'var(--primary)', background: 'none', border: 'none',
           cursor: 'pointer', fontFamily: 'var(--font-sans)', textDecoration: 'underline',
         }}>
           Back to sign in
@@ -114,14 +114,14 @@ export default function VendorLoginPage() {
     <div style={{ padding: '80px 24px', maxWidth: 420, margin: '0 auto' }}>
       {/* Header */}
       <div style={{ marginBottom: 40 }}>
-        <div style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 12, fontFamily: 'var(--font-sans)', fontWeight: 600 }}>
-          For Venues
+        <div style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 12, fontFamily: 'var(--font-sans)', fontWeight: 600 }}>
+          For Makers
         </div>
         <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(28px, 5vw, 38px)', fontWeight: 400, color: 'var(--text)', lineHeight: 1.2, marginBottom: 10 }}>
           {title}
         </h1>
         <p style={{ fontSize: 14, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', lineHeight: 1.6 }}>
-          {mode === 'login' && 'Sign in to manage your venue listing.'}
+          {mode === 'login' && 'Sign in to manage your studio listing.'}
           {mode === 'signup' && 'Create an account to claim and manage your venue.'}
           {mode === 'reset' && 'Enter your email and we\'ll send you a reset link.'}
         </p>
@@ -214,7 +214,7 @@ export default function VendorLoginPage() {
           disabled={loading}
           style={{
             width: '100%', padding: '13px 20px',
-            background: 'var(--amber)', color: 'var(--bg)',
+            background: 'var(--primary)', color: 'var(--bg)',
             border: 'none', borderRadius: 2,
             fontSize: 12, fontWeight: 600, cursor: loading ? 'wait' : 'pointer',
             letterSpacing: '0.06em', textTransform: 'uppercase',
@@ -231,14 +231,14 @@ export default function VendorLoginPage() {
       <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>
         {mode === 'login' && (
           <>Don't have an account?{' '}
-            <button onClick={() => { setMode('signup'); setError(null) }} style={{ color: 'var(--amber)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 600 }}>
+            <button onClick={() => { setMode('signup'); setError(null) }} style={{ color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 600 }}>
               Sign up
             </button>
           </>
         )}
         {(mode === 'signup' || mode === 'reset') && (
           <>Already have an account?{' '}
-            <button onClick={() => { setMode('login'); setError(null) }} style={{ color: 'var(--amber)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 600 }}>
+            <button onClick={() => { setMode('login'); setError(null) }} style={{ color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 600 }}>
               Sign in
             </button>
           </>

@@ -124,7 +124,7 @@ export default function AuthModal({ isOpen, onClose, redirectTo }) {
             </p>
             <p style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 12, fontFamily: 'var(--font-sans)' }}>
               Already confirmed?{' '}
-              <button onClick={() => { reset(); setMode('signin') }} style={{ background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', color: 'var(--amber)', fontSize: 12, fontFamily: 'var(--font-sans)' }}>
+              <button onClick={() => { reset(); setMode('signin') }} style={{ background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', color: 'var(--primary)', fontSize: 12, fontFamily: 'var(--font-sans)' }}>
                 Sign in
               </button>
             </p>
@@ -140,7 +140,7 @@ export default function AuthModal({ isOpen, onClose, redirectTo }) {
             <p style={{ fontSize: 13, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', lineHeight: 1.6 }}>
               We sent a password reset link to <strong style={{ color: 'var(--text)' }}>{email}</strong>.
             </p>
-            <button onClick={reset} style={{ marginTop: 16, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', color: 'var(--amber)', fontSize: 13, fontFamily: 'var(--font-sans)' }}>
+            <button onClick={reset} style={{ marginTop: 16, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', color: 'var(--primary)', fontSize: 13, fontFamily: 'var(--font-sans)' }}>
               ← Back
             </button>
           </div>
@@ -153,7 +153,7 @@ export default function AuthModal({ isOpen, onClose, redirectTo }) {
               {['signin', 'signup'].map(m => (
                 <button key={m} onClick={() => { setMode(m); setError('') }} style={{
                   flex: 1, padding: '10px 0', background: 'none', border: 'none',
-                  borderBottom: mode === m ? '2px solid var(--amber)' : '2px solid transparent',
+                  borderBottom: mode === m ? '2px solid var(--primary)' : '2px solid transparent',
                   marginBottom: -1, fontSize: 13, fontWeight: mode === m ? 600 : 400,
                   color: mode === m ? 'var(--text)' : 'var(--text-3)',
                   cursor: 'pointer', fontFamily: 'var(--font-sans)',
@@ -165,7 +165,7 @@ export default function AuthModal({ isOpen, onClose, redirectTo }) {
             </div>
 
             <p style={{ fontSize: 13, color: 'var(--text-3)', marginBottom: 20, fontFamily: 'var(--font-sans)' }}>
-              {mode === 'signin' ? 'Save venues and track your favourites.' : 'Join to save venues, build trails, and more.'}
+              {mode === 'signin' ? 'Save makers and track your favourites.' : 'Join to save makers, build trails, and more.'}
             </p>
 
             {/* Google */}
@@ -208,7 +208,7 @@ export default function AuthModal({ isOpen, onClose, redirectTo }) {
               {error && <p style={{ fontSize: 13, color: '#c04b4b', marginBottom: 12, fontFamily: 'var(--font-sans)' }}>{error}</p>}
 
               <button type="submit" disabled={loading} style={{
-                width: '100%', padding: '11px 24px', background: 'var(--amber)', color: '#fff',
+                width: '100%', padding: '11px 24px', background: 'var(--primary)', color: '#fff',
                 border: 'none', borderRadius: 2, fontSize: 12, fontWeight: 600,
                 letterSpacing: '0.06em', textTransform: 'uppercase', cursor: 'pointer',
                 fontFamily: 'var(--font-sans)', opacity: loading ? 0.6 : 1,

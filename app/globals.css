@@ -1,15 +1,17 @@
 @import url('https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css');
 
 :root {
-  --bg: #f5f0e8;
-  --bg-2: #ece7dd;
-  --bg-3: #e3ddd3;
-  --text: #2a1f14;
-  --text-2: #5a4a3a;
-  --text-3: #8b7557;
-  --amber: #b8862b;
-  --border: #d4c9b8;
-  --border-2: #c9bfaf;
+  --primary: #C1603A;
+  --secondary: #C49A3C;
+  --bg: #FAF7F2;
+  --bg-2: #F2EDE5;
+  --bg-3: #EAE4DA;
+  --text: #1E1A17;
+  --text-2: #5A4A3A;
+  --text-3: #C1603A;
+  --accent: #7A8C7E;
+  --border: #DDD7CC;
+  --border-2: #D0C9BD;
   --font-serif: Georgia, 'Times New Roman', serif;
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-display: Georgia, 'Times New Roman', serif;
@@ -31,7 +33,7 @@ body {
 a { color: inherit; }
 
 ::selection {
-  background: rgba(184, 134, 43, 0.2);
+  background: rgba(193, 96, 58, 0.2);
 }
 
 /* Mapbox overrides */
@@ -154,7 +156,7 @@ a { color: inherit; }
   font-size: 9px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--amber);
+  color: var(--primary);
   margin-bottom: 5px;
   font-family: var(--font-sans);
 }
@@ -203,7 +205,7 @@ a { color: inherit; }
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--amber);
+  color: var(--primary);
   opacity: 0;
   transform: translateX(-5px);
   transition: opacity 0.3s ease, transform 0.3s ease, border-color 0.3s;
@@ -211,7 +213,7 @@ a { color: inherit; }
 .region-card:hover .region-card-arrow {
   opacity: 1;
   transform: translateX(0);
-  border-color: var(--amber);
+  border-color: var(--primary);
 }
 
 /* Carousel nav buttons */
@@ -233,8 +235,8 @@ a { color: inherit; }
   transition: background 0.25s, border-color 0.25s, color 0.25s;
 }
 .carousel-btn:hover {
-  background: var(--amber);
-  border-color: var(--amber);
+  background: var(--primary);
+  border-color: var(--primary);
   color: var(--bg);
 }
 

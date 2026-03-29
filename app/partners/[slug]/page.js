@@ -58,7 +58,7 @@ export default function PartnerPage() {
   if (notFound) return (
     <div style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
       <p style={{ fontSize: 15, color: 'var(--text-2)', fontFamily: 'var(--font-sans)' }}>Partner not found.</p>
-      <Link href="/partners" style={{ fontSize: 13, color: 'var(--amber)', fontFamily: 'var(--font-sans)', textDecoration: 'none' }}>← Back to Partners</Link>
+      <Link href="/partners" style={{ fontSize: 13, color: 'var(--primary)', fontFamily: 'var(--font-sans)', textDecoration: 'none' }}>← Back to Partners</Link>
     </div>
   )
 
@@ -79,7 +79,7 @@ export default function PartnerPage() {
             </div>
           )}
           <div>
-            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--amber)', fontFamily: 'var(--font-sans)', margin: '0 0 6px 0' }}>
+            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--primary)', fontFamily: 'var(--font-sans)', margin: '0 0 6px 0' }}>
               {TIER_LABEL[partner.tier] || 'Partner'}
             </p>
             <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 400, color: 'var(--text)', margin: 0, letterSpacing: '-0.01em', lineHeight: 1.2 }}>
@@ -95,7 +95,7 @@ export default function PartnerPage() {
         )}
 
         {partner.website && (
-          <a href={partner.website} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: 'var(--amber)', fontFamily: 'var(--font-sans)', textDecoration: 'none', letterSpacing: '0.04em' }}>
+          <a href={partner.website} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: 'var(--primary)', fontFamily: 'var(--font-sans)', textDecoration: 'none', letterSpacing: '0.04em' }}>
             {partner.website.replace(/^https?:\/\//, '')} ↗
           </a>
         )}
@@ -104,7 +104,7 @@ export default function PartnerPage() {
       {/* Disclosure statement */}
       <div style={{ padding: '16px 20px', background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 3, marginBottom: 56 }}>
         <p style={{ fontSize: 12, lineHeight: 1.65, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', margin: 0 }}>
-          <span style={{ color: 'var(--amber)', fontWeight: 700 }}>Partner content.</span>{' '}
+          <span style={{ color: 'var(--primary)', fontWeight: 700 }}>Partner content.</span>{' '}
           The articles below were produced in partnership with {partner.org_name}. All content
           is clearly labelled and held to the same editorial standards as our own work.
         </p>
@@ -129,7 +129,7 @@ export default function PartnerPage() {
                   {/* Meta */}
                   <div style={{ display: 'flex', gap: 12, marginBottom: 10, flexWrap: 'wrap' }}>
                     {sub.vertical && (
-                      <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--amber)', fontFamily: 'var(--font-sans)' }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--primary)', fontFamily: 'var(--font-sans)' }}>
                         {sub.vertical}
                       </span>
                     )}
@@ -149,7 +149,7 @@ export default function PartnerPage() {
                   <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 20, fontWeight: 400, color: 'var(--text)', margin: '0 0 10px 0', lineHeight: 1.3, letterSpacing: '-0.01em' }}>
                     {sub.slug ? (
                       <Link href={`/journal/${sub.slug}`} style={{ color: 'inherit', textDecoration: 'none' }}
-                        onMouseEnter={e => e.currentTarget.style.color = 'var(--amber)'}
+                        onMouseEnter={e => e.currentTarget.style.color = 'var(--primary)'}
                         onMouseLeave={e => e.currentTarget.style.color = 'inherit'}>
                         {sub.title}
                       </Link>
@@ -175,7 +175,7 @@ export default function PartnerPage() {
                   )}
 
                   {sub.slug && (
-                    <Link href={`/journal/${sub.slug}`} style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', color: 'var(--amber)', textDecoration: 'none', fontFamily: 'var(--font-sans)' }}>
+                    <Link href={`/journal/${sub.slug}`} style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', color: 'var(--primary)', textDecoration: 'none', fontFamily: 'var(--font-sans)' }}>
                       Read in Journal →
                     </Link>
                   )}

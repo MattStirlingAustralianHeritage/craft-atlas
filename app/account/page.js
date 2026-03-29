@@ -79,7 +79,7 @@ function AccountPageInner() {
           Sign in to save venues and build trails.
         </p>
         <Link href="/" style={{
-          display: 'inline-block', background: 'var(--amber)', color: '#fff',
+          display: 'inline-block', background: 'var(--primary)', color: '#fff',
           padding: '12px 28px', borderRadius: 2, fontSize: 12, fontWeight: 600,
           letterSpacing: '0.06em', textTransform: 'uppercase', textDecoration: 'none',
           fontFamily: 'var(--font-sans)',
@@ -99,10 +99,10 @@ function AccountPageInner() {
     textTransform: 'uppercase',
     fontFamily: 'var(--font-sans)',
     color: activeTab === tab ? 'var(--text)' : 'var(--text-3)',
-    borderBottom: activeTab === tab ? '2px solid var(--amber)' : '2px solid transparent',
+    borderBottom: activeTab === tab ? '2px solid var(--primary)' : '2px solid transparent',
     background: 'none',
     border: 'none',
-    borderBottom: activeTab === tab ? '2px solid var(--amber)' : '2px solid transparent',
+    borderBottom: activeTab === tab ? '2px solid var(--primary)' : '2px solid transparent',
     cursor: 'pointer',
   })
 
@@ -137,7 +137,7 @@ function AccountPageInner() {
               <p style={{ fontSize: 14, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', marginBottom: 20 }}>
                 Hit the Save button on any venue to save it here.
               </p>
-              <Link href="/explore" style={{ fontSize: 13, color: 'var(--amber)', textDecoration: 'none', fontWeight: 600, fontFamily: 'var(--font-sans)' }}>
+              <Link href="/explore" style={{ fontSize: 13, color: 'var(--primary)', textDecoration: 'none', fontWeight: 600, fontFamily: 'var(--font-sans)' }}>
                 Browse venues →
               </Link>
             </div>
@@ -172,7 +172,7 @@ function AccountPageInner() {
       {activeTab === 'trails' && (
         <>
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 }}>
-            <Link href="/trails/builder" style={{ display: 'inline-block', padding: '9px 18px', background: 'var(--amber)', color: 'var(--bg)', textDecoration: 'none', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', borderRadius: 2 }}>
+            <Link href="/trails/builder" style={{ display: 'inline-block', padding: '9px 18px', background: 'var(--primary)', color: 'var(--bg)', textDecoration: 'none', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', borderRadius: 2 }}>
               + New trail
             </Link>
           </div>
@@ -183,7 +183,7 @@ function AccountPageInner() {
               <p style={{ fontSize: 14, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', marginBottom: 20 }}>
                 You haven't built any trails yet.
               </p>
-              <Link href="/trails/builder" style={{ fontSize: 13, color: 'var(--amber)', textDecoration: 'none', fontWeight: 600, fontFamily: 'var(--font-sans)' }}>
+              <Link href="/trails/builder" style={{ fontSize: 13, color: 'var(--primary)', textDecoration: 'none', fontWeight: 600, fontFamily: 'var(--font-sans)' }}>
                 Build your first trail →
               </Link>
             </div>
@@ -212,7 +212,7 @@ function AccountPageInner() {
                           </Link>
                           {trail.visibility !== 'private' && trail.short_code && (
                             <>
-                              <a href={`/t/${trail.short_code}`} style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--amber)', textDecoration: 'none', fontFamily: 'var(--font-sans)' }}>
+                              <a href={`/t/${trail.short_code}`} style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--primary)', textDecoration: 'none', fontFamily: 'var(--font-sans)' }}>
                                 View →
                               </a>
                               <button

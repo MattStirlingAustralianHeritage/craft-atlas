@@ -2,12 +2,12 @@ import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 
 const supabase = createClient(
-  process.env.SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.smallbatchatlas.com.au'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.craftatlas.com.au'
 
 function buildEmailHtml(issue, articles, unsubscribeToken) {
   const articleBlocks = articles.map(a => {
@@ -20,7 +20,7 @@ function buildEmailHtml(issue, articles, unsubscribeToken) {
         </h2>
         ${a.deck ? `<p style="font-size: 15px; color: #555; margin: 0 0 12px; line-height: 1.5;">${a.deck}</p>` : ''}
         ${a.excerpt ? `<p style="font-size: 15px; line-height: 1.6; color: #333; margin: 0 0 14px;">${a.excerpt.slice(0, 200)}${a.excerpt.length > 200 ? '…' : ''}</p>` : ''}
-        <a href="${url}" style="font-size: 13px; color: #b8862b; text-decoration: none; letter-spacing: 0.02em;">Read more →</a>
+        <a href="${url}" style="font-size: 13px; color: #C1603A; text-decoration: none; letter-spacing: 0.02em;">Read more →</a>
       </div>
     `
   }).join('')
@@ -35,7 +35,7 @@ function buildEmailHtml(issue, articles, unsubscribeToken) {
         <!-- Header -->
         <div style="padding: 32px 40px 24px; border-bottom: 2px solid #1a1a1a;">
           <a href="${SITE_URL}" style="text-decoration: none; color: #1a1a1a;">
-            <p style="font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; margin: 0 0 4px; color: #666;">Small Batch Atlas</p>
+            <p style="font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; margin: 0 0 4px; color: #666;">Craft Atlas</p>
             <h1 style="font-size: 13px; font-weight: normal; margin: 0; letter-spacing: 0.05em; color: #1a1a1a;">The Monthly Edit</h1>
           </a>
         </div>
@@ -53,7 +53,7 @@ function buildEmailHtml(issue, articles, unsubscribeToken) {
         <!-- Footer -->
         <div style="padding: 24px 40px; border-top: 1px solid #e5e0d8; background: #f0ece4;">
           <p style="font-size: 12px; color: #888; margin: 0 0 8px; line-height: 1.5;">
-            You're receiving this because you subscribed at smallbatchatlas.com.au
+            You're receiving this because you subscribed at craftatlas.com.au
           </p>
           <p style="font-size: 12px; margin: 0;">
             <a href="${SITE_URL}/api/newsletter/unsubscribe?token=${unsubscribeToken}" style="color: #888; text-decoration: underline;">Unsubscribe</a>
@@ -116,7 +116,7 @@ export async function POST(request) {
       try {
         const html = buildEmailHtml(issue, articles, subscriber.unsubscribe_token)
         await resend.emails.send({
-          from: 'Small Batch Atlas <hello@smallbatchatlas.com.au>',
+          from: 'Craft Atlas <hello@craftatlas.com.au>',
           to: subscriber.email,
           subject: issue.subject,
           html,

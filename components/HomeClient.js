@@ -43,12 +43,14 @@ export function HeroMap({ venues }) {
               'circle-radius': 3,
               'circle-color': [
                 'match', ['get', 'type'],
-                'distillery', '#c8943a',
-                'brewery', '#4a7c59',
-                'winery', '#8b4a6b',
-                'cidery', '#c45d3e',
-                'meadery', '#d4a843',
-                '#c8943a',
+                'ceramics_clay', '#C1603A',
+                'visual_art', '#7A8C7E',
+                'jewellery_metalwork', '#C49A3C',
+                'textile_fibre', '#8B6B8A',
+                'wood_furniture', '#8A7055',
+                'glass', '#5A8A9A',
+                'printmaking', '#6B7A5A',
+                '#C1603A',
               ],
               'circle-opacity': 0.6,
             },
@@ -103,8 +105,8 @@ export function NewsletterToast() {
       <div style={{
         position: 'fixed', top: '50%', left: '50%',
         transform: 'translate(-50%, -50%)',
-        background: 'var(--bg, #faf8f5)',
-        border: '1px solid var(--border, #e5e0d8)',
+        background: 'var(--bg, #FAF7F2)',
+        border: '1px solid var(--border, #DDD7CC)',
         padding: '52px 52px 44px',
         maxWidth: 500, width: 'calc(100% - 48px)',
         zIndex: 9999, textAlign: 'center',
@@ -117,14 +119,14 @@ export function NewsletterToast() {
         >×</button>
         {type === 'confirmed' ? (
           <>
-            <div style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--amber, #b8862b)', marginBottom: 20, fontFamily: 'var(--font-sans)' }}>
+            <div style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--primary, #C1603A)', marginBottom: 20, fontFamily: 'var(--font-sans)' }}>
               You&apos;re subscribed
             </div>
             <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 28, fontWeight: 400, color: 'var(--text)', margin: '0 0 18px', lineHeight: 1.3 }}>
-              Welcome to Small Batch Atlas
+              Welcome to Craft Atlas
             </h2>
             <p style={{ fontFamily: 'var(--font-sans)', fontSize: 15, color: 'var(--text-2, #555)', lineHeight: 1.8, margin: '0 0 36px' }}>
-              Monthly dispatches on Australia&apos;s best small-batch producers — the people, the places, and the craft behind every bottle.
+              Monthly dispatches on Australian makers and studios — the people, the places, and the craft behind every creation.
             </p>
           </>
         ) : (
@@ -133,13 +135,13 @@ export function NewsletterToast() {
               You&apos;ve been unsubscribed
             </h2>
             <p style={{ fontFamily: 'var(--font-sans)', fontSize: 15, color: 'var(--text-2, #555)', lineHeight: 1.8, margin: '0 0 36px' }}>
-              You won&apos;t receive any further emails from Small Batch Atlas.
+              You won&apos;t receive any further emails from Craft Atlas.
             </p>
           </>
         )}
         <button
           onClick={() => setVisible(false)}
-          style={{ background: 'var(--amber, #b8862b)', color: '#fff', border: 'none', padding: '13px 36px', fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', cursor: 'pointer' }}
+          style={{ background: 'var(--primary, #C1603A)', color: '#fff', border: 'none', padding: '13px 36px', fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', cursor: 'pointer' }}
         >
           Explore the atlas
         </button>
@@ -197,7 +199,7 @@ export function NewsletterForm() {
         <button
           type="submit"
           disabled={status === 'loading'}
-          style={{ padding: '10px 20px', background: 'var(--amber)', color: 'var(--bg)', border: 'none', fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', cursor: status === 'loading' ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-sans)', opacity: status === 'loading' ? 0.7 : 1 }}
+          style={{ padding: '10px 20px', background: 'var(--primary)', color: 'var(--bg)', border: 'none', fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', cursor: status === 'loading' ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-sans)', opacity: status === 'loading' ? 0.7 : 1 }}
         >
           {status === 'loading' ? 'Subscribing…' : 'Subscribe'}
         </button>

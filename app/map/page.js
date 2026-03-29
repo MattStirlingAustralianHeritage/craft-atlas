@@ -3,8 +3,8 @@ import MapPageClient from '@/components/MapClient'
 export const dynamic = 'force-dynamic'
 
 export const metadata = {
-  title: "Map — Every Distillery, Brewery & Winery in Australia",
-  description: "Explore Australia's craft drinks scene on an interactive map. Find distilleries, breweries and wineries near you.",
+  title: "Map — Every Maker & Studio in Australia",
+  description: "Explore Australian makers and studios on an interactive map. Find makers, artists and studios near you.",
 }
 
 export default function MapPage() {

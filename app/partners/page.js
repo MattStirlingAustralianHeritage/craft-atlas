@@ -37,7 +37,7 @@ export default function PartnersPage() {
           fontWeight: '700',
           letterSpacing: '0.12em',
           textTransform: 'uppercase',
-          color: 'var(--amber)',
+          color: 'var(--primary)',
           fontFamily: 'var(--font-sans)',
           marginBottom: '20px',
         }}>
@@ -62,9 +62,9 @@ export default function PartnersPage() {
           maxWidth: '580px',
           margin: 0,
         }}>
-          Small Batch Atlas works with a small number of regional tourism bodies and industry
+          Craft Atlas works with a small number of regional tourism bodies and industry
           organisations to bring curated editorial content to the Journal. Our partners are
-          chosen for their knowledge of place and their commitment to the producers we cover.
+          chosen for their knowledge of place and their commitment to the makers we cover.
           All partner content is clearly labelled and held to the same editorial standards
           as our own work.
         </p>
@@ -109,7 +109,7 @@ export default function PartnersPage() {
                     }}>
                       {p.website ? (
                         <a href={p.website} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}
-                          onMouseEnter={e => e.currentTarget.style.color = 'var(--amber)'}
+                          onMouseEnter={e => e.currentTarget.style.color = 'var(--primary)'}
                           onMouseLeave={e => e.currentTarget.style.color = 'inherit'}>
                           {p.org_name}
                         </a>
@@ -120,7 +120,7 @@ export default function PartnersPage() {
                       fontWeight: '700',
                       letterSpacing: '0.1em',
                       textTransform: 'uppercase',
-                      color: 'var(--amber)',
+                      color: 'var(--primary)',
                       fontFamily: 'var(--font-sans)',
                       opacity: 0.8,
                     }}>
@@ -143,7 +143,7 @@ export default function PartnersPage() {
                       fontSize: '11px',
                       fontWeight: '600',
                       letterSpacing: '0.06em',
-                      color: 'var(--amber)',
+                      color: 'var(--primary)',
                       textDecoration: 'none',
                       fontFamily: 'var(--font-sans)',
                     }}>
@@ -182,7 +182,7 @@ export default function PartnersPage() {
           letterSpacing: '-0.01em',
           lineHeight: '1.3',
         }}>
-          Partner with Small Batch Atlas
+          Partner with Craft Atlas
         </h2>
         <p style={{
           fontSize: '15px',
@@ -193,7 +193,7 @@ export default function PartnersPage() {
           maxWidth: '520px',
         }}>
           We work with regional tourism bodies, industry associations, and organisations
-          with a genuine connection to Australia's craft drinks producers. Partners contribute
+          with a genuine connection to Australia's craft makers. Partners contribute
           editorial content to the Journal under our standard disclosure framework.
         </p>
         <p style={{
@@ -208,11 +208,11 @@ export default function PartnersPage() {
           We keep the number of partners small by design.
         </p>
         <a
-          href="mailto:matt@smallbatchatlas.com.au?subject=Partnership enquiry — Small Batch Atlas"
+          href="mailto:hello@craftatlas.com.au?subject=Partnership enquiry — Craft Atlas"
           style={{
             display: 'inline-block',
             padding: '12px 28px',
-            background: 'var(--amber)',
+            background: 'var(--primary)',
             color: 'var(--bg)',
             fontSize: '11px',
             fontWeight: '700',

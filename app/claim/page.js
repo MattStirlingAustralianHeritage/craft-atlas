@@ -3,8 +3,8 @@ import { Suspense } from 'react'
 import ClaimClient from '@/components/ClaimClient'
 
 export const metadata = {
-  title: 'Claim Your Venue | Small Batch Atlas',
-  description: 'Find your distillery, brewery or winery and claim your free listing on Small Batch Atlas.',
+  title: 'Claim Your Listing | Craft Atlas',
+  description: 'Find your maker or studio and claim your free listing on Craft Atlas.',
 }
 
 export default async function ClaimPage() {

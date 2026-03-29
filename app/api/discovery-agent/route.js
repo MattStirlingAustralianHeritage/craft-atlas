@@ -71,7 +71,7 @@ function buildVenueContext(venues) {
     const tags = [...(v.custom_tags || []), ...(v.tags || [])].filter(Boolean);
     const tagStr = tags.length > 0 ? ` Tags: ${tags.join(', ')}.` : '';
     const hours = v.opening_hours ? ` Hours: ${v.opening_hours}.` : '';
-    return `- ${v.name} (${v.type}${v.subtype ? '/' + v.subtype : ''}) in ${v.sub_region || v.state}.${verified} ${v.description || ''}${rating}${tagStr}${hours} URL: https://www.smallbatchatlas.com.au/venue/${v.slug}`;
+    return `- ${v.name} (${v.type}${v.subtype ? '/' + v.subtype : ''}) in ${v.sub_region || v.state}.${verified} ${v.description || ''}${rating}${tagStr}${hours} URL: https://www.craftatlas.com.au/venue/${v.slug}`;
   }).join('\n');
 }
 
@@ -100,7 +100,7 @@ export async function POST(req) {
 
     const venueContext = buildVenueContext(venues);
 
-    const systemPrompt = `You are a discovery assistant for Small Batch Atlas, Australia's craft beverage directory. Help users find breweries, wineries, distilleries and cideries.
+    const systemPrompt = `You are a discovery assistant for Craft Atlas, Australia's craft maker directory. Help users find makers and studios.
 
 Available venues:
 ${venueContext}

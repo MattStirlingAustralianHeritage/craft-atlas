@@ -355,7 +355,7 @@ export default function WYSIWYGEditor({ value, onUploadImage, uploading }) {
 
   const TB = ({ title, active, onClick, children, extraStyle = {} }) => (
     <button title={title} onMouseDown={e => { e.preventDefault(); onClick() }}
-      style={{ padding: '5px 9px', border: 'none', borderRadius: 3, cursor: 'pointer', background: active ? 'rgba(200,148,58,0.15)' : 'transparent', color: active ? 'var(--amber)' : 'var(--text-2)', fontSize: 13, fontWeight: 600, lineHeight: 1, transition: 'all 0.1s', fontFamily: 'var(--font-sans)', ...extraStyle }}>
+      style={{ padding: '5px 9px', border: 'none', borderRadius: 3, cursor: 'pointer', background: active ? 'rgba(193,96,58,0.15)' : 'transparent', color: active ? 'var(--primary)' : 'var(--text-2)', fontSize: 13, fontWeight: 600, lineHeight: 1, transition: 'all 0.1s', fontFamily: 'var(--font-sans)', ...extraStyle }}>
       {children}
     </button>
   )
@@ -530,19 +530,19 @@ export default function WYSIWYGEditor({ value, onUploadImage, uploading }) {
         [contenteditable] em, [contenteditable] i { font-style:italic }
         [contenteditable] s { text-decoration:line-through; opacity:0.6 }
         [contenteditable] code { font-family:'Menlo','Monaco',monospace; font-size:0.83em; background:var(--bg-2); border:1px solid var(--border); padding:2px 5px; border-radius:3px }
-        [contenteditable] a { color:var(--amber); text-decoration:underline; text-underline-offset:2px }
+        [contenteditable] a { color:var(--primary); text-decoration:underline; text-underline-offset:2px }
         [contenteditable] ul { padding-left:1.5em; margin:0.4em 0 0.7em }
         [contenteditable] ol { padding-left:1.5em; margin:0.4em 0 0.7em }
         [contenteditable] li { margin-bottom:0.3em }
-        [contenteditable] blockquote { border-left:3px solid var(--amber); margin:1.2em 0; padding:3px 0 3px 18px; color:var(--text-2); font-style:italic; font-size:1.05em }
+        [contenteditable] blockquote { border-left:3px solid var(--primary); margin:1.2em 0; padding:3px 0 3px 18px; color:var(--text-2); font-style:italic; font-size:1.05em }
         [contenteditable] blockquote p { margin:0 }
         [contenteditable] hr { border:none; border-top:1px solid var(--border); margin:2em 0 }
         [contenteditable] figure { margin:1.5em 0 }
         [contenteditable] figure img { max-width:100%; height:auto; display:block; border-radius:3px }
         [contenteditable] figcaption { margin-top:7px; font-size:13px; color:var(--text-3); font-family:var(--font-sans); font-style:italic; text-align:center }
         [contenteditable] img { max-width:100%; height:auto; display:block; border-radius:3px; margin:1em 0 }
-        [contenteditable]:focus { caret-color:var(--amber) }
-        [contenteditable] ::selection { background:rgba(200,148,58,0.2) }
+        [contenteditable]:focus { caret-color:var(--primary) }
+        [contenteditable] ::selection { background:rgba(193,96,58,0.2) }
       `}</style>
     </div>
   )

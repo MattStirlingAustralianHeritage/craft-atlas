@@ -3,7 +3,7 @@ import { Resend } from 'resend'
 import { randomUUID } from 'crypto'
 
 const supabase = createClient(
-  process.env.SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -41,19 +41,19 @@ export async function POST(request) {
     // For now we encode it in the URL and verify via a signed approach
     // Send confirmation email
     await resend.emails.send({
-      from: 'Small Batch Atlas <hello@smallbatchatlas.com.au>',
+      from: 'Craft Atlas <hello@craftatlas.com.au>',
       to: email,
-      subject: 'Confirm your subscription to Small Batch Atlas',
+      subject: 'Confirm your subscription to Craft Atlas',
       html: `
         <div style="font-family: Georgia, serif; max-width: 560px; margin: 0 auto; padding: 40px 20px; color: #1a1a1a;">
           <h2 style="font-size: 24px; font-weight: normal; margin-bottom: 16px;">One more step</h2>
           <p style="font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
-            Thanks for signing up to the Small Batch Atlas newsletter — a monthly edit of the best small-batch producers in Australia.
+            Thanks for signing up to the Craft Atlas newsletter — a monthly edit of the best makers, artists and studios in Australia.
           </p>
           <p style="font-size: 16px; line-height: 1.6; margin-bottom: 32px;">
             Click below to confirm your subscription.
           </p>
-          <a href="${confirmUrl}" style="display: inline-block; background: #b8862b; color: #fff; text-decoration: none; padding: 14px 28px; font-size: 15px; letter-spacing: 0.02em;">
+          <a href="${confirmUrl}" style="display: inline-block; background: #C1603A; color: #fff; text-decoration: none; padding: 14px 28px; font-size: 15px; letter-spacing: 0.02em;">
             Confirm subscription
           </a>
           <p style="font-size: 13px; color: #666; margin-top: 40px; line-height: 1.5;">

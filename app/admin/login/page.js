@@ -28,8 +28,8 @@ export default function AdminLoginPage() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
       <div style={{ width: '100%', maxWidth: 360, padding: '0 24px' }}>
-        <div style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 12, fontFamily: 'var(--font-sans)', textAlign: 'center' }}>
-          Small Batch Atlas
+        <div style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 12, fontFamily: 'var(--font-sans)', textAlign: 'center' }}>
+          Craft Atlas
         </div>
         <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 28, fontWeight: 400, color: 'var(--text)', marginBottom: 32, textAlign: 'center' }}>
           Admin Access
@@ -49,7 +49,7 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={loading || !password}
-            style={{ width: '100%', padding: '13px', background: 'var(--amber)', color: 'var(--bg)', border: 'none', borderRadius: 2, fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', cursor: loading ? 'wait' : 'pointer', opacity: loading || !password ? 0.7 : 1 }}
+            style={{ width: '100%', padding: '13px', background: 'var(--primary)', color: 'var(--bg)', border: 'none', borderRadius: 2, fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', cursor: loading ? 'wait' : 'pointer', opacity: loading || !password ? 0.7 : 1 }}
           >
             {loading ? 'Checking...' : 'Enter'}
           </button>

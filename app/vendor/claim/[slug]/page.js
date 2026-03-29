@@ -19,15 +19,8 @@ const TIERS = [
     name: 'Standard',
     price: 99,
     description: 'Enhanced listing with more visibility',
-    features: ['Everything in Free', 'Add photos & drinks menu', 'Extended description', 'Booking & social links', 'QR code'],
+    features: ['Everything in Free', 'Add photos & practice description', 'Extended description', 'Booking & social links', 'QR code'],
     recommended: true,
-  },
-  {
-    id: 'premium',
-    name: 'Premium',
-    price: 499,
-    description: 'Maximum visibility and features',
-    features: ['Everything in Standard', 'Featured placement', 'Analytics dashboard', 'Video & seasonal highlights', 'Promotions'],
   },
 ]
 
@@ -180,7 +173,7 @@ export default function VendorClaimPage() {
       <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
         <div style={{ textAlign: 'center', maxWidth: 400 }}>
           <div style={{ fontFamily: 'var(--font-serif)', fontSize: 24, color: 'var(--text)', marginBottom: 12 }}>{fatalError}</div>
-          <Link href="/claim" style={{ fontSize: 13, color: 'var(--amber)', fontFamily: 'var(--font-sans)' }}>← Back to venue directory</Link>
+          <Link href="/claim" style={{ fontSize: 13, color: 'var(--primary)', fontFamily: 'var(--font-sans)' }}>← Back to venue directory</Link>
         </div>
       </div>
     )
@@ -197,7 +190,7 @@ export default function VendorClaimPage() {
             Thanks {form.contact_name}. We&apos;ll review your claim for <strong>{venue?.name}</strong> and be in touch at {form.contact_email}.
           </p>
           <Link href="/" style={{
-            display: 'inline-block', padding: '10px 24px', background: 'var(--amber)',
+            display: 'inline-block', padding: '10px 24px', background: 'var(--primary)',
             color: 'var(--bg)', textDecoration: 'none', fontSize: 12, fontWeight: 600,
             letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', borderRadius: 2,
           }}>
@@ -218,7 +211,7 @@ export default function VendorClaimPage() {
           <Link href="/claim" style={{ fontSize: 12, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', textDecoration: 'none', letterSpacing: '0.05em' }}>
             ← Back to venue directory
           </Link>
-          <div style={{ marginTop: 20, fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 12, fontFamily: 'var(--font-sans)' }}>
+          <div style={{ marginTop: 20, fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 12, fontFamily: 'var(--font-sans)' }}>
             Claim Your Venue
           </div>
           <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(24px, 3vw, 40px)', fontWeight: 400, color: 'var(--text)', lineHeight: 1.1, marginBottom: 8 }}>
@@ -236,19 +229,19 @@ export default function VendorClaimPage() {
         <div style={{ marginBottom: 40 }}>
           <div style={{ fontFamily: 'var(--font-serif)', fontSize: 20, color: 'var(--text)', marginBottom: 6 }}>Choose your listing tier</div>
           <p style={{ fontSize: 13, color: 'var(--text-2)', fontFamily: 'var(--font-sans)', marginBottom: 20, lineHeight: 1.5 }}>
-            Start with a free listing and upgrade anytime. Paid tiers are annual subscriptions.
+            Start with a free listing and upgrade anytime. The Standard tier is an annual subscription.
           </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
             {TIERS.map(tier => (
               <div
                 key={tier.id}
                 onClick={() => setSelectedTier(tier.id)}
                 style={{
-                  border: `1px solid ${selectedTier === tier.id ? 'var(--amber)' : 'var(--border)'}`,
+                  border: `1px solid ${selectedTier === tier.id ? 'var(--primary)' : 'var(--border)'}`,
                   borderRadius: 2,
                   padding: '20px 16px',
                   cursor: 'pointer',
-                  background: selectedTier === tier.id ? 'rgba(180, 120, 40, 0.04)' : 'var(--bg)',
+                  background: selectedTier === tier.id ? 'rgba(193, 96, 58, 0.04)' : 'var(--bg)',
                   position: 'relative',
                   transition: 'all 0.15s',
                 }}
@@ -256,7 +249,7 @@ export default function VendorClaimPage() {
                 {tier.recommended && (
                   <div style={{
                     position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)',
-                    background: 'var(--amber)', color: 'var(--bg)', fontSize: 9,
+                    background: 'var(--primary)', color: 'var(--bg)', fontSize: 9,
                     letterSpacing: '0.1em', textTransform: 'uppercase', padding: '2px 10px',
                     fontFamily: 'var(--font-sans)', fontWeight: 600, borderRadius: 2,
                     whiteSpace: 'nowrap',
@@ -354,7 +347,7 @@ export default function VendorClaimPage() {
                 disabled={submitting || !form.contact_name || !form.contact_email}
                 style={{
                   padding: '14px 32px',
-                  background: submitting ? 'var(--text-3)' : 'var(--amber)',
+                  background: submitting ? 'var(--text-3)' : 'var(--primary)',
                   color: 'var(--bg)',
                   border: 'none',
                   borderRadius: 2,

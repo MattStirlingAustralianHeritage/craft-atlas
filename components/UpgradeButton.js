@@ -2,20 +2,16 @@
 
 import { useState } from 'react'
 
-export default function UpgradeButton({ venueId, userId, currentTier, targetTier, className = '' }) {
+export default function UpgradeButton({ venueId, userId, currentTier, className = '' }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const tierOrder = { free: 0, standard: 1, premium: 2 }
+  // Don't show if already on standard
+  if (currentTier === 'standard') return null
 
-  // Don't show if already on this tier or higher
-  if (tierOrder[currentTier] >= tierOrder[targetTier]) return null
-
-  const label = targetTier === 'standard' ? 'Upgrade to Standard' : 'Upgrade to Standard'
-  const price = targetTier === 'standard' ? '$99/year' : '$99/year'
-  const priceId = targetTier === 'standard'
-    ? process.env.NEXT_PUBLIC_STRIPE_STANDARD_PRICE_ID
-    : process.env.NEXT_PUBLIC_STRIPE_PREMIUM_PRICE_ID
+  const label = 'Upgrade to Standard'
+  const price = '$99/year'
+  const priceId = process.env.NEXT_PUBLIC_STRIPE_STANDARD_PRICE_ID
 
   const handleUpgrade = async () => {
     setLoading(true)
@@ -25,7 +21,7 @@ export default function UpgradeButton({ venueId, userId, currentTier, targetTier
       const response = await fetch('/api/stripe/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ priceId, venueId, userId, tier: targetTier }),
+        body: JSON.stringify({ priceId, venueId, userId, tier: 'standard' }),
       })
 
       const data = await response.json()
@@ -44,11 +40,7 @@ export default function UpgradeButton({ venueId, userId, currentTier, targetTier
       <button
         onClick={handleUpgrade}
         disabled={loading}
-        className={`inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-150 disabled:opacity-60 disabled:cursor-not-allowed ${
-          targetTier === 'standard'
-            ? 'bg-amber-600 hover:bg-amber-700 text-white'
-            : 'bg-emerald-600 hover:bg-emerald-700 text-white'
-        } ${className}`}
+        className={`inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-150 disabled:opacity-60 disabled:cursor-not-allowed bg-[#C1603A] hover:bg-[#a8512f] text-white ${className}`}
       >
         {loading ? (
           <>

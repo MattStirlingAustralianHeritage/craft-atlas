@@ -4,10 +4,10 @@ import Link from 'next/link'
 
 const CHIPS = [
   'Plan a day in the Yarra Valley',
-  'Best gin distilleries in Victoria',
-  'Whisky trail in Tasmania',
-  'Wineries near Margaret River',
-  'Breweries in Brisbane',
+  'Best ceramics studios in Victoria',
+  'Maker trail in Tasmania',
+  'Studios near Margaret River',
+  'Workshops in Brisbane',
 ]
 
 function VenueCard({ venue }) {
@@ -28,7 +28,7 @@ function VenueCard({ venue }) {
   )
 }
 
-const GREETING = 'Where are you headed? Tell me a region, a type of drink, or what kind of day you are planning and I will find somewhere worth visiting.'
+const GREETING = 'Where are you headed? Tell me a region, a type of craft, or what kind of day you are planning and I will find somewhere worth visiting.'
 
 function renderMessage(text) {
   const urlRegex = /(https?:\/\/[^\s)]+)/g;
@@ -91,11 +91,11 @@ export default function DiscoveryAgent() {
         style={{
           position: 'fixed', bottom: 24, left: 24, zIndex: 9999,
           width: 48, height: 48, borderRadius: '50%',
-          background: '#2c4a2e', border: 'none', cursor: 'pointer',
+          background: '#7A8C7E', border: 'none', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           boxShadow: '0 2px 12px rgba(0,0,0,0.2)'
         }}
-        title="Discover venues"
+        title="Discover makers"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -111,12 +111,12 @@ export default function DiscoveryAgent() {
           display: 'flex', flexDirection: 'column', overflow: 'hidden'
         }}>
           <div style={{
-            padding: '12px 16px', background: '#2c4a2e',
+            padding: '12px 16px', background: '#7A8C7E',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between'
           }}>
             <div>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', color: '#a8c5a0', fontFamily: 'var(--font-sans)' }}>
-                SMALL BATCH ATLAS
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', color: '#d4ddd6', fontFamily: 'var(--font-sans)' }}>
+                CRAFT ATLAS
               </div>
               <div style={{ fontSize: 14, fontWeight: 600, color: '#fff', fontFamily: 'var(--font-sans)' }}>
                 Discover places
@@ -124,7 +124,7 @@ export default function DiscoveryAgent() {
             </div>
             <button onClick={() => setOpen(false)} style={{
               background: 'none', border: 'none', cursor: 'pointer',
-              color: '#a8c5a0', fontSize: 18, lineHeight: 1
+              color: '#d4ddd6', fontSize: 18, lineHeight: 1
             }}>x</button>
           </div>
 
@@ -135,7 +135,7 @@ export default function DiscoveryAgent() {
                   display: 'inline-block', maxWidth: '85%',
                   padding: '8px 12px', borderRadius: 8, fontSize: 13,
                   lineHeight: 1.45, fontFamily: 'var(--font-sans)',
-                  background: m.role === 'user' ? '#2c4a2e' : 'var(--bg-2)',
+                  background: m.role === 'user' ? '#7A8C7E' : 'var(--bg-2)',
                   color: m.role === 'user' ? '#fff' : 'var(--text-1)',
                   float: m.role === 'user' ? 'right' : 'left', clear: 'both'
                 }}>
@@ -150,7 +150,7 @@ export default function DiscoveryAgent() {
                 background: 'var(--bg-2)', fontSize: 13, color: 'var(--text-3)',
                 fontFamily: 'var(--font-sans)'
               }}>
-                Finding venues...
+                Finding makers...
               </div>
             )}
             {venues.length > 0 && (
@@ -195,7 +195,7 @@ export default function DiscoveryAgent() {
               disabled={loading || !input.trim()}
               style={{
                 padding: '7px 14px', fontSize: 12, fontWeight: 700,
-                background: loading || !input.trim() ? 'var(--border)' : '#2c4a2e',
+                background: loading || !input.trim() ? 'var(--border)' : '#7A8C7E',
                 color: loading || !input.trim() ? 'var(--text-3)' : '#fff',
                 border: 'none', borderRadius: 4,
                 cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',

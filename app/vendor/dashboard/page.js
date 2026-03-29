@@ -9,7 +9,6 @@ const TIER_INFO = {
   free:     { name: 'Free',     price: 'Free',     color: '#9a8a78' },
   basic:    { name: 'Free',     price: 'Free',     color: '#9a8a78' },
   standard: { name: 'Standard', price: '$99/yr',  color: '#4a7c59' },
-  premium:  { name: 'Premium',  price: '$499/yr',  color: '#b8860b' },
 }
 
 const STATUS_COLORS = {
@@ -19,12 +18,14 @@ const STATUS_COLORS = {
 }
 
 const TYPE_EMOJI = {
-  distillery: '🥃',
-  brewery:    '🍺',
-  winery:     '🍷',
-  cidery:     '🍎',
-  meadery:    '🍯',
-  default:    '🏭',
+  ceramics_clay:        '🏺',
+  visual_art:           '🎨',
+  jewellery_metalwork:  '💍',
+  textile_fibre:        '🧵',
+  wood_furniture:       '🪵',
+  glass:                '🔮',
+  printmaking:          '🖨',
+  default:              '🎨',
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -66,12 +67,12 @@ function StatPill({ label, value, sub, accent }) {
 
 function VenueHeroCard({ venue, pageViews, tierInfo, isFreeTier, currentTier, onEdit }) {
   const checks = [
-    { label: 'Description',    done: !!venue.description?.trim() },
-    { label: 'Hero image',     done: !!venue.hero_image_url },
-    { label: 'Phone',          done: !!venue.phone?.trim() },
-    { label: 'Opening hours',  done: !!(venue.cellar_door_hours && Object.keys(venue.cellar_door_hours).length > 0) },
-    { label: '3+ photos',      done: (venue.gallery_images?.length || 0) >= 3 },
-    { label: 'Features',       done: (venue.features?.length || 0) >= 3 },
+    { label: 'Description',       done: !!venue.description?.trim() },
+    { label: 'Hero image',        done: !!venue.hero_image_url },
+    { label: 'Phone',             done: !!venue.phone?.trim() },
+    { label: 'Opening hours',     done: !!(venue.opening_hours && Object.keys(venue.opening_hours).length > 0) },
+    { label: '3+ photos',         done: (venue.gallery_images?.length || 0) >= 3 },
+    { label: 'Practice description', done: !!venue.practice_description?.trim() },
   ]
   const done = checks.filter(c => c.done).length
   const pct  = Math.round((done / checks.length) * 100)
@@ -123,7 +124,7 @@ function VenueHeroCard({ venue, pageViews, tierInfo, isFreeTier, currentTier, on
               onClick={onEdit}
               style={{
                 padding: '10px 22px',
-                background: 'var(--amber)',
+                background: 'var(--primary)',
                 color: '#1a1208',
                 border: 'none', borderRadius: 3,
                 fontSize: 11, fontWeight: 700,
@@ -151,7 +152,7 @@ function VenueHeroCard({ venue, pageViews, tierInfo, isFreeTier, currentTier, on
           label="Listing views"
           value={pageViews !== null ? (pageViews === 0 ? '—' : pageViews.toLocaleString()) : '…'}
           sub="Last 30 days"
-          accent={pageViews > 0 ? 'var(--amber)' : undefined}
+          accent={pageViews > 0 ? 'var(--primary)' : undefined}
         />
         <StatPill
           label="Photos"
@@ -315,7 +316,7 @@ export default function VendorDashboardPage() {
     <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ textAlign: 'center' }}>
         <div style={{ fontFamily: 'var(--font-serif)', fontSize: 18, color: 'var(--text-3)', marginBottom: 8 }}>Loading</div>
-        <div style={{ width: 40, height: 2, background: 'var(--amber)', margin: '0 auto', animation: 'pulse 1.2s ease-in-out infinite' }} />
+        <div style={{ width: 40, height: 2, background: 'var(--primary)', margin: '0 auto', animation: 'pulse 1.2s ease-in-out infinite' }} />
         <style>{`@keyframes pulse { 0%,100%{opacity:0.3;transform:scaleX(0.5)} 50%{opacity:1;transform:scaleX(1)} }`}</style>
       </div>
     </div>
@@ -332,7 +333,7 @@ export default function VendorDashboardPage() {
     <div style={{ padding: '0 24px 80px', maxWidth: 860, margin: '0 auto' }}>
       <style>{`
         .venue-pill { transition: all 0.15s; }
-        .venue-pill:hover { border-color: var(--amber) !important; color: var(--amber) !important; }
+        .venue-pill:hover { border-color: var(--primary) !important; color: var(--primary) !important; }
         .quick-link { transition: all 0.2s; }
         .quick-link:hover { border-color: rgba(200,148,58,0.4) !important; transform: translateY(-1px); }
         .upgrade-btn { transition: opacity 0.15s; }
@@ -348,8 +349,8 @@ export default function VendorDashboardPage() {
       <div style={{ padding: '48px 0 40px', borderBottom: '1px solid var(--border)', marginBottom: 36 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16 }}>
           <div>
-            <div style={{ fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 10, fontFamily: 'var(--font-sans)', fontWeight: 600 }}>
-              Vendor Dashboard
+            <div style={{ fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 10, fontFamily: 'var(--font-sans)', fontWeight: 600 }}>
+              Maker Dashboard
             </div>
             <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 400, color: 'var(--text)', lineHeight: 1.15 }}>
               {greeting}, {userName}.
@@ -382,16 +383,16 @@ export default function VendorDashboardPage() {
           textAlign: 'center',
           marginBottom: 40,
         }}>
-          <div style={{ fontSize: 48, marginBottom: 20 }}>🍺</div>
+          <div style={{ fontSize: 48, marginBottom: 20 }}>🎨</div>
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 28, fontWeight: 400, color: 'var(--text)', marginBottom: 12 }}>
             Claim your venue
           </h2>
           <p style={{ fontSize: 15, color: 'var(--text-2)', lineHeight: 1.75, fontFamily: 'var(--font-sans)', maxWidth: 440, margin: '0 auto 32px' }}>
-            Find your brewery, distillery, or winery in our directory and claim it to start managing your listing.
+            Find your maker or studio in our directory and claim it to start managing your listing.
           </p>
           <Link href="/vendor/claim" style={{
             display: 'inline-block',
-            background: 'var(--amber)', color: 'var(--bg)',
+            background: 'var(--primary)', color: 'var(--bg)',
             padding: '14px 36px', borderRadius: 3,
             fontSize: 12, fontWeight: 700, textDecoration: 'none',
             letterSpacing: '0.08em', textTransform: 'uppercase',
@@ -416,13 +417,13 @@ export default function VendorDashboardPage() {
                 onClick={() => switchVenue(v)}
                 style={{
                   padding: '8px 16px', borderRadius: 20,
-                  border: `1px solid ${venue?.id === v.id ? 'var(--amber)' : 'var(--border)'}`,
+                  border: `1px solid ${venue?.id === v.id ? 'var(--primary)' : 'var(--border)'}`,
                   background: venue?.id === v.id ? 'rgba(200,148,58,0.08)' : 'transparent',
-                  color: venue?.id === v.id ? 'var(--amber)' : 'var(--text-3)',
+                  color: venue?.id === v.id ? 'var(--primary)' : 'var(--text-3)',
                   fontSize: 13, cursor: 'pointer', fontFamily: 'var(--font-sans)',
                 }}
               >
-                {TYPE_EMOJI[v.type] || '🏭'} {v.name}
+                {TYPE_EMOJI[v.type] || '🎨'} {v.name}
               </button>
             ))}
           </div>
@@ -530,47 +531,18 @@ export default function VendorDashboardPage() {
                   Free listing · Upgrade to unlock more features
                 </div>
               </div>
-              <div className="upgrade-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: 'var(--border)' }}>
+              <div style={{ padding: '24px 28px', background: '#1e2e1e', borderRadius: '0 0 6px 6px' }}>
                 <button className="upgrade-btn" onClick={() => handleUpgrade('standard')} style={{
-                  display: 'flex', flexDirection: 'column', gap: 10, padding: '24px 28px',
-                  background: '#1e2e1e', color: '#fff', border: 'none',
-                  cursor: 'pointer', fontFamily: 'var(--font-sans)', textAlign: 'left',
+                  display: 'flex', flexDirection: 'column', gap: 10, padding: '0',
+                  background: 'none', color: '#fff', border: 'none',
+                  cursor: 'pointer', fontFamily: 'var(--font-sans)', textAlign: 'left', width: '100%',
                 }}>
                   <div style={{ fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#7ab87a', fontWeight: 600 }}>Standard</div>
                   <div style={{ fontFamily: 'var(--font-serif)', fontSize: 26, fontWeight: 400 }}>$99<span style={{ fontSize: 14, opacity: 0.6 }}>/yr</span></div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.6 }}>10 photos · verified badge · drinks menu · social links · awards</div>
-                </button>
-                <button className="upgrade-btn" onClick={() => handleUpgrade('standard')} style={{
-                  display: 'flex', flexDirection: 'column', gap: 10, padding: '24px 28px',
-                  background: '#2a1e05', color: '#fff', border: 'none',
-                  cursor: 'pointer', fontFamily: 'var(--font-sans)', textAlign: 'left',
-                }}>
-                  <div style={{ fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#c8943a', fontWeight: 600 }}>Premium</div>
-                  <div style={{ fontFamily: 'var(--font-serif)', fontSize: 26, fontWeight: 400 }}>$499<span style={{ fontSize: 14, opacity: 0.6 }}>/yr</span></div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.6 }}>Unlimited photos · video · events · promotions · analytics</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.6 }}>10 photos · verified badge · practice description · social links · materials</div>
                 </button>
               </div>
             </div>
-          )}
-
-          {currentTier === 'standard' && (
-            <button className="upgrade-btn" onClick={() => handleUpgrade('standard')} style={{
-              display: 'flex', flexDirection: 'column', gap: 10, padding: '20px 24px',
-              background: '#2a1e05', color: '#fff', border: 'none',
-              borderRadius: '0 0 6px 6px', cursor: 'pointer',
-              fontFamily: 'var(--font-sans)', textAlign: 'left', width: '100%',
-              marginTop: 1,
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                <div>
-                  <div style={{ fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#c8943a', fontWeight: 600, marginBottom: 6 }}>Upgrade to Standard</div>
-                  <div style={{ fontFamily: 'var(--font-serif)', fontSize: 22, fontWeight: 400 }}>$499/year</div>
-                </div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', maxWidth: 220, textAlign: 'right', lineHeight: 1.6 }}>
-                  Unlock video embeds, events, promotions & analytics
-                </div>
-              </div>
-            </button>
           )}
         </section>
       )}
@@ -610,14 +582,14 @@ export default function VendorDashboardPage() {
             <div style={{ fontFamily: 'var(--font-serif)', fontSize: 15, color: 'var(--text)' }}>View Map</div>
             <div style={{ fontSize: 12, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', lineHeight: 1.5 }}>Browse the directory</div>
           </Link>
-          <a className="quick-link" href="mailto:hello@smallbatchatlas.au" style={{
+          <a className="quick-link" href="mailto:hello@craftatlas.com.au" style={{
             display: 'flex', flexDirection: 'column', gap: 8,
             padding: '20px 20px', background: 'var(--bg-2)',
             border: '1px solid var(--border)', borderRadius: 6, textDecoration: 'none',
           }}>
             <div style={{ fontSize: 22 }}>✉️</div>
             <div style={{ fontFamily: 'var(--font-serif)', fontSize: 15, color: 'var(--text)' }}>Get in Touch</div>
-            <div style={{ fontSize: 12, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', lineHeight: 1.5 }}>hello@smallbatchatlas.au</div>
+            <div style={{ fontSize: 12, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', lineHeight: 1.5 }}>hello@craftatlas.com.au</div>
           </a>
         </div>
       </section>

@@ -5,7 +5,8 @@ import { getSupabase } from '@/lib/supabase'
 import { TYPE_COLORS, TYPE_LABELS } from '@/lib/constants'
 import { useAuth } from '../layout'
 
-const TYPES = ['All', 'Distillery', 'Brewery', 'Winery', 'Cidery', 'Meadery']
+const TYPES = ['All', 'Ceramics & Clay', 'Visual Art', 'Jewellery & Metalwork', 'Textile & Fibre', 'Wood & Furniture', 'Glass', 'Printmaking']
+const TYPE_KEYS = { 'All': 'All', 'Ceramics & Clay': 'ceramics_clay', 'Visual Art': 'visual_art', 'Jewellery & Metalwork': 'jewellery_metalwork', 'Textile & Fibre': 'textile_fibre', 'Wood & Furniture': 'wood_furniture', 'Glass': 'glass', 'Printmaking': 'printmaking' }
 const STATES = ['All States', 'NSW', 'VIC', 'QLD', 'SA', 'WA', 'TAS', 'NT', 'ACT']
 
 export default function VendorClaimPage() {
@@ -27,7 +28,8 @@ export default function VendorClaimPage() {
   }, [])
 
   const filtered = venues.filter(v => {
-    const matchType = typeFilter === 'All' || v.type === typeFilter.toLowerCase()
+    const typeKey = TYPE_KEYS[typeFilter] || 'All'
+    const matchType = typeKey === 'All' || v.type === typeKey
     const matchState = stateFilter === 'All States' || v.state === stateFilter
     const matchSearch = !search || v.name.toLowerCase().includes(search.toLowerCase()) || (v.sub_region && v.sub_region.toLowerCase().includes(search.toLowerCase()))
     return matchType && matchState && matchSearch
@@ -36,7 +38,7 @@ export default function VendorClaimPage() {
   return (
     <div style={{ padding: '0 24px 64px', maxWidth: 960, margin: '0 auto' }}>
       <div style={{ padding: '40px 0 32px', borderBottom: '1px solid var(--border)', marginBottom: 32 }}>
-        <div style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 12, fontFamily: 'var(--font-sans)', fontWeight: 600 }}>Claim a Venue</div>
+        <div style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 12, fontFamily: 'var(--font-sans)', fontWeight: 600 }}>Claim a Venue</div>
         <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 400, color: 'var(--text)', lineHeight: 1.2, marginBottom: 8 }}>Find your venue</h1>
         <p style={{ fontSize: 15, color: 'var(--text-2)', fontFamily: 'var(--font-sans)', lineHeight: 1.6 }}>Search our directory below. Once you've found your venue, click to begin the claim process.</p>
       </div>
@@ -50,7 +52,7 @@ export default function VendorClaimPage() {
         </div>
         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
           {TYPES.map(t => (
-            <button key={t} onClick={() => setTypeFilter(t)} style={{ padding: '8px 14px', borderRadius: 2, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 500, fontFamily: 'var(--font-sans)', background: typeFilter === t ? 'var(--amber)' : 'var(--bg-2)', color: typeFilter === t ? 'var(--bg)' : 'var(--text-3)', transition: 'all 0.15s' }}>{t}</button>
+            <button key={t} onClick={() => setTypeFilter(t)} style={{ padding: '8px 14px', borderRadius: 2, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 500, fontFamily: 'var(--font-sans)', background: typeFilter === t ? 'var(--primary)' : 'var(--bg-2)', color: typeFilter === t ? 'var(--bg)' : 'var(--text-3)', transition: 'all 0.15s' }}>{t}</button>
           ))}
         </div>
         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
@@ -84,7 +86,7 @@ export default function VendorClaimPage() {
                 {venue.is_claimed ? (
                   <span style={{ fontSize: 10, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', flexShrink: 0 }}>Claimed</span>
                 ) : (
-                  <span style={{ fontSize: 12, color: 'var(--amber)', fontFamily: 'var(--font-sans)', flexShrink: 0 }}>Claim →</span>
+                  <span style={{ fontSize: 12, color: 'var(--primary)', fontFamily: 'var(--font-sans)', flexShrink: 0 }}>Claim →</span>
                 )}
               </Link>
             )
@@ -94,8 +96,8 @@ export default function VendorClaimPage() {
 
       <div style={{ marginTop: 40, padding: 32, background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 4, textAlign: 'center' }}>
         <div style={{ fontFamily: 'var(--font-serif)', fontSize: 18, color: 'var(--text)', marginBottom: 8 }}>Can't find your venue?</div>
-        <p style={{ fontSize: 13, color: 'var(--text-2)', fontFamily: 'var(--font-sans)', lineHeight: 1.6, marginBottom: 20, maxWidth: 400, margin: '0 auto 20px' }}>If your distillery, brewery, or winery isn't listed yet, get in touch and we'll add it.</p>
-        <a href="mailto:hello@smallbatchatlas.au?subject=Add my venue to Small Batch Atlas" style={{ display: 'inline-block', padding: '10px 24px', border: '1px solid var(--amber)', color: 'var(--amber)', borderRadius: 2, fontSize: 11, fontWeight: 600, textDecoration: 'none', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)' }}>Contact Us</a>
+        <p style={{ fontSize: 13, color: 'var(--text-2)', fontFamily: 'var(--font-sans)', lineHeight: 1.6, marginBottom: 20, maxWidth: 400, margin: '0 auto 20px' }}>If your maker or studio isn't listed yet, get in touch and we'll add it.</p>
+        <a href="mailto:hello@craftatlas.com.au?subject=Add my venue to Craft Atlas" style={{ display: 'inline-block', padding: '10px 24px', border: '1px solid var(--primary)', color: 'var(--primary)', borderRadius: 2, fontSize: 11, fontWeight: 600, textDecoration: 'none', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)' }}>Contact Us</a>
       </div>
     </div>
   )

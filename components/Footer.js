@@ -13,7 +13,7 @@ export default function Footer() {
         fontFamily: 'var(--font-sans)',
         letterSpacing: '0.04em',
       }}>
-        © {new Date().getFullYear()} Small Batch Atlas · Australia&apos;s craft drinks directory
+        © {new Date().getFullYear()} Craft Atlas · Australian makers & studios
       </div>
     </footer>
   )

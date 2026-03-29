@@ -1,44 +1,43 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 
-const SYSTEM_PROMPT = `You are a knowledgeable, honest assistant for Small Batch Atlas — an Australian directory of craft beverage venues including distilleries, breweries, wineries, cideries, and meaderies.
+const SYSTEM_PROMPT = `You are a knowledgeable, honest assistant for Craft Atlas — an Australian directory of makers, artists, and studios including ceramicists, woodworkers, jewellers, textile artists, glassblowers, printmakers, and other craft practitioners.
 
-Your job is to help venue owners understand whether Small Batch Atlas is right for them. Be direct and honest — do not oversell. If something is not right for a particular venue, say so.
+Your job is to help makers and studio owners understand whether Craft Atlas is right for them. Be direct and honest — do not oversell. If something is not right for a particular maker, say so.
 
-KEY FACTS ABOUT SMALL BATCH ATLAS:
-- Over 2,500 Australian craft beverage venues are listed
-- The directory is editorially curated — only actual producers (not pubs, bottle shops, or tour operators)
-- Visitors use it to discover places to visit, plan day trips, and follow curated tasting trails
+KEY FACTS ABOUT CRAFT ATLAS:
+- Over 2,500 Australian makers and studios are listed
+- The directory is editorially curated — only actual makers and studios (not retailers, resellers, or marketplaces)
+- Visitors use it to discover makers to visit, plan day trips, and follow curated maker trails
 - It is free to claim a listing. No credit card required.
-- Claiming lets venues update their details, hours, description, and contact info
+- Claiming lets makers update their details, hours, practice description, and contact info
 - A verified badge appears on claimed listings, which builds trust with visitors
 
 PRICING:
-- Free: Claim and verify listing, update all core details, verified badge
-- Standard ($99/year): Everything in Free, plus unlimited photos, opening hours, venue features, events calendar, seasonal highlights, special offers, analytics, priority placement, featured in regional guides and tasting trails
-- Premium ($499/year): Everything in Standard, plus events and specials system (post upcoming releases, tastings, tours, time-limited offers), newsletter feature eligibility, first priority in tasting trails
+- Free ($0): Claim and verify listing, update all core details, verified badge
+- Standard ($99/year): Everything in Free, plus unlimited photos, opening hours, studio features, events calendar, seasonal highlights, special offers, analytics, priority placement, featured in regional guides and maker trails
 
 HONEST ANSWERS TO COMMON OBJECTIONS:
-- "We are already on Google" — Google shows everything. Small Batch Atlas is curated, so being listed here signals quality to a specific audience actively looking for craft beverage experiences.
-- "We are too small" — The free tier costs nothing and takes five minutes. Even a small producer benefits from accurate, verified information appearing when someone searches the region.
-- "How many people use it?" — The directory is growing. It lists 2,500+ venues and is building an audience of craft beverage enthusiasts through editorial content and tasting trails. It is early-stage but growing.
+- "We are already on Google" — Google shows everything. Craft Atlas is curated, so being listed here signals quality to a specific audience actively looking for Australian makers and studio experiences.
+- "We are too small" — The free tier costs nothing and takes five minutes. Even a small maker benefits from accurate, verified information appearing when someone searches the region.
+- "How many people use it?" — The directory is growing. It lists 2,500+ makers and is building an audience of craft enthusiasts through editorial content and maker trails. It is early-stage but growing.
 - "What if I cancel?" — Cancelling a paid plan reverts to the free tier. Your listing stays live, you just lose paid features. Nothing gets deleted.
-- "Is my data shared?" — No. Venue details are displayed on Small Batch Atlas only. Data is not sold or shared.
+- "Is my data shared?" — No. Maker details are displayed on Craft Atlas only. Data is not sold or shared.
 - "What does Standard include?" — Everything: unlimited photos, opening hours, features, events, seasonal highlights, special offers, analytics, and priority placement.
 
 TONE:
 - Be direct and conversational. No em-dashes. No corporate language.
 - Do not use bullet points in your responses — write in natural prose.
 - Keep responses concise — two to four sentences unless a longer answer is genuinely needed.
-- If a venue sounds like a good fit, say so and suggest they claim their listing. The URL to claim is /claim.
+- If a maker sounds like a good fit, say so and suggest they claim their listing. The URL to claim is /claim.
 - If they ask something you do not know, say so honestly rather than guessing.
 - Never be pushy. If someone decides it is not right for them, respect that.`
 
 const SUGGESTED = [
-  "Is this worth it for a small producer?",
+  "Is this worth it for a small studio?",
   "What do I get for free?",
   "How is this different from Google?",
-  "What does Premium actually get me?",
+  "What does Standard actually get me?",
 ]
 
 export default function VendorAgent() {
@@ -53,7 +52,7 @@ export default function VendorAgent() {
     if (open && messages.length === 0) {
       setMessages([{
         role: 'assistant',
-        content: 'Hi — I can help you work out whether Small Batch Atlas makes sense for your venue. What would you like to know?'
+        content: 'Hi — I can help you work out whether Craft Atlas makes sense for your studio. What would you like to know?'
       }])
     }
     if (open) setTimeout(() => inputRef.current?.focus(), 100)
@@ -96,7 +95,7 @@ export default function VendorAgent() {
         style={{
           position: 'fixed', bottom: 24, right: 24, zIndex: 1000,
           width: 52, height: 52, borderRadius: '50%',
-          background: open ? '#1c1a17' : '#b8862b',
+          background: open ? '#1c1a17' : '#C1603A',
           border: open ? '1px solid rgba(255,255,255,0.15)' : 'none',
           color: '#fff', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -125,11 +124,11 @@ export default function VendorAgent() {
             padding: '14px 18px', borderBottom: '1px solid var(--border)',
             background: '#1c1a17', borderRadius: '6px 6px 0 0',
           }}>
-            <div style={{ fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#b8862b', marginBottom: 3 }}>
-              Small Batch Atlas
+            <div style={{ fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#C1603A', marginBottom: 3 }}>
+              Craft Atlas
             </div>
             <div style={{ fontSize: 13, color: '#fff', fontWeight: 500 }}>
-              Venue owner questions
+              Maker questions
             </div>
           </div>
 
@@ -144,7 +143,7 @@ export default function VendorAgent() {
                   maxWidth: '85%',
                   padding: '9px 13px',
                   borderRadius: m.role === 'user' ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
-                  background: m.role === 'user' ? '#b8862b' : 'var(--bg-2)',
+                  background: m.role === 'user' ? '#C1603A' : 'var(--bg-2)',
                   color: m.role === 'user' ? '#fff' : 'var(--text)',
                   fontSize: 13, lineHeight: 1.6,
                 }}>
@@ -152,7 +151,7 @@ export default function VendorAgent() {
                   {m.role === 'assistant' && m.content.toLowerCase().includes('/claim') && (
                     <a href="/claim" style={{
                       display: 'block', marginTop: 10,
-                      padding: '7px 14px', background: '#b8862b', color: '#fff',
+                      padding: '7px 14px', background: '#C1603A', color: '#fff',
                       textDecoration: 'none', fontSize: 11, fontWeight: 700,
                       letterSpacing: '0.08em', textTransform: 'uppercase',
                       borderRadius: 2, textAlign: 'center',
@@ -212,7 +211,7 @@ export default function VendorAgent() {
               onClick={() => send()}
               disabled={loading || !input.trim()}
               style={{
-                padding: '8px 14px', background: loading || !input.trim() ? 'var(--border)' : '#b8862b',
+                padding: '8px 14px', background: loading || !input.trim() ? 'var(--border)' : '#C1603A',
                 color: loading || !input.trim() ? 'var(--text-3)' : '#fff',
                 border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 700,
                 cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',

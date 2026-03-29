@@ -58,7 +58,7 @@ export default function AnalyticsDashboard() {
     <div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 32 }}>
         {PERIODS.map((p, i) => (
-          <button key={p.label} onClick={() => setPeriod(i)} style={{ padding: '8px 16px', border: period === i ? '2px solid var(--amber)' : '1px solid var(--border)', borderRadius: 2, background: period === i ? 'rgba(200,148,58,0.1)' : 'transparent', color: period === i ? 'var(--amber)' : 'var(--text-2)', fontSize: 12, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>{p.label}</button>
+          <button key={p.label} onClick={() => setPeriod(i)} style={{ padding: '8px 16px', border: period === i ? '2px solid var(--primary)' : '1px solid var(--border)', borderRadius: 2, background: period === i ? 'rgba(193,96,58,0.1)' : 'transparent', color: period === i ? 'var(--primary)' : 'var(--text-2)', fontSize: 12, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>{p.label}</button>
         ))}
       </div>
 
@@ -77,7 +77,7 @@ export default function AnalyticsDashboard() {
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 120, padding: '0 0 20px 0', position: 'relative' }}>
                 {dailyCounts.map(d => (
                   <div key={d.date} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
-                    <div style={{ width: '100%', maxWidth: 40, height: Math.max((d.count / maxDaily) * 100, 2), background: 'var(--amber)', borderRadius: '2px 2px 0 0', opacity: 0.8 }} title={`${d.date}: ${d.count} views`} />
+                    <div style={{ width: '100%', maxWidth: 40, height: Math.max((d.count / maxDaily) * 100, 2), background: 'var(--primary)', borderRadius: '2px 2px 0 0', opacity: 0.8 }} title={`${d.date}: ${d.count} views`} />
                     <div style={{ fontSize: 9, color: 'var(--text-3)', marginTop: 4, whiteSpace: 'nowrap', transform: 'rotate(-45deg)', transformOrigin: 'top left' }}>{d.date.slice(5)}</div>
                   </div>
                 ))}
@@ -91,7 +91,7 @@ export default function AnalyticsDashboard() {
               {topPages.map(p => (
                 <div key={p.path} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid var(--border)' }}>
                   <div style={{ fontSize: 13, color: 'var(--text)', fontFamily: 'var(--font-sans)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '80%' }}>{p.path}</div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--amber)', minWidth: 40, textAlign: 'right' }}>{p.count}</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--primary)', minWidth: 40, textAlign: 'right' }}>{p.count}</div>
                 </div>
               ))}
               {topPages.length === 0 && <div style={{ fontSize: 13, color: 'var(--text-3)' }}>No data yet</div>}
@@ -101,7 +101,7 @@ export default function AnalyticsDashboard() {
               {stats?.topRefs?.map(r => (
                 <div key={r.source} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid var(--border)' }}>
                   <div style={{ fontSize: 13, color: 'var(--text)', fontFamily: 'var(--font-sans)' }}>{r.source}</div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--amber)', minWidth: 40, textAlign: 'right' }}>{r.count}</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--primary)', minWidth: 40, textAlign: 'right' }}>{r.count}</div>
                 </div>
               ))}
               {(!stats?.topRefs || stats.topRefs.length === 0) && <div style={{ fontSize: 13, color: 'var(--text-3)' }}>No referrer data yet</div>}

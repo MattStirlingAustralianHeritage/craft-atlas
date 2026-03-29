@@ -22,7 +22,7 @@ export default function VenueMap({ lat, lng, name }) {
       })
 
       // Add marker
-      new mapboxgl.default.Marker({ color: '#b8862b' })
+      new mapboxgl.default.Marker({ color: '#C1603A' })
         .setLngLat([lng, lat])
         .setPopup(
           new mapboxgl.default.Popup({ offset: 25 }).setHTML(

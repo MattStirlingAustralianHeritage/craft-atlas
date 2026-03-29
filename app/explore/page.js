@@ -1,8 +1,8 @@
 import ExploreClient from '@/components/ExploreClient'
 
 export const metadata = {
-  title: "Explore Australia's Distilleries, Breweries & Wineries",
-  description: "Browse craft distilleries, breweries and wineries across Australia. Filter by type, state, and region.",
+  title: "Explore Australian Makers & Studios",
+  description: "Browse makers, artists and studios across Australia. Filter by craft, state, and region.",
 }
 
 export default function ExplorePage() {

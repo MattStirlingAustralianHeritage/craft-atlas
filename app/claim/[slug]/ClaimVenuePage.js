@@ -64,7 +64,7 @@ export default function ClaimVenuePage({ venue }) {
   const typeLabel = venue.type ? venue.type.charAt(0).toUpperCase() + venue.type.slice(1) : 'Institution'
   const location = [venue.sub_region, venue.state].filter(Boolean).join(', ')
   const inp = { width: '100%', padding: '10px 12px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg)', color: 'var(--text)', fontFamily: 'var(--font-sans)', fontSize: 14, outline: 'none', boxSizing: 'border-box' }
-  const btn = (dis) => ({ background: dis ? 'var(--border)' : 'var(--amber)', color: '#fff', border: 'none', padding: '13px 24px', borderRadius: 2, fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', cursor: dis ? 'not-allowed' : 'pointer', width: '100%', marginTop: 4 })
+  const btn = (dis) => ({ background: dis ? 'var(--border)' : 'var(--primary)', color: '#fff', border: 'none', padding: '13px 24px', borderRadius: 2, fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', cursor: dis ? 'not-allowed' : 'pointer', width: '100%', marginTop: 4 })
   const freeFeats = ['Edit your institution description and details','Update opening hours and contact info','Manage your public listing','Upgrade anytime to add photos and events']
   const stdFeats = ['Everything in Free','Unlimited photos','Opening hours & institution features','Events calendar & seasonal highlights','Special offers & promotions','Analytics — page views and visitor trends','Priority placement in search results','Featured in regional guides & discovery trails']
 
@@ -72,7 +72,7 @@ export default function ClaimVenuePage({ venue }) {
     <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
       <section style={{ background: '#1c1a17', padding: '56px 24px 48px', borderBottom: '1px solid #333' }}>
         <div style={{ maxWidth: 560, margin: '0 auto' }}>
-          <a href="/claim" style={{ fontSize: 12, color: 'var(--amber)', textDecoration: 'none', letterSpacing: '0.08em', fontFamily: 'var(--font-sans)' }}>
+          <a href="/claim" style={{ fontSize: 12, color: 'var(--primary)', textDecoration: 'none', letterSpacing: '0.08em', fontFamily: 'var(--font-sans)' }}>
             {String.fromCharCode(8592)} Back to search
           </a>
           <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', fontWeight: 400, color: '#f5f0e8', marginTop: 20, marginBottom: 8, lineHeight: 1.2 }}>Claim {venue.name}</h1>
@@ -81,10 +81,10 @@ export default function ClaimVenuePage({ venue }) {
         </div>
       </section>
       <section style={{ padding: '48px 24px', maxWidth: 560, margin: '0 auto' }}>
-        <div style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', borderLeft: '3px solid var(--amber)', borderRadius: 3, padding: '20px 24px', marginBottom: 36 }}>
+        <div style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', borderLeft: '3px solid var(--primary)', borderRadius: 3, padding: '20px 24px', marginBottom: 36 }}>
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 600, color: 'var(--text)', marginBottom: 10 }}>{isStandard ? 'Standard includes:' : 'Free account includes:'}</p>
           {(isStandard ? stdFeats : freeFeats).map(item => (
-            <p key={item} style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--text-2)', marginBottom: 6, paddingLeft: 18, position: 'relative' }}><span style={{ position: 'absolute', left: 0, color: 'var(--amber)' }}>&#10003;</span>{item}</p>
+            <p key={item} style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--text-2)', marginBottom: 6, paddingLeft: 18, position: 'relative' }}><span style={{ position: 'absolute', left: 0, color: 'var(--primary)' }}>&#10003;</span>{item}</p>
           ))}
         </div>
 
@@ -118,8 +118,8 @@ export default function ClaimVenuePage({ venue }) {
               </button>
             </div>
             {isStandard && <p style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-3)', marginTop: 12, lineHeight: 1.6 }}>You'll be taken to Stripe to complete payment. Billed annually, cancel any time.</p>}
-            <p style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-2)', marginTop: 16, lineHeight: 1.6 }}>By claiming this institution you confirm you are authorised to represent this organisation.{' '}Already have an account?{' '}<a href="/auth/login" style={{ color: 'var(--amber)', textDecoration: 'none' }}>Sign in</a></p>
-            {isStandard && <p style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-3)', marginTop: 8 }}>Want free first? <a href={`/claim/${venue.slug}`} style={{ color: 'var(--amber)', textDecoration: 'none' }}>Claim for free instead</a></p>}
+            <p style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-2)', marginTop: 16, lineHeight: 1.6 }}>By claiming this institution you confirm you are authorised to represent this organisation.{' '}Already have an account?{' '}<a href="/auth/login" style={{ color: 'var(--primary)', textDecoration: 'none' }}>Sign in</a></p>
+            {isStandard && <p style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-3)', marginTop: 8 }}>Want free first? <a href={`/claim/${venue.slug}`} style={{ color: 'var(--primary)', textDecoration: 'none' }}>Claim for free instead</a></p>}
           </div>
         )}
       </section>

@@ -90,8 +90,8 @@ export async function POST(request) {
       const { Resend } = await import('resend')
       const resend = new Resend(process.env.RESEND_API_KEY)
       await resend.emails.send({
-        from: 'Small Batch Atlas <hello@smallbatchatlas.com.au>',
-        to: 'matt@smallbatchatlas.com.au',
+        from: 'Craft Atlas <hello@craftatlas.com.au>',
+        to: 'hello@craftatlas.com.au',
         subject: `New free claim: ${venue.name}`,
         text: `A new free claim has been submitted.\n\nVenue: ${venue.name}\nClaimant: ${name} <${email}>\n\nReview it in your admin dashboard.`,
       })

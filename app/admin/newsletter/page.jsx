@@ -7,7 +7,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
-const amber = '#b8862b'
+const amber = '#C1603A'
 const bg = '#faf8f5'
 const cardBg = '#f5f2ed'
 const border = '#e5e0d8'
@@ -157,7 +157,7 @@ export default function NewsletterAdmin() {
     <div style={s.page}>
       <div style={s.header}>
         <div>
-          <p style={{ margin: '0 0 4px', fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: muted }}>Small Batch Atlas</p>
+          <p style={{ margin: '0 0 4px', fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: muted }}>Craft Atlas</p>
           <h1 style={s.h1}>Newsletter</h1>
         </div>
         <div style={s.stat}>

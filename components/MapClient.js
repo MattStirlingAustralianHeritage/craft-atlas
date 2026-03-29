@@ -5,7 +5,7 @@ import { getSupabase } from '@/lib/supabase'
 import { TYPE_COLORS, STATES } from '@/lib/constants'
 import SemanticSearchBar from './SemanticSearchBar'
 
-const AMBER = '#b8862b'
+const PRIMARY = '#C1603A'
 
 function TrailAuthModal({ onClose }) {
   return (
@@ -13,15 +13,15 @@ function TrailAuthModal({ onClose }) {
       <div onClick={e => e.stopPropagation()} style={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 6, padding: '40px 36px', maxWidth: 400, width: '100%', textAlign: 'center', boxShadow: '0 8px 40px rgba(0,0,0,0.18)' }}>
         <div style={{ fontSize: 28, marginBottom: 16 }}>🗺️</div>
         <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 22, fontWeight: 400, color: 'var(--text)', marginBottom: 10, lineHeight: 1.3 }}>Create an account to build trails</h2>
-        <p style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--text-2)', lineHeight: 1.6, marginBottom: 28 }}>Plan and save curated routes across Australia's best craft beverage makers. Free to join.</p>
+        <p style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--text-2)', lineHeight: 1.6, marginBottom: 28 }}>Plan and save curated routes across Australia's best makers, artists and studios. Free to join.</p>
         <button
-          onClick={() => { window.dispatchEvent(new CustomEvent('sba:openauth')); onClose() }}
-          style={{ display: 'block', width: '100%', padding: '12px 0', background: AMBER, color: '#fff', border: 'none', borderRadius: 3, fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', cursor: 'pointer', marginBottom: 10 }}
+          onClick={() => { window.dispatchEvent(new CustomEvent('craftatlas:openauth')); onClose() }}
+          style={{ display: 'block', width: '100%', padding: '12px 0', background: PRIMARY, color: '#fff', border: 'none', borderRadius: 3, fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', cursor: 'pointer', marginBottom: 10 }}
         >
           Sign up — it's free
         </button>
         <button
-          onClick={() => { window.dispatchEvent(new CustomEvent('sba:openauth')); onClose() }}
+          onClick={() => { window.dispatchEvent(new CustomEvent('craftatlas:openauth')); onClose() }}
           style={{ display: 'block', width: '100%', padding: '11px 0', background: 'transparent', color: 'var(--text-2)', border: '1px solid var(--border)', borderRadius: 3, fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', cursor: 'pointer' }}
         >
           Sign in
@@ -32,7 +32,7 @@ function TrailAuthModal({ onClose }) {
   )
 }
 
-const TYPES = ['All', 'Distillery', 'Brewery', 'Winery', 'Cidery', 'Meadery', 'Sake Brewery', 'Non-Alcoholic']
+const TYPES = ['All', 'Ceramics & Clay', 'Visual Art', 'Jewellery & Metalwork', 'Textile & Fibre', 'Wood & Furniture', 'Glass', 'Printmaking']
 const PREMIUM_COLOR = '#c8943a'
 
 const STATE_BOUNDS = {
@@ -51,16 +51,17 @@ export default function MapPageClient() {
   const mapContainer = useRef(null)
   const map = useRef(null)
   const popup = useRef(null)
-  // allVenues: full dataset, never mutated after load
-  // venues: current display set (filtered by semantic search)
-  const [allVenues, setAllVenues] = useState([])
-  const [venues, setVenues] = useState([])
+  // allStudios: full dataset, never mutated after load
+  // studios: current display set (filtered by semantic search)
+  const [allStudios, setAllStudios] = useState([])
+  const [studios, setStudios] = useState([])
   const [events, setEvents] = useState([])
   const [typeFilter, setTypeFilter] = useState('All')
   const [stateFilter, setStateFilter] = useState('All States')
+  const [experiencesFilter, setExperiencesFilter] = useState(false)
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
-  const [venueCount, setVenueCount] = useState(0)
+  const [studioCount, setStudioCount] = useState(0)
   const [mapReady, setMapReady] = useState(false)
   const [activeTab, setActiveTab] = useState('map')
   const [user, setUser] = useState(undefined)
@@ -71,23 +72,23 @@ export default function MapPageClient() {
   const [mobileLegendOpen, setMobileLegendOpen] = useState(false)
   const [legendCollapsed, setLegendCollapsed] = useState(false)
 
-  // Keep a ref to venues so the map source update effect always has the latest value
-  const venuesRef = useRef([])
-  useEffect(() => { venuesRef.current = venues }, [venues])
-  const pendingFitRef = useRef(null) // venues to fit bounds to once map is ready
+  // Keep a ref to studios so the map source update effect always has the latest value
+  const studiosRef = useRef([])
+  useEffect(() => { studiosRef.current = studios }, [studios])
+  const pendingFitRef = useRef(null) // studios to fit bounds to once map is ready
 
   useEffect(() => {
     async function fetchData() {
       const supabase = getSupabase()
-      const [{ data: venueData }, { data: eventData }, { data: { user: currentUser } }] = await Promise.all([
+      const [{ data: studioData }, { data: eventData }, { data: { user: currentUser } }] = await Promise.all([
         supabase.from('venues').select('id, name, slug, type, state, sub_region, latitude, longitude, listing_tier, is_claimed, description').eq('status', 'published'),
         supabase.from('events').select('venue_id, title, event_date, event_type').gte('event_date', new Date().toISOString()).order('event_date', { ascending: true }),
         supabase.auth.getUser(),
       ])
-      if (venueData) {
-        setAllVenues(venueData)
-        setVenues(venueData)
-        setVenueCount(venueData.length)
+      if (studioData) {
+        setAllStudios(studioData)
+        setStudios(studioData)
+        setStudioCount(studioData.length)
       }
       if (eventData) setEvents(eventData || [])
       setUser(currentUser ?? null)
@@ -99,7 +100,7 @@ export default function MapPageClient() {
           const res = await fetch(`/api/search?q=${encodeURIComponent(qParam)}`)
           if (res.ok) {
             const { venues: results } = await res.json()
-            setVenues(results)
+            setStudios(results)
             setSemanticActive(true)
             pendingFitRef.current = results
             setFitRequest(n => n + 1)
@@ -112,12 +113,12 @@ export default function MapPageClient() {
 
   const handleSemanticResults = useCallback((results, meta) => {
     if (!results) {
-      setVenues(allVenues)
+      setStudios(allStudios)
       setSemanticActive(false)
       window.history.replaceState({}, '', '/map')
       return
     }
-    setVenues(results)
+    setStudios(results)
     setSemanticActive(true)
     const params = new URLSearchParams(window.location.search)
     if (meta?.parsed?.query) params.set('q', meta.parsed.query)
@@ -125,24 +126,24 @@ export default function MapPageClient() {
     // Fit map to results
     pendingFitRef.current = results
     setFitRequest(n => n + 1)
-  }, [allVenues])
+  }, [allStudios])
 
   const clearSemanticSearch = useCallback(() => {
-    setVenues(allVenues)
+    setStudios(allStudios)
     setSemanticActive(false)
     window.history.replaceState({}, '', '/map')
-  }, [allVenues])
+  }, [allStudios])
 
-  // Build map once on mount (or tab switch) using allVenues as the initial dataset.
-  // Does NOT depend on `venues` — semantic updates go through the source-update effect below.
+  // Build map once on mount (or tab switch) using allStudios as the initial dataset.
+  // Does NOT depend on `studios` — semantic updates go through the source-update effect below.
   useEffect(() => {
     if (activeTab !== 'map') return
-    if (!allVenues.length || !mapContainer.current) return
+    if (!allStudios.length || !mapContainer.current) return
     if (map.current) { try { map.current.remove() } catch(e) {} map.current = null }
 
-    const venuesWithEvents = new Set((events || []).map(e => e.venue_id))
-    const eventByVenue = {}
-    ;(events || []).forEach(e => { if (!eventByVenue[e.venue_id]) eventByVenue[e.venue_id] = e })
+    const studiosWithEvents = new Set((events || []).map(e => e.venue_id))
+    const eventByStudio = {}
+    ;(events || []).forEach(e => { if (!eventByStudio[e.venue_id]) eventByStudio[e.venue_id] = e })
 
     import('mapbox-gl').then(mapboxgl => {
       mapboxgl.default.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
@@ -165,47 +166,47 @@ export default function MapPageClient() {
       })
 
       map.current.on('load', () => {
-        // Seed with whatever is in venuesRef at load time (may already be a semantic result set)
-        const initialVenues = venuesRef.current.length ? venuesRef.current : allVenues
-        const filtered = getFiltered(initialVenues, typeFilter, stateFilter, search)
-        if (map.current.getSource('venues-clustered')) return
-        map.current.addSource('venues-clustered', {
+        // Seed with whatever is in studiosRef at load time (may already be a semantic result set)
+        const initialStudios = studiosRef.current.length ? studiosRef.current : allStudios
+        const filtered = getFiltered(initialStudios, typeFilter, stateFilter, search, experiencesFilter)
+        if (map.current.getSource('studios-clustered')) return
+        map.current.addSource('studios-clustered', {
           type: 'geojson',
           cluster: true,
           clusterMaxZoom: 10,
           clusterMinPoints: 10,
           clusterRadius: 50,
-          data: buildGeoJSON(filtered, venuesWithEvents, eventByVenue),
+          data: buildGeoJSON(filtered, studiosWithEvents, eventByStudio),
         })
 
-        map.current.addLayer({ id: 'clusters', type: 'circle', source: 'venues-clustered', filter: ['has', 'point_count'],
+        map.current.addLayer({ id: 'clusters', type: 'circle', source: 'studios-clustered', filter: ['has', 'point_count'],
           paint: {
-            'circle-color': ['step', ['get', 'point_count'], '#c8a070', 50, '#b8862b', 200, '#8a6020'],
+            'circle-color': ['step', ['get', 'point_count'], '#c8a070', 50, '#C1603A', 200, '#8a6020'],
             'circle-radius': ['step', ['get', 'point_count'], 18, 50, 24, 200, 32],
             'circle-stroke-width': 2, 'circle-stroke-color': '#ffffff', 'circle-opacity': 0.9,
           }
         })
-        map.current.addLayer({ id: 'cluster-count', type: 'symbol', source: 'venues-clustered', filter: ['has', 'point_count'],
+        map.current.addLayer({ id: 'cluster-count', type: 'symbol', source: 'studios-clustered', filter: ['has', 'point_count'],
           layout: { 'text-field': '{point_count_abbreviated}', 'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'], 'text-size': 13 },
           paint: { 'text-color': '#ffffff' }
         })
-        map.current.addLayer({ id: 'pins-basic', type: 'circle', source: 'venues-clustered',
+        map.current.addLayer({ id: 'pins-basic', type: 'circle', source: 'studios-clustered',
           filter: ['all', ['!', ['has', 'point_count']], ['!', ['in', ['get', 'tier'], ['literal', ['standard', 'premium']]]]],
           paint: { 'circle-radius': 6, 'circle-color': ['get', 'color'], 'circle-stroke-width': 2, 'circle-stroke-color': '#ffffff', 'circle-opacity': 1 }
         })
-        map.current.addLayer({ id: 'pins-standard-glow', type: 'circle', source: 'venues-clustered',
+        map.current.addLayer({ id: 'pins-standard-glow', type: 'circle', source: 'studios-clustered',
           filter: ['all', ['!', ['has', 'point_count']], ['==', ['get', 'tier'], 'standard']],
-          paint: { 'circle-radius': 13, 'circle-color': 'transparent', 'circle-stroke-width': 1.5, 'circle-stroke-color': '#b8862b', 'circle-stroke-opacity': 0.5, 'circle-opacity': 0 }
+          paint: { 'circle-radius': 13, 'circle-color': 'transparent', 'circle-stroke-width': 1.5, 'circle-stroke-color': '#C1603A', 'circle-stroke-opacity': 0.5, 'circle-opacity': 0 }
         })
-        map.current.addLayer({ id: 'pins-standard', type: 'circle', source: 'venues-clustered',
+        map.current.addLayer({ id: 'pins-standard', type: 'circle', source: 'studios-clustered',
           filter: ['all', ['!', ['has', 'point_count']], ['==', ['get', 'tier'], 'standard']],
           paint: { 'circle-radius': 7, 'circle-color': ['get', 'color'], 'circle-stroke-width': 2, 'circle-stroke-color': '#ffffff', 'circle-opacity': 1 }
         })
-        map.current.addLayer({ id: 'pins-premium', type: 'circle', source: 'venues-clustered',
+        map.current.addLayer({ id: 'pins-premium', type: 'circle', source: 'studios-clustered',
           filter: ['all', ['!', ['has', 'point_count']], ['==', ['get', 'tier'], 'premium']],
           paint: { 'circle-radius': 9, 'circle-color': PREMIUM_COLOR, 'circle-stroke-width': 2.5, 'circle-stroke-color': '#ffffff', 'circle-opacity': 1 }
         })
-        map.current.addLayer({ id: 'pins-event-pulse', type: 'circle', source: 'venues-clustered',
+        map.current.addLayer({ id: 'pins-event-pulse', type: 'circle', source: 'studios-clustered',
           filter: ['all', ['!', ['has', 'point_count']], ['==', ['get', 'hasEvent'], true]],
           paint: { 'circle-radius': 14, 'circle-color': 'transparent', 'circle-stroke-width': 2, 'circle-stroke-color': PREMIUM_COLOR, 'circle-stroke-opacity': 0.6, 'circle-opacity': 0 }
         })
@@ -238,7 +239,7 @@ export default function MapPageClient() {
                 <div style="font-size:11px;color:#9a8878;margin-bottom:${desc ? 8 : 10}px;">${props.location}</div>
                 ${desc ? `<div style="font-size:12px;color:#5a4e45;line-height:1.5;margin-bottom:10px;">${desc}</div>` : ''}
                 ${eventInfo}
-                <a href="/venue/${props.slug}" style="display:block;margin-top:10px;padding:7px 0;text-align:center;background:#b8862b;color:#fff;text-decoration:none;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;border-radius:2px;">View listing →</a>
+                <a href="/venue/${props.slug}" style="display:block;margin-top:10px;padding:7px 0;text-align:center;background:#C1603A;color:#fff;text-decoration:none;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;border-radius:2px;">View listing →</a>
               </div>`
             ).addTo(map.current)
           })
@@ -251,7 +252,7 @@ export default function MapPageClient() {
         map.current.on('click', 'clusters', (e) => {
           const features = map.current.queryRenderedFeatures(e.point, { layers: ['clusters'] })
           const clusterId = features[0].properties.cluster_id
-          map.current.getSource('venues-clustered').getClusterExpansionZoom(clusterId, (err, zoom) => {
+          map.current.getSource('studios-clustered').getClusterExpansionZoom(clusterId, (err, zoom) => {
             if (err) return
             map.current.easeTo({ center: features[0].geometry.coordinates, zoom: zoom + 1 })
           })
@@ -266,12 +267,12 @@ export default function MapPageClient() {
       if (popup.current) popup.current.remove()
       if (map.current) { try { map.current.remove() } catch(e) {} map.current = null }
     }
-  }, [allVenues, events, activeTab]) // <-- allVenues not venues: only rebuilds on initial load / tab switch
+  }, [allStudios, events, activeTab]) // <-- allStudios not studios: only rebuilds on initial load / tab switch
 
-  // Fit map to a set of venues
-  const fitToVenues = useCallback((venueList) => {
-    if (!map.current || !venueList?.length) return
-    const withCoords = venueList.filter(v => v.latitude && v.longitude)
+  // Fit map to a set of studios
+  const fitToStudios = useCallback((studioList) => {
+    if (!map.current || !studioList?.length) return
+    const withCoords = studioList.filter(v => v.latitude && v.longitude)
     if (!withCoords.length) return
     if (withCoords.length === 1) {
       map.current.flyTo({ center: [parseFloat(withCoords[0].longitude), parseFloat(withCoords[0].latitude)], zoom: 11, duration: 800 })
@@ -288,21 +289,21 @@ export default function MapPageClient() {
   // Fit to pending results whenever mapReady or a new fitRequest comes in
   useEffect(() => {
     if (!mapReady || !pendingFitRef.current) return
-    fitToVenues(pendingFitRef.current)
+    fitToStudios(pendingFitRef.current)
     pendingFitRef.current = null
-  }, [mapReady, fitRequest, fitToVenues])
+  }, [mapReady, fitRequest, fitToStudios])
 
-  // Update map source whenever venues (semantic results) OR filters change
+  // Update map source whenever studios (semantic results) OR filters change
   useEffect(() => {
     if (!mapReady || !map.current) return
-    const venuesWithEvents = new Set((events || []).map(e => e.venue_id))
-    const eventByVenue = {}
-    ;(events || []).forEach(e => { if (!eventByVenue[e.venue_id]) eventByVenue[e.venue_id] = e })
-    const filtered = getFiltered(venues, typeFilter, stateFilter, search)
-    setVenueCount(filtered.length)
-    const source = map.current.getSource('venues-clustered')
-    if (source) source.setData(buildGeoJSON(filtered, venuesWithEvents, eventByVenue))
-  }, [venues, typeFilter, stateFilter, search, mapReady])
+    const studiosWithEvents = new Set((events || []).map(e => e.venue_id))
+    const eventByStudio = {}
+    ;(events || []).forEach(e => { if (!eventByStudio[e.venue_id]) eventByStudio[e.venue_id] = e })
+    const filtered = getFiltered(studios, typeFilter, stateFilter, search, experiencesFilter)
+    setStudioCount(filtered.length)
+    const source = map.current.getSource('studios-clustered')
+    if (source) source.setData(buildGeoJSON(filtered, studiosWithEvents, eventByStudio))
+  }, [studios, typeFilter, stateFilter, search, experiencesFilter, mapReady])
 
   // Zoom to state when state filter changes
   useEffect(() => {
@@ -322,12 +323,12 @@ export default function MapPageClient() {
     letterSpacing: '0.08em',
     textTransform: 'uppercase',
     fontFamily: 'var(--font-sans)',
-    background: activeTab === tab ? 'var(--amber)' : 'rgba(139,117,87,0.1)',
+    background: activeTab === tab ? 'var(--primary)' : 'rgba(139,117,87,0.1)',
     color: activeTab === tab ? '#fff' : 'var(--text-2)',
     transition: 'all 0.15s',
   })
 
-  const activeFilterCount = (typeFilter !== 'All' ? 1 : 0) + (stateFilter !== 'All States' ? 1 : 0) + (search ? 1 : 0)
+  const activeFilterCount = (typeFilter !== 'All' ? 1 : 0) + (stateFilter !== 'All States' ? 1 : 0) + (experiencesFilter ? 1 : 0) + (search ? 1 : 0)
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100svh' }}>
@@ -339,7 +340,7 @@ export default function MapPageClient() {
         <button style={tabBtnStyle('map')} onClick={() => setActiveTab('map')}>Map</button>
         <button style={tabBtnStyle('builder')} onClick={() => {
           if (user) { setActiveTab('builder') } else { setShowTrailModal(true) }
-        }}>Build a trail</button>
+        }}>Build a Maker Trail</button>
       </div>
 
       {/* ── DESKTOP TOOLBAR (hidden on mobile) ── */}
@@ -350,9 +351,9 @@ export default function MapPageClient() {
             {semanticActive && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 2px 8px' }}>
                 <span style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-3)' }}>
-                  {venueCount} result{venueCount !== 1 ? 's' : ''}
+                  {studioCount} result{studioCount !== 1 ? 's' : ''}
                 </span>
-                <button onClick={clearSemanticSearch} style={{ fontFamily: 'var(--font-sans)', fontSize: 11, padding: '2px 8px', borderRadius: 2, border: '1px solid var(--border)', background: 'none', color: 'var(--amber)', cursor: 'pointer', letterSpacing: '0.04em' }}>
+                <button onClick={clearSemanticSearch} style={{ fontFamily: 'var(--font-sans)', fontSize: 11, padding: '2px 8px', borderRadius: 2, border: '1px solid var(--border)', background: 'none', color: 'var(--primary)', cursor: 'pointer', letterSpacing: '0.04em' }}>
                   Clear search
                 </button>
               </div>
@@ -365,13 +366,15 @@ export default function MapPageClient() {
               style={{ padding: '6px 12px', background: 'var(--bg)', border: '1px solid var(--border-2)', color: 'var(--text)', fontSize: 12, outline: 'none', borderRadius: 2, width: 160, fontFamily: 'var(--font-sans)' }} />
             <div style={{ width: 1, height: 18, background: 'var(--border)' }} />
             {TYPES.map(t => (
-              <button key={t} onClick={() => setTypeFilter(t)} style={{ padding: '5px 12px', borderRadius: 2, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 500, fontFamily: 'var(--font-sans)', background: typeFilter === t ? 'var(--amber)' : 'rgba(139,117,87,0.1)', color: typeFilter === t ? 'var(--bg)' : 'var(--text-2)', transition: 'all 0.15s' }}>{t}</button>
+              <button key={t} onClick={() => setTypeFilter(t)} style={{ padding: '5px 12px', borderRadius: 2, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 500, fontFamily: 'var(--font-sans)', background: typeFilter === t ? 'var(--primary)' : 'rgba(139,117,87,0.1)', color: typeFilter === t ? 'var(--bg)' : 'var(--text-2)', transition: 'all 0.15s' }}>{t}</button>
             ))}
+            <div style={{ width: 1, height: 18, background: 'var(--border)' }} />
+            <button onClick={() => setExperiencesFilter(v => !v)} style={{ padding: '5px 12px', borderRadius: 2, border: experiencesFilter ? '1px solid var(--accent)' : '1px solid transparent', cursor: 'pointer', fontSize: 11, fontWeight: 500, fontFamily: 'var(--font-sans)', background: experiencesFilter ? 'rgba(122,140,126,0.15)' : 'rgba(139,117,87,0.1)', color: experiencesFilter ? 'var(--accent)' : 'var(--text-2)', transition: 'all 0.15s' }}>Experiences & Classes</button>
             <div style={{ width: 1, height: 18, background: 'var(--border)' }} />
             {['All States', ...STATES.filter(s => s !== 'All States')].map(s => (
               <button key={s} onClick={() => setStateFilter(s)} style={{ padding: '5px 9px', borderRadius: 2, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 500, fontFamily: 'var(--font-sans)', background: stateFilter === s ? 'rgba(139,117,87,0.15)' : 'transparent', color: stateFilter === s ? 'var(--text)' : 'var(--text-3)', transition: 'all 0.15s' }}>{s}</button>
             ))}
-            <div style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-3)' }}>{loading ? 'Loading...' : `${venueCount.toLocaleString()} venues`}</div>
+            <div style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-3)' }}>{loading ? 'Loading...' : `${studioCount.toLocaleString()} studios`}</div>
           </div>
         )}
       </div>
@@ -394,12 +397,12 @@ export default function MapPageClient() {
             </button>
             {!legendCollapsed && (
               <div style={{ padding: '0 14px 12px' }}>
-                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 8, fontFamily: 'var(--font-sans)' }}>Venue Types</div>
+                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 8, fontFamily: 'var(--font-sans)' }}>Craft Types</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 16px' }}>
                   {Object.entries(TYPE_COLORS).map(([type, color]) => (
                     <div key={type} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       <span style={{ width: 7, height: 7, borderRadius: '50%', background: color, display: 'inline-block', flexShrink: 0 }} />
-                      <span style={{ fontSize: 10, color: 'var(--text-2)', textTransform: 'capitalize' }}>{type.replace('_', ' ')}</span>
+                      <span style={{ fontSize: 10, color: 'var(--text-2)', textTransform: 'capitalize' }}>{type.replace(/_/g, ' ')}</span>
                     </div>
                   ))}
                 </div>
@@ -430,8 +433,8 @@ export default function MapPageClient() {
             style={{
               position: 'absolute', bottom: 100, right: 16, zIndex: 10,
               width: 48, height: 48, borderRadius: '50%',
-              background: mobileSheetOpen ? AMBER : 'rgba(250,247,242,0.97)',
-              border: `1px solid ${mobileSheetOpen ? AMBER : 'var(--border)'}`,
+              background: mobileSheetOpen ? PRIMARY : 'rgba(250,247,242,0.97)',
+              border: `1px solid ${mobileSheetOpen ? PRIMARY : 'var(--border)'}`,
               boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               cursor: 'pointer', transition: 'all 0.2s',
@@ -440,10 +443,10 @@ export default function MapPageClient() {
             {mobileSheetOpen ? (
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
             ) : (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={activeFilterCount > 0 ? AMBER : 'var(--text-2)'} strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={activeFilterCount > 0 ? PRIMARY : 'var(--text-2)'} strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
             )}
             {activeFilterCount > 0 && !mobileSheetOpen && (
-              <span style={{ position: 'absolute', top: 8, right: 8, width: 8, height: 8, borderRadius: '50%', background: AMBER, border: '1.5px solid white' }} />
+              <span style={{ position: 'absolute', top: 8, right: 8, width: 8, height: 8, borderRadius: '50%', background: PRIMARY, border: '1.5px solid white' }} />
             )}
           </button>
 
@@ -472,12 +475,12 @@ export default function MapPageClient() {
               borderRadius: 6, padding: '12px 14px',
               boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
             }}>
-              <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 8 }}>Venue Types</div>
+              <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 8 }}>Craft Types</div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 16px' }}>
                 {Object.entries(TYPE_COLORS).map(([type, color]) => (
                   <div key={type} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ width: 7, height: 7, borderRadius: '50%', background: color, display: 'inline-block', flexShrink: 0 }} />
-                    <span style={{ fontSize: 10, color: 'var(--text-2)', textTransform: 'capitalize' }}>{type.replace('_', ' ')}</span>
+                    <span style={{ fontSize: 10, color: 'var(--text-2)', textTransform: 'capitalize' }}>{type.replace(/_/g, ' ')}</span>
                   </div>
                 ))}
               </div>
@@ -504,8 +507,8 @@ export default function MapPageClient() {
                 <SemanticSearchBar onResults={(results, meta) => { handleSemanticResults(results, meta); if (results) setMobileSheetOpen(false) }} compact />
                 {semanticActive && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
-                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-3)' }}>{venueCount} result{venueCount !== 1 ? 's' : ''}</span>
-                    <button onClick={() => { clearSemanticSearch(); }} style={{ fontFamily: 'var(--font-sans)', fontSize: 12, padding: '2px 8px', borderRadius: 2, border: '1px solid var(--border)', background: 'none', color: 'var(--amber)', cursor: 'pointer' }}>Clear</button>
+                    <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-3)' }}>{studioCount} result{studioCount !== 1 ? 's' : ''}</span>
+                    <button onClick={() => { clearSemanticSearch(); }} style={{ fontFamily: 'var(--font-sans)', fontSize: 12, padding: '2px 8px', borderRadius: 2, border: '1px solid var(--border)', background: 'none', color: 'var(--primary)', cursor: 'pointer' }}>Clear</button>
                   </div>
                 )}
               </div>
@@ -513,23 +516,33 @@ export default function MapPageClient() {
               {/* Name filter */}
               <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)' }}>
                 <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 8, fontFamily: 'var(--font-sans)' }}>Filter by name</div>
-                <input value={search} onChange={e => setSearch(e.target.value)} placeholder="e.g. Four Pillars..."
+                <input value={search} onChange={e => setSearch(e.target.value)} placeholder="e.g. Studio name..."
                   style={{ width: '100%', padding: '9px 12px', background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)', fontSize: 13, outline: 'none', borderRadius: 4, fontFamily: 'var(--font-sans)', boxSizing: 'border-box' }} />
               </div>
 
               {/* Type filters */}
               <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)' }}>
-                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 10, fontFamily: 'var(--font-sans)' }}>Venue type</div>
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 10, fontFamily: 'var(--font-sans)' }}>Craft type</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                   {TYPES.map(t => (
                     <button key={t} onClick={() => setTypeFilter(t)} style={{
-                      padding: '7px 14px', borderRadius: 20, border: `1px solid ${typeFilter === t ? AMBER : 'var(--border)'}`,
+                      padding: '7px 14px', borderRadius: 20, border: `1px solid ${typeFilter === t ? PRIMARY : 'var(--border)'}`,
                       cursor: 'pointer', fontSize: 12, fontWeight: 500, fontFamily: 'var(--font-sans)',
-                      background: typeFilter === t ? AMBER : 'transparent',
+                      background: typeFilter === t ? PRIMARY : 'transparent',
                       color: typeFilter === t ? '#fff' : 'var(--text-2)', transition: 'all 0.15s',
                     }}>{t}</button>
                   ))}
                 </div>
+              </div>
+
+              {/* Experiences & Classes filter */}
+              <div style={{ padding: '14px 20px' }}>
+                <button onClick={() => setExperiencesFilter(v => !v)} style={{
+                  padding: '7px 14px', borderRadius: 20, border: `1px solid ${experiencesFilter ? 'var(--accent)' : 'var(--border)'}`,
+                  cursor: 'pointer', fontSize: 12, fontWeight: 500, fontFamily: 'var(--font-sans)',
+                  background: experiencesFilter ? 'rgba(122,140,126,0.15)' : 'transparent',
+                  color: experiencesFilter ? 'var(--accent)' : 'var(--text-2)', transition: 'all 0.15s',
+                }}>Experiences & Classes</button>
               </div>
 
               {/* State filters */}
@@ -538,9 +551,9 @@ export default function MapPageClient() {
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                   {['All States', ...STATES.filter(s => s !== 'All States')].map(s => (
                     <button key={s} onClick={() => { setStateFilter(s); setMobileSheetOpen(false) }} style={{
-                      padding: '7px 14px', borderRadius: 20, border: `1px solid ${stateFilter === s ? AMBER : 'var(--border)'}`,
+                      padding: '7px 14px', borderRadius: 20, border: `1px solid ${stateFilter === s ? PRIMARY : 'var(--border)'}`,
                       cursor: 'pointer', fontSize: 12, fontWeight: 500, fontFamily: 'var(--font-sans)',
-                      background: stateFilter === s ? AMBER : 'transparent',
+                      background: stateFilter === s ? PRIMARY : 'transparent',
                       color: stateFilter === s ? '#fff' : 'var(--text-2)', transition: 'all 0.15s',
                     }}>{s}</button>
                   ))}
@@ -550,11 +563,11 @@ export default function MapPageClient() {
               {/* Count + clear all */}
               <div style={{ padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-3)' }}>
-                  {loading ? 'Loading…' : `${venueCount.toLocaleString()} venues`}
+                  {loading ? 'Loading…' : `${studioCount.toLocaleString()} studios`}
                 </span>
                 {activeFilterCount > 0 && (
-                  <button onClick={() => { setTypeFilter('All'); setStateFilter('All States'); setSearch(''); clearSemanticSearch() }}
-                    style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: AMBER, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
+                  <button onClick={() => { setTypeFilter('All'); setStateFilter('All States'); setExperiencesFilter(false); setSearch(''); clearSemanticSearch() }}
+                    style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: PRIMARY, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
                     Clear all filters
                   </button>
                 )}
@@ -564,13 +577,13 @@ export default function MapPageClient() {
         </div>
       )}
 
-      {/* Trail builder — embedded iframe */}
+      {/* Maker Trail builder — embedded iframe */}
       {activeTab === 'builder' && (
         <div className="builder-iframe-container" style={{ flex: 1, minHeight: 0 }}>
           <iframe
             src="/trails/builder?embed=1&tab=builder"
             style={{ width: '100%', height: '100%', border: 'none' }}
-            title="Trail Builder"
+            title="Maker Trail Builder"
           />
         </div>
       )}
@@ -589,23 +602,24 @@ export default function MapPageClient() {
   )
 }
 
-function getFiltered(venues, typeFilter, stateFilter, search) {
-  return venues.filter(v => {
-    const matchType = typeFilter === 'All' || v.type === typeFilter.toLowerCase().replace(' ', '_')
+function getFiltered(studios, typeFilter, stateFilter, search, experiencesFilter = false) {
+  return studios.filter(v => {
+    const matchType = typeFilter === 'All' || v.type === typeFilter.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_')
     const matchState = stateFilter === 'All States' || v.state === stateFilter
     const matchSearch = !search || v.name.toLowerCase().includes(search.toLowerCase())
-    return matchType && matchState && matchSearch
+    const matchExperiences = !experiencesFilter || v.experiences_and_classes === true
+    return matchType && matchState && matchSearch && matchExperiences
   })
 }
 
-function buildGeoJSON(venues, venuesWithEvents, eventByVenue = {}) {
+function buildGeoJSON(studios, studiosWithEvents, eventByStudio = {}) {
   return {
     type: 'FeatureCollection',
-    features: venues.filter(v => v.latitude && v.longitude).map(v => {
-      const color = TYPE_COLORS[v.type] || '#c8943a'
+    features: studios.filter(v => v.latitude && v.longitude).map(v => {
+      const color = TYPE_COLORS[v.type] || '#C1603A'
       const tier = v.listing_tier || 'basic'
-      const hasEvent = venuesWithEvents.has(v.id)
-      const nextEvent = eventByVenue[v.id]
+      const hasEvent = studiosWithEvents.has(v.id)
+      const nextEvent = eventByStudio[v.id]
       return {
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [parseFloat(v.longitude), parseFloat(v.latitude)] },

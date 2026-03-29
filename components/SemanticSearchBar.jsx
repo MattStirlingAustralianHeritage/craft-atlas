@@ -1,7 +1,7 @@
 'use client'
 
 // components/SemanticSearchBar.jsx
-// Natural language search bar for SBA main page.
+// Natural language search bar for Craft Atlas main page.
 // Sits above the map as primary entry point.
 // Passes Mapbox bounds with each request so the API can
 // return majorityInBounds — client uses this to decide
@@ -13,11 +13,11 @@ import { useRouter } from 'next/navigation'
 const DEBOUNCE_MS = 300
 
 const SUGGESTIONS = [
-  'wild ferment wines in the Yarra Valley',
-  'dog-friendly urban breweries Melbourne',
-  'barrel-aged spirits cellar door',
-  'destination cidery regional NSW',
-  'natural wine producers South Australia',
+  'hand-thrown ceramics in the Yarra Valley',
+  'dog-friendly maker studios Melbourne',
+  'woodworking studio open workshop',
+  'destination glassblowing regional NSW',
+  'textile artists South Australia',
 ]
 
 export default function SemanticSearchBar({ mapRef, onResults, onLoading }) {
@@ -130,8 +130,8 @@ export default function SemanticSearchBar({ mapRef, onResults, onLoading }) {
           transition: 'box-shadow 0.15s ease',
         }}
         onFocus={(e) => {
-          e.currentTarget.style.boxShadow = '0 2px 16px rgba(184,134,43,0.15)'
-          e.currentTarget.style.borderColor = 'var(--amber, #b8862b)'
+          e.currentTarget.style.boxShadow = '0 2px 16px rgba(193,96,58,0.15)'
+          e.currentTarget.style.borderColor = 'var(--primary, #C1603A)'
         }}
         onBlur={(e) => {
           if (!e.currentTarget.contains(e.relatedTarget)) {
@@ -146,7 +146,7 @@ export default function SemanticSearchBar({ mapRef, onResults, onLoading }) {
           padding: '0 14px',
           display: 'flex',
           alignItems: 'center',
-          color: isLoading ? 'var(--amber, #b8862b)' : 'var(--text-muted, #8a7d6b)',
+          color: isLoading ? 'var(--primary, #C1603A)' : 'var(--text-muted, #8a7d6b)',
           flexShrink: 0,
         }}>
           {isLoading ? (
@@ -171,7 +171,7 @@ export default function SemanticSearchBar({ mapRef, onResults, onLoading }) {
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           onFocus={() => setShowSuggestions(true)}
-          placeholder="Search by vibe, method, region… try 'wild ferment wines Yarra Valley'"
+          placeholder="Search by vibe, practice, region… try 'hand-thrown ceramics Yarra Valley'"
           autoComplete="off"
           autoCorrect="off"
           spellCheck="false"
@@ -222,7 +222,7 @@ export default function SemanticSearchBar({ mapRef, onResults, onLoading }) {
           disabled={!query.trim() || isLoading}
           style={{
             padding: '12px 20px',
-            background: query.trim() ? 'var(--amber, #b8862b)' : 'var(--bg-muted, #f5f0e8)',
+            background: query.trim() ? 'var(--primary, #C1603A)' : 'var(--bg-muted, #f5f0e8)',
             border: 'none',
             borderLeft: '1.5px solid var(--border, #e0d8cc)',
             color: query.trim() ? '#fff' : 'var(--text-muted, #8a7d6b)',
@@ -297,7 +297,7 @@ export default function SemanticSearchBar({ mapRef, onResults, onLoading }) {
               onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-muted, #f5f0e8)'}
               onMouseLeave={e => e.currentTarget.style.background = 'none'}
             >
-              <span style={{ color: 'var(--amber, #b8862b)', marginRight: '8px' }}>→</span>
+              <span style={{ color: 'var(--primary, #C1603A)', marginRight: '8px' }}>→</span>
               {s}
             </button>
           ))}

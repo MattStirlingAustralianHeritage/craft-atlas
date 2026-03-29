@@ -38,7 +38,7 @@ export default function AdminTrailsPage() {
     <div className="max-w-4xl mx-auto px-4 py-10">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-stone-900">Tasting Trails</h1>
+          <h1 className="text-2xl font-bold text-stone-900">Maker Trails</h1>
           <p className="text-stone-500 text-sm mt-1">{trails.length} trail{trails.length !== 1 ? 's' : ''}</p>
         </div>
         <button onClick={() => { setEditingTrail(null); setView('edit') }} className="bg-amber-700 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-amber-800 transition-colors">+ New Trail</button>
@@ -177,7 +177,7 @@ function TrailEditor({ trail, onBack }) {
             </div>
             <div>
               <label className="block text-xs font-medium text-stone-600 mb-1">Curator Name</label>
-              <input value={form.curator_name} onChange={e => setForm(f => ({ ...f, curator_name: e.target.value }))} placeholder="Small Batch Atlas" className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-500" />
+              <input value={form.curator_name} onChange={e => setForm(f => ({ ...f, curator_name: e.target.value }))} placeholder="Craft Atlas" className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-500" />
             </div>
           </div>
           <div>

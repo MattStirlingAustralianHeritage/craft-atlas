@@ -2,60 +2,60 @@ import { createClient } from '@supabase/supabase-js'
 import Anthropic from '@anthropic-ai/sdk'
 
 function getSupabase() {
-  return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
+  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
 }
 
 function getAnthropic() {
   return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 }
 
-const PARSE_SYSTEM_PROMPT = `You are a search query parser for a curated Australian craft beverage directory. Parse natural language search queries into structured filter objects.
+const PARSE_SYSTEM_PROMPT = `You are a search query parser for Craft Atlas, a curated Australian maker and studio directory. Parse natural language search queries into structured filter objects.
 
 RULES:
 - Return ONLY a valid JSON object — no preamble, no markdown fences, no explanation
 - Only include fields you can confidently infer — set everything else to null
-- "natural wine" implies production_methods: ["natural_wine"]
-- Region names like "Yarra Valley", "Barossa Valley", "Margaret River", "Hunter Valley", "Mornington Peninsula", "McLaren Vale", "Clare Valley", "Coonawarra", "Rutherglen", "Heathcote", "Macedon Ranges", "Pyrenees", "Grampians", "King Valley", "Beechworth", "Gippsland", "Tamar Valley", "Coal River Valley", "Huon Valley" → sub_region: "<exact name>"
+- Craft categories: ceramics_clay, visual_art, jewellery_metalwork, textile_fibre, wood_furniture, glass, printmaking
+- "ceramics" or "pottery" or "clay" → craft_types: ["ceramics_clay"]
+- "painting" or "painter" or "visual art" → craft_types: ["visual_art"]
+- "jewellery" or "jewelry" or "metalwork" or "silversmith" → craft_types: ["jewellery_metalwork"]
+- "textiles" or "weaving" or "fibre" or "fiber" → craft_types: ["textile_fibre"]
+- "woodwork" or "furniture" or "woodturning" → craft_types: ["wood_furniture"]
+- "glass" or "glassblowing" or "blown glass" → craft_types: ["glass"]
+- "printmaking" or "screen printing" or "etching" → craft_types: ["printmaking"]
+- Region names like "Blue Mountains", "Byron Bay Hinterland", "Yarra Valley", "Daylesford", "Adelaide Hills", "Huon Valley", "Margaret River", "Sunshine Coast Hinterland" → sub_region: "<exact name>"
 - City/state names: "Melbourne", "Sydney", "Brisbane", "Perth", "Adelaide", "Hobart" → state only, no sub_region
-- "dog friendly" → visitor_experience: ["dog_friendly"]
-- "food", "restaurant", "dining", "lunch", "dinner", "eat" → visitor_experience: ["food_menu"]
-- "accommodation", "stay", "overnight" → visitor_experience: ["accommodation"]
-- "cellar door" → has_cellar_door: true
+- "open studio" → visitor_experience: ["open_studio"]
+- "workshops" or "classes" → visitor_experience: ["workshops"]
+- "commissions" → visitor_experience: ["commissions"]
+- "experiences" → has_experiences: true
 - "worth a trip" → is_destination: true
-- "shiraz" or "shiraz producer" → beverage_types: ["shiraz"]
-- "gin" or "gin distillery" or "gin distilleries" → beverage_types: ["gin"]
-- "craft beer" or "brewery" or "breweries" → beverage_types: ["beer"]
-- "winery" or "wineries" → beverage_types: ["wine"]
-- "distillery" or "distilleries" → beverage_types: ["spirits"]
-- "cidery" or "cideries" → beverage_types: ["cider"]
-- "meadery" or "meaderies" → beverage_types: ["mead"]
 
 SCHEMA:
 {
   "vibe_tags": ["string"] | null,
-  "beverage_types": ["string"] | null,
-  "production_methods": ["string"] | null,
+  "craft_types": ["string"] | null,
+  "materials": ["string"] | null,
   "visitor_experience": ["string"] | null,
   "quality_signals": ["string"] | null,
   "is_destination": true | null,
-  "has_cellar_door": true | null,
+  "has_experiences": true | null,
   "state": "VIC"|"NSW"|"QLD"|"SA"|"WA"|"TAS"|"ACT"|"NT" | null,
   "sub_region": "string" | null,
   "keyword": "string" | null
 }
 
 EXAMPLES:
-Query: "Shiraz Barossa Valley"
-Output: {"vibe_tags":null,"beverage_types":["shiraz","red_wine"],"production_methods":null,"visitor_experience":null,"quality_signals":null,"is_destination":null,"has_cellar_door":null,"state":"SA","sub_region":"Barossa Valley","keyword":null}
+Query: "ceramics Blue Mountains"
+Output: {"vibe_tags":null,"craft_types":["ceramics_clay"],"materials":null,"visitor_experience":null,"quality_signals":null,"is_destination":null,"has_experiences":null,"state":"NSW","sub_region":"Blue Mountains","keyword":null}
 
-Query: "wild ferment wines in regional Victoria"
-Output: {"vibe_tags":null,"beverage_types":["wine"],"production_methods":["wild_ferment","natural_wine"],"visitor_experience":null,"quality_signals":null,"is_destination":null,"has_cellar_door":null,"state":"VIC","sub_region":null,"keyword":null}
+Query: "woodworking studios in Tasmania"
+Output: {"vibe_tags":null,"craft_types":["wood_furniture"],"materials":null,"visitor_experience":null,"quality_signals":null,"is_destination":null,"has_experiences":null,"state":"TAS","sub_region":null,"keyword":null}
 
-Query: "dog friendly urban brewery Melbourne"
-Output: {"vibe_tags":["urban_taproom"],"beverage_types":["beer"],"production_methods":null,"visitor_experience":["dog_friendly"],"quality_signals":null,"is_destination":null,"has_cellar_door":null,"state":"VIC","sub_region":null,"keyword":null}
+Query: "open studio jewellery Melbourne"
+Output: {"vibe_tags":null,"craft_types":["jewellery_metalwork"],"materials":null,"visitor_experience":["open_studio"],"quality_signals":null,"is_destination":null,"has_experiences":null,"state":"VIC","sub_region":null,"keyword":null}
 
-Query: "somewhere interesting to drink"
-Output: {"vibe_tags":null,"beverage_types":null,"production_methods":null,"visitor_experience":null,"quality_signals":null,"is_destination":null,"has_cellar_door":null,"state":null,"sub_region":null,"keyword":"interesting"}`
+Query: "somewhere interesting to visit"
+Output: {"vibe_tags":null,"craft_types":null,"materials":null,"visitor_experience":null,"quality_signals":null,"is_destination":null,"has_experiences":null,"state":null,"sub_region":null,"keyword":"interesting"}`
 
 async function parseQuery(query) {
   const claudePromise = getAnthropic().messages.create({
@@ -98,7 +98,7 @@ async function queryVenues(filters, keyword) {
     p_sub_region: filters?.sub_region || null,
     p_keyword: keyword || null,
     p_is_destination: filters?.is_destination === true ? true : null,
-    p_has_cellar_door: filters?.has_cellar_door === true ? true : null,
+    p_has_studio: filters?.has_studio === true ? true : null,
   })
 
   if (error) throw error

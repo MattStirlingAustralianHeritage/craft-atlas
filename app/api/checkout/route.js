@@ -3,7 +3,7 @@ import Stripe from 'stripe'
 
 const supabaseAdmin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
-const STANDARD_PRICE_ID = 'price_1TCTBqCYUnk0uJlYzeVD9ozZ'
+const STANDARD_PRICE_ID = process.env.STRIPE_STANDARD_PRICE_ID
 
 export async function POST(request) {
   try {
@@ -34,7 +34,7 @@ export async function POST(request) {
     }).select('id').single()
     if (claimError) { console.error(claimError.message); return Response.json({ error: 'Failed to create claim' }, { status: 500 }) }
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.collectionatlas.com.au'
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.craftatlas.com.au'
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       line_items: [{ price: STANDARD_PRICE_ID, quantity: 1 }],

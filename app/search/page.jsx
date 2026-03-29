@@ -51,7 +51,7 @@ function SearchResults() {
                 {venues.length} venue{venues.length !== 1 ? 's' : ''} for &ldquo;{meta.query}&rdquo;{meta.usedFallback ? ' (keyword match)' : ''}
               </p>
               <a href={`/map?q=${encodeURIComponent(q)}`}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: 'var(--amber, #b8862b)', textDecoration: 'none', fontFamily: 'var(--font-sans)', letterSpacing: '0.04em', padding: '3px 10px', border: '1px solid var(--amber, #b8862b)', borderRadius: 2, flexShrink: 0 }}>
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: 'var(--amber, #C1603A)', textDecoration: 'none', fontFamily: 'var(--font-sans)', letterSpacing: '0.04em', padding: '3px 10px', border: '1px solid var(--amber, #C1603A)', borderRadius: 2, flexShrink: 0 }}>
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                 View on map
               </a>
@@ -62,7 +62,7 @@ function SearchResults() {
 
       {isLoading && (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px 24px', color: 'var(--text-muted, #8a7d6b)' }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--amber, #b8862b)" strokeWidth="2" style={{ marginRight: '10px' }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--amber, #C1603A)" strokeWidth="2" style={{ marginRight: '10px' }}>
             <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.8s" repeatCount="indefinite"/></path>
           </svg>
           Searching…
@@ -77,7 +77,7 @@ function SearchResults() {
               : meta?.parsed?.sub_region ? `Nothing matched in ${meta.parsed.sub_region}. Try a broader region.`
               : 'Try broadening your search or removing specific filters.'}
           </p>
-          <Link href="/" style={{ padding: '10px 20px', background: 'var(--amber, #b8862b)', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>
+          <Link href="/" style={{ padding: '10px 20px', background: 'var(--amber, #C1603A)', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>
             Browse all venues
           </Link>
         </div>
@@ -87,8 +87,8 @@ function SearchResults() {
         <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '32px 24px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
             {venues.map(venue => {
-              const typeColor = { winery: '#4a7c59', brewery: '#6b4f2a', distillery: '#4a3d6b', cidery: '#7a5c2e', meadery: '#6b5a1a' }[venue.type] || '#6b4f2a'
-              const typeLabel = { winery: 'Winery', brewery: 'Brewery', distillery: 'Distillery', cidery: 'Cidery', meadery: 'Meadery' }[venue.type] || venue.type
+              const typeColor = { ceramics_clay: '#C1603A', visual_art: '#7A8C7E', jewellery_metalwork: '#C49A3C', textile_fibre: '#8B6B8A', wood_furniture: '#8A7055', glass: '#5A8A9A', printmaking: '#6B7A5A' }[venue.type] || '#C1603A'
+              const typeLabel = { ceramics_clay: 'Ceramics & Clay', visual_art: 'Visual Art', jewellery_metalwork: 'Jewellery & Metalwork', textile_fibre: 'Textile & Fibre', wood_furniture: 'Wood & Furniture', glass: 'Glass', printmaking: 'Printmaking' }[venue.type] || venue.type
               return (
                 <Link key={venue.id} href={`/venue/${venue.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
                   <div style={{ background: 'var(--bg)', border: '1px solid var(--border, #e0d8cc)', borderRadius: '4px', overflow: 'hidden' }}>

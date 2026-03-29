@@ -42,8 +42,8 @@ export default function NavAuth() {
 
   useEffect(() => {
     function handleOpenAuth() { setAuthOpen(true) }
-    window.addEventListener('sba:openauth', handleOpenAuth)
-    return () => window.removeEventListener('sba:openauth', handleOpenAuth)
+    window.addEventListener('ca:openauth', handleOpenAuth)
+    return () => window.removeEventListener('ca:openauth', handleOpenAuth)
   }, [])
 
   async function handleSignOut() {
@@ -103,7 +103,7 @@ export default function NavAuth() {
           width: 32,
           height: 32,
           borderRadius: '50%',
-          background: 'var(--amber)',
+          background: 'var(--primary)',
           color: '#fff',
           fontSize: 11,
           fontWeight: 700,
@@ -143,10 +143,10 @@ export default function NavAuth() {
             My account
           </Link>
 
-          {/* Saved venues */}
+          {/* Saved makers */}
           <Link href="/account?tab=venues" onClick={() => setMenuOpen(false)} style={{ ...menuLinkStyle, fontSize: 12, color: 'var(--text-2)' }}>
             <span style={{ fontSize: 14, opacity: 0.6 }}>♡</span>
-            Saved venues
+            Saved makers
           </Link>
 
           {/* My trails */}

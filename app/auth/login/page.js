@@ -41,7 +41,7 @@ function LoginForm() {
     <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
       <section style={{ background: '#1c1a17', padding: '72px 24px 56px' }}>
         <div style={{ maxWidth: 480, margin: '0 auto' }}>
-          <p style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--amber)', fontFamily: 'var(--font-sans)', marginBottom: 16 }}>Venue portal</p>
+          <p style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--primary)', fontFamily: 'var(--font-sans)', marginBottom: 16 }}>Venue portal</p>
           <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', fontWeight: 400, color: '#f5f0e8', lineHeight: 1.2 }}>
             Sign in to your account
           </h1>
@@ -79,7 +79,7 @@ function LoginForm() {
             onClick={handleLogin}
             disabled={loading || !email || !password}
             style={{
-              background: loading ? 'var(--border)' : 'var(--amber)',
+              background: loading ? 'var(--border)' : 'var(--primary)',
               color: '#fff', border: 'none', padding: '13px 24px', borderRadius: 2,
               fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 600,
               letterSpacing: '0.08em', textTransform: 'uppercase',
@@ -92,7 +92,7 @@ function LoginForm() {
 
         <p style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-2)', marginTop: 24, lineHeight: 1.7 }}>
           Don't have an account?{' '}
-          <a href="/claim" style={{ color: 'var(--amber)', textDecoration: 'none' }}>Find and claim your venue →</a>
+          <a href="/claim" style={{ color: 'var(--primary)', textDecoration: 'none' }}>Find and claim your listing →</a>
         </p>
       </section>
     </div>

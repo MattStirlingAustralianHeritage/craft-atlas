@@ -1,7 +1,7 @@
 import { getDefaultImage } from '@/lib/defaultImages'
 import { createServerSupabase } from '@/lib/supabase'
 import { venueJsonLd } from '@/lib/jsonLd'
-import { TYPE_COLORS, TYPE_LABELS, SPIRIT_LABEL } from '@/lib/constants'
+import { TYPE_COLORS, TYPE_LABELS } from '@/lib/constants'
 import VenueMap from '@/components/VenueMap'
 import FavouriteButton from '@/components/FavouriteButton'
 import Image from 'next/image'
@@ -143,7 +143,7 @@ export default async function VenuePage({ params }) {
         {isClaimed && (
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 16,
             padding: '4px 10px', borderRadius: 2,
-            background: 'rgba(184,134,43,0.08)', border: '1px solid rgba(184,134,43,0.25)' }}>
+            background: 'rgba(193,96,58,0.08)', border: '1px solid rgba(193,96,58,0.25)' }}>
             <span style={{ color: '#5F8A7E', fontSize: 12 }}>✓</span>
             <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em',
               textTransform: 'uppercase', color: '#5F8A7E', fontFamily: 'var(--font-sans)' }}>Verified Listing</span>
@@ -195,8 +195,8 @@ export default async function VenuePage({ params }) {
 
         {!isClaimed && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '14px 0', borderTop: '1px solid var(--border)' }}>
-            <span style={{ fontSize: 13, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>Own this institution?</span>
-            <Link href={`/claim/${venue.slug}`} style={{ fontSize: 13, fontWeight: 600, color: 'var(--amber)', textDecoration: 'none', fontFamily: 'var(--font-sans)' }}>
+            <span style={{ fontSize: 13, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>Own this studio?</span>
+            <Link href={`/claim/${venue.slug}`} style={{ fontSize: 13, fontWeight: 600, color: 'var(--primary)', textDecoration: 'none', fontFamily: 'var(--font-sans)' }}>
               Claim this listing →
             </Link>
           </div>
@@ -220,9 +220,9 @@ export default async function VenuePage({ params }) {
         <div style={{ maxWidth: 900, margin: '0 auto 1.5rem', padding: '0 24px' }}>
           <p style={{ fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: '0.75rem', fontFamily: 'var(--font-sans)' }}>Follow</p>
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            {venue.social_links.instagram && <a href={venue.social_links.instagram} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.85rem', color: 'var(--amber)', textDecoration: 'none', fontWeight: 500, fontFamily: 'var(--font-sans)' }}>Instagram ↗</a>}
-            {venue.social_links.facebook && <a href={venue.social_links.facebook} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.85rem', color: 'var(--amber)', textDecoration: 'none', fontWeight: 500, fontFamily: 'var(--font-sans)' }}>Facebook ↗</a>}
-            {venue.social_links.tiktok && <a href={venue.social_links.tiktok} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.85rem', color: 'var(--amber)', textDecoration: 'none', fontWeight: 500, fontFamily: 'var(--font-sans)' }}>TikTok ↗</a>}
+            {venue.social_links.instagram && <a href={venue.social_links.instagram} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.85rem', color: 'var(--primary)', textDecoration: 'none', fontWeight: 500, fontFamily: 'var(--font-sans)' }}>Instagram ↗</a>}
+            {venue.social_links.facebook && <a href={venue.social_links.facebook} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.85rem', color: 'var(--primary)', textDecoration: 'none', fontWeight: 500, fontFamily: 'var(--font-sans)' }}>Facebook ↗</a>}
+            {venue.social_links.tiktok && <a href={venue.social_links.tiktok} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.85rem', color: 'var(--primary)', textDecoration: 'none', fontWeight: 500, fontFamily: 'var(--font-sans)' }}>TikTok ↗</a>}
           </div>
         </div>
       )}
@@ -234,16 +234,27 @@ export default async function VenuePage({ params }) {
             <VenueMap venue={venue} nearby={nearby} />
           </div>
 
-          {venue.spirit_types && venue.spirit_types.length > 0 && (
+          {venue.materials && venue.materials.length > 0 && (
             <div style={{ marginBottom: 28 }}>
               <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 10, fontFamily: 'var(--font-sans)' }}>
-                {SPIRIT_LABEL[venue.type] || 'Specialties'}
+                Materials
               </div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                {venue.spirit_types.map(s => (
+                {venue.materials.map(s => (
                   <span key={s} style={{ background: `${color}12`, border: `1px solid ${color}30`, padding: '6px 14px', borderRadius: 2, fontSize: 13, color: color, fontFamily: 'var(--font-sans)' }}>{s}</span>
                 ))}
               </div>
+            </div>
+          )}
+
+          {venue.practice_description && (
+            <div style={{ marginBottom: 28 }}>
+              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 10, fontFamily: 'var(--font-sans)' }}>
+                Practice Description
+              </div>
+              <p style={{ fontSize: 14, color: 'var(--text-2)', lineHeight: 1.7, fontFamily: 'var(--font-sans)' }}>
+                {venue.practice_description}
+              </p>
             </div>
           )}
 
@@ -281,21 +292,21 @@ export default async function VenuePage({ params }) {
             {venue.website && (
               <div style={{ marginBottom: 20 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-3)', marginBottom: 4, fontFamily: 'var(--font-sans)' }}>Website</div>
-                <a href={venue.website} target="_blank" rel="noopener noreferrer" style={{ fontSize: 14, color: 'var(--amber)', textDecoration: 'none', wordBreak: 'break-all' }}>
+                <a href={venue.website} target="_blank" rel="noopener noreferrer" style={{ fontSize: 14, color: 'var(--primary)', textDecoration: 'none', wordBreak: 'break-all' }}>
                   {cleanWebsite(venue.website)}
                 </a>
               </div>
             )}
 
-            {venue.cellar_door_hours && Object.keys(venue.cellar_door_hours).length > 0 && (
+            {venue.opening_hours && Object.keys(venue.opening_hours).length > 0 && (
               <div style={{ marginBottom: 20 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-3)', marginBottom: 8, fontFamily: 'var(--font-sans)' }}>Opening Hours</div>
                 <div style={{ fontSize: 13, color: 'var(--text-2)', lineHeight: 1.8 }}>
                   {['monday','tuesday','wednesday','thursday','friday','saturday','sunday'].map(day => (
-                    venue.cellar_door_hours[day] ? (
+                    venue.opening_hours[day] ? (
                       <div key={day} style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
                         <span style={{ textTransform: 'capitalize' }}>{day}</span>
-                        <span>{venue.cellar_door_hours[day]}</span>
+                        <span>{venue.opening_hours[day]}</span>
                       </div>
                     ) : null
                   ))}
@@ -304,7 +315,7 @@ export default async function VenuePage({ params }) {
             )}
 
             {venue.google_maps_url && (
-              <a href={venue.google_maps_url} target="_blank" rel="noopener noreferrer" style={{ display: 'block', fontSize: 13, color: 'var(--amber)', textDecoration: 'none', fontFamily: 'var(--font-sans)' }}>
+              <a href={venue.google_maps_url} target="_blank" rel="noopener noreferrer" style={{ display: 'block', fontSize: 13, color: 'var(--primary)', textDecoration: 'none', fontFamily: 'var(--font-sans)' }}>
                 View on Google Maps →
               </a>
             )}
@@ -331,7 +342,7 @@ export default async function VenuePage({ params }) {
         <div style={{ maxWidth: 900, margin: '0 auto 56px', padding: '0 24px' }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 20 }}>
             <div>
-              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 4, fontFamily: 'var(--font-sans)' }}>Upcoming Events</div>
+              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 4, fontFamily: 'var(--font-sans)' }}>Upcoming Workshops & Events</div>
               <div style={{ fontSize: 13, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>
                 {events.length} event{events.length !== 1 ? 's' : ''} coming up
               </div>
@@ -348,7 +359,7 @@ export default async function VenuePage({ params }) {
               const dayLabel = isToday ? 'Today' : isTomorrow ? 'Tomorrow' : date.toLocaleDateString('en-AU', { weekday: 'short' })
               const dateStr = date.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })
               const timeStr = date.toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit', hour12: true })
-              const typeLabels = { release: 'Release', tasting: 'Tasting', tour: 'Tour', open_day: 'Open Day', collaboration: 'Collab', food_pairing: 'Food Pairing', other: 'Event' }
+              const typeLabels = { release: 'Release', workshop: 'Workshop', tour: 'Tour', open_day: 'Open Day', collaboration: 'Collab', exhibition: 'Exhibition', other: 'Event' }
               const typeLabel = typeLabels[event.event_type] || 'Event'
               const isFirst = idx === 0
               const isLast = idx === events.length - 1

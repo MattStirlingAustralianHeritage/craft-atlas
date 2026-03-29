@@ -5,8 +5,8 @@ import BuildTrailButton from '@/components/BuildTrailButton'
 export const dynamic = 'force-dynamic'
 
 export const metadata = {
-  title: 'Tasting Trails | Small Batch Atlas',
-  description: 'Curated craft beverage trails across Australia.',
+  title: 'Maker Trails | Craft Atlas',
+  description: 'Curated Australian maker trails across Australia.',
 }
 
 export default async function TrailsPage() {
@@ -41,9 +41,9 @@ export default async function TrailsPage() {
       {/* Hero */}
       <div style={{ background: 'var(--bg-2)', borderBottom: '1px solid var(--border)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '64px 24px' }}>
-          <p style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 12, fontFamily: 'var(--font-sans)', fontWeight: 600 }}>Tasting Trails</p>
+          <p style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 12, fontFamily: 'var(--font-sans)', fontWeight: 600 }}>Maker Trails</p>
           <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 400, color: 'var(--text)', marginBottom: 12, lineHeight: 1.2 }}>Curated routes worth following</h1>
-          <p style={{ color: 'var(--text-2)', fontSize: 15, lineHeight: 1.6, maxWidth: 480, fontFamily: 'var(--font-sans)' }}>Editorially curated trails connecting Australia's best craft beverage makers.</p>
+          <p style={{ color: 'var(--text-2)', fontSize: 15, lineHeight: 1.6, maxWidth: 480, fontFamily: 'var(--font-sans)' }}>Editorially curated trails connecting Australia's best craft makers.</p>
         </div>
       </div>
 
@@ -53,10 +53,10 @@ export default async function TrailsPage() {
           <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
               <div>
-                <p style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--amber)', fontFamily: 'var(--font-sans)', fontWeight: 600, marginBottom: 4 }}>My Trails</p>
+                <p style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--primary)', fontFamily: 'var(--font-sans)', fontWeight: 600, marginBottom: 4 }}>My Trails</p>
                 <p style={{ fontSize: 13, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>{myTrails.length} trail{myTrails.length !== 1 ? 's' : ''} saved to your account</p>
               </div>
-              <Link href="/trails/builder" style={{ display: 'inline-block', padding: '9px 18px', background: 'var(--amber)', color: 'var(--bg)', textDecoration: 'none', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', borderRadius: 2 }}>
+              <Link href="/trails/builder" style={{ display: 'inline-block', padding: '9px 18px', background: 'var(--primary)', color: 'var(--bg)', textDecoration: 'none', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', borderRadius: 2 }}>
                 + New trail
               </Link>
             </div>
@@ -79,7 +79,7 @@ export default async function TrailsPage() {
                     </div>
                     <div style={{ fontSize: 11, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>{stopCount} stop{stopCount !== 1 ? 's' : ''}</div>
                     <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
-                      <Link href={`/trails/builder?id=${trail.id}`} style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--amber)', textDecoration: 'none', fontFamily: 'var(--font-sans)' }}>Edit</Link>
+                      <Link href={`/trails/builder?id=${trail.id}`} style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--primary)', textDecoration: 'none', fontFamily: 'var(--font-sans)' }}>Edit</Link>
                       {trail.short_code && (
                         <>
                           <span style={{ color: 'var(--border)', fontSize: 11 }}>·</span>
@@ -100,7 +100,7 @@ export default async function TrailsPage() {
         <div style={{ background: 'var(--bg-2)', borderBottom: '1px solid var(--border)' }}>
           <div style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
             <p style={{ fontSize: 13, color: 'var(--text-2)', fontFamily: 'var(--font-sans)' }}>You haven't built any trails yet.</p>
-            <Link href="/trails/builder" style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--amber)', textDecoration: 'none', fontFamily: 'var(--font-sans)' }}>Build your first trail →</Link>
+            <Link href="/trails/builder" style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--primary)', textDecoration: 'none', fontFamily: 'var(--font-sans)' }}>Build your first trail →</Link>
           </div>
         </div>
       )}
@@ -108,11 +108,11 @@ export default async function TrailsPage() {
       {/* Editorial Trails */}
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 24px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
         <div>
-          <p style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--amber)', fontFamily: 'var(--font-sans)', fontWeight: 600, marginBottom: 4 }}>Editorial Trails</p>
+          <p style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--primary)', fontFamily: 'var(--font-sans)', fontWeight: 600, marginBottom: 4 }}>Editorial Trails</p>
           <p style={{ fontSize: 13, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>{(trails || []).length} curated trail{(trails || []).length !== 1 ? 's' : ''}</p>
         </div>
         {!myTrails && (
-          <BuildTrailButton style={{ display: 'inline-block', padding: '10px 20px', background: 'var(--amber)', color: 'var(--bg)', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', borderRadius: 2 }}>
+          <BuildTrailButton style={{ display: 'inline-block', padding: '10px 20px', background: 'var(--primary)', color: 'var(--bg)', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', borderRadius: 2 }}>
             Build your own trail →
           </BuildTrailButton>
         )}
@@ -132,7 +132,7 @@ export default async function TrailsPage() {
       {communityTrails && communityTrails.length > 0 && (
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '48px 24px 80px' }}>
           <div style={{ marginBottom: 24 }}>
-            <p style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--amber)', fontFamily: 'var(--font-sans)', fontWeight: 600, marginBottom: 4 }}>Community Trails</p>
+            <p style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--primary)', fontFamily: 'var(--font-sans)', fontWeight: 600, marginBottom: 4 }}>Community Trails</p>
             <p style={{ fontSize: 13, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>Built by readers</p>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 12 }}>
@@ -168,7 +168,7 @@ function TrailCard({ trail }) {
         </div>
         <div style={{ padding: '20px 20px 24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-            {trail.region && <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--amber)', fontFamily: 'var(--font-sans)' }}>{trail.region}</span>}
+            {trail.region && <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--primary)', fontFamily: 'var(--font-sans)' }}>{trail.region}</span>}
             {trail.region && <span style={{ color: 'var(--border)', fontSize: 10 }}>·</span>}
             <span style={{ fontSize: 11, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>{stopCount} {stopCount === 1 ? 'stop' : 'stops'}</span>
           </div>

@@ -35,7 +35,7 @@ export default function NewsletterSignup({ source = 'website' }) {
 
   if (status === 'success') {
     return (
-      <div style={{ padding: '24px', background: 'var(--card-bg, #f5f2ed)', borderTop: '2px solid var(--amber, #b8862b)' }}>
+      <div style={{ padding: '24px', background: 'var(--card-bg, #f5f2ed)', borderTop: '2px solid var(--primary, #C1603A)' }}>
         <p style={{ margin: 0, fontSize: '15px', color: 'var(--text, #1a1a1a)', fontFamily: 'Georgia, serif', lineHeight: 1.6 }}>
           {message}
         </p>
@@ -44,15 +44,15 @@ export default function NewsletterSignup({ source = 'website' }) {
   }
 
   return (
-    <div style={{ padding: '28px', background: 'var(--card-bg, #f5f2ed)', borderTop: '2px solid var(--amber, #b8862b)' }}>
+    <div style={{ padding: '28px', background: 'var(--card-bg, #f5f2ed)', borderTop: '2px solid var(--primary, #C1603A)' }}>
       <p style={{ margin: '0 0 6px', fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted, #888)', fontFamily: 'Georgia, serif' }}>
         The Monthly Edit
       </p>
       <h3 style={{ margin: '0 0 10px', fontSize: '18px', fontWeight: 'normal', color: 'var(--text, #1a1a1a)', fontFamily: 'Georgia, serif' }}>
-        Small Batch Atlas Newsletter
+        Craft Atlas Newsletter
       </h3>
       <p style={{ margin: '0 0 20px', fontSize: '14px', color: 'var(--muted-text, #555)', lineHeight: 1.6, fontFamily: 'Georgia, serif' }}>
-        A monthly edit of the best small-batch producers in Australia. No noise, no filler.
+        A monthly edit of the best Australian makers. No noise, no filler.
       </p>
       <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
         <input
@@ -77,7 +77,7 @@ export default function NewsletterSignup({ source = 'website' }) {
           disabled={status === 'loading'}
           style={{
             padding: '10px 20px',
-            background: 'var(--amber, #b8862b)',
+            background: 'var(--primary, #C1603A)',
             color: '#fff',
             border: 'none',
             fontSize: '13px',

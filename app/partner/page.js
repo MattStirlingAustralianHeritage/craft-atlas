@@ -7,7 +7,7 @@ import { getSupabase } from '@/lib/supabase'
 
 const STATUS_META = {
   draft:              { label: 'Draft',              color: '#888',    bg: 'rgba(136,136,136,0.08)' },
-  under_review:       { label: 'Under Review',       color: 'var(--amber)', bg: 'rgba(200,148,58,0.08)' },
+  under_review:       { label: 'Under Review',       color: 'var(--primary)', bg: 'rgba(200,148,58,0.08)' },
   revision_requested: { label: 'Revision Requested', color: '#c8943a', bg: 'rgba(200,148,58,0.08)' },
   approved:           { label: 'Approved',           color: '#4a7c59', bg: 'rgba(74,124,89,0.08)'   },
   rejected:           { label: 'Rejected',           color: '#8b4a4a', bg: 'rgba(139,74,74,0.08)'   },
@@ -92,7 +92,7 @@ function PartnerDashboard() {
         <div style={{ marginBottom: '48px' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '20px' }}>
             <div>
-              <p style={{ fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--amber)', marginBottom: '8px', fontWeight: '700', fontFamily: 'var(--font-sans)' }}>
+              <p style={{ fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: '8px', fontWeight: '700', fontFamily: 'var(--font-sans)' }}>
                 {tierLabel}
               </p>
               <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(24px, 3vw, 32px)', fontWeight: '400', color: 'var(--text)', margin: '0 0 8px 0', letterSpacing: '-0.01em' }}>
@@ -101,7 +101,7 @@ function PartnerDashboard() {
               <p style={{ fontSize: '13px', color: 'var(--text-3)', margin: 0, fontFamily: 'var(--font-sans)' }}>{partner.contact_email}</p>
             </div>
             <Link href="/partner/submit" style={{ textDecoration: 'none' }}>
-              <button style={{ background: 'var(--amber)', color: 'var(--bg)', border: 'none', padding: '11px 24px', fontSize: '11px', fontWeight: '700', letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', borderRadius: '2px', fontFamily: 'var(--font-sans)' }}>
+              <button style={{ background: 'var(--primary)', color: 'var(--bg)', border: 'none', padding: '11px 24px', fontSize: '11px', fontWeight: '700', letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', borderRadius: '2px', fontFamily: 'var(--font-sans)' }}>
                 + New Submission
               </button>
             </Link>
@@ -143,7 +143,7 @@ function PartnerDashboard() {
             <div style={{ padding: '60px 40px', border: '1px solid var(--border)', borderRadius: '3px', textAlign: 'center' }}>
               <p style={{ fontSize: '14px', color: 'var(--text-3)', marginBottom: '20px', fontFamily: 'var(--font-sans)' }}>No submissions yet.</p>
               <Link href="/partner/submit" style={{ textDecoration: 'none' }}>
-                <button style={{ background: 'transparent', color: 'var(--amber)', border: '1px solid var(--amber)', padding: '9px 20px', fontSize: '11px', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', cursor: 'pointer', borderRadius: '2px', fontFamily: 'var(--font-sans)' }}>
+                <button style={{ background: 'transparent', color: 'var(--primary)', border: '1px solid var(--primary)', padding: '9px 20px', fontSize: '11px', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', cursor: 'pointer', borderRadius: '2px', fontFamily: 'var(--font-sans)' }}>
                   Write your first piece
                 </button>
               </Link>
@@ -165,7 +165,7 @@ function PartnerDashboard() {
                   <StatusBadge status={sub.status} />
                   {(sub.status === 'draft' || sub.status === 'revision_requested') && (
                     <Link href={`/partner/submit?id=${sub.id}`} style={{ textDecoration: 'none' }}>
-                      <span style={{ fontSize: '12px', color: 'var(--amber)', fontFamily: 'var(--font-sans)' }}>Edit →</span>
+                      <span style={{ fontSize: '12px', color: 'var(--primary)', fontFamily: 'var(--font-sans)' }}>Edit →</span>
                     </Link>
                   )}
                 </div>

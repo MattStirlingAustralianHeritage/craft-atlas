@@ -30,7 +30,7 @@ export default function VenueMap({ venue, nearby }) {
         })
         map.current.addLayer({
           id: 'venue-pin-layer', type: 'circle', source: 'venue-pin',
-          paint: { 'circle-radius': 10, 'circle-color': TYPE_COLORS[venue.type] || '#c8943a', 'circle-stroke-width': 3, 'circle-stroke-color': '#ffffff' },
+          paint: { 'circle-radius': 10, 'circle-color': TYPE_COLORS[venue.type] || '#C1603A', 'circle-stroke-width': 3, 'circle-stroke-color': '#ffffff' },
         })
 
         if (nearby && nearby.length > 0) {
@@ -49,7 +49,7 @@ export default function VenueMap({ venue, nearby }) {
             id: 'nearby-dots', type: 'circle', source: 'nearby-venues',
             paint: {
               'circle-radius': 5,
-              'circle-color': ['match', ['get', 'type'], 'distillery', '#c8943a', 'brewery', '#4a7c59', 'winery', '#8b4a6b', 'cidery', '#c45d3e', '#c8943a'],
+              'circle-color': ['match', ['get', 'type'], 'ceramics_clay', '#C1603A', 'visual_art', '#7A8C7E', 'jewellery_metalwork', '#C49A3C', 'textile_fibre', '#8B6B8A', 'wood_furniture', '#8A7055', 'glass', '#5A8A9A', 'printmaking', '#6B7A5A', '#C1603A'],
               'circle-opacity': 0.5, 'circle-stroke-width': 1, 'circle-stroke-color': '#ffffff',
             },
           })
