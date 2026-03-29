@@ -11,8 +11,8 @@ export default async function ClaimPage() {
   const supabase = getSupabase()
   const { data: venues } = await supabase
     .from('venues')
-    .select('id, name, slug, type, subtype, state, sub_region, description, hero_image_url, is_claimed, listing_tier')
-    .eq('status', 'published')
+    .select('id, name, slug, category, subcategories, state, suburb, description, hero_image_url, tier')
+    .eq('published', true)
     .order('name')
 
   return <Suspense fallback={null}><ClaimClient venues={venues || []} /></Suspense>

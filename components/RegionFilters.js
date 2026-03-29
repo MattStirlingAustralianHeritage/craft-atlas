@@ -7,12 +7,12 @@ export default function RegionFilters({ venues, regionName }) {
   const [typeFilter, setTypeFilter] = useState('All')
   const [sortBy, setSortBy] = useState('rating')
 
-  const types = [...new Set(venues.map(v => v.type))]
+  const types = [...new Set(venues.map(v => v.category))]
   const typeCounts = {}
-  venues.forEach(v => { typeCounts[v.type] = (typeCounts[v.type] || 0) + 1 })
-  const filtered = venues.filter(v => typeFilter === 'All' || v.type === typeFilter)
+  venues.forEach(v => { typeCounts[v.category] = (typeCounts[v.category] || 0) + 1 })
+  const filtered = venues.filter(v => typeFilter === 'All' || v.category === typeFilter)
   const sorted = [...filtered].sort((a, b) => {
-    if (sortBy === 'rating') return (b.google_rating || 0) - (a.google_rating || 0)
+    if (sortBy === 'rating') return a.name.localeCompare(b.name)
     if (sortBy === 'name') return a.name.localeCompare(b.name)
     return 0
   })
@@ -45,21 +45,15 @@ export default function RegionFilters({ venues, regionName }) {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
         {sorted.map(v => {
-          const color = TYPE_COLORS[v.type] || '#c8943a'
+          const color = TYPE_COLORS[v.category] || '#c8943a'
           return (
             <Link key={v.slug} href={`/venue/${v.slug}`} style={{
               display: 'block', padding: '24px', background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 2, textDecoration: 'none', transition: 'all 0.2s ease',
             }}>
               <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color, marginBottom: 8, fontFamily: 'var(--font-sans)' }}>
-                {TYPE_LABELS[v.type] || v.type}
+                {TYPE_LABELS[v.category] || v.category}
               </div>
               <div style={{ fontFamily: 'var(--font-serif)', fontSize: 18, color: 'var(--text)', marginBottom: 6, lineHeight: 1.3 }}>{v.name}</div>
-              {v.google_rating && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-                  <span style={{ color: '#C1603A', fontSize: 13 }}>★ {v.google_rating.toFixed(1)}</span>
-                  {v.google_rating_count && <span style={{ fontSize: 11, color: 'var(--text-3)' }}>({v.google_rating_count.toLocaleString()})</span>}
-                </div>
-              )}
               {v.description && (
                 <div style={{ fontSize: 13, color: 'var(--text-2)', lineHeight: 1.6, fontFamily: 'var(--font-sans)', marginBottom: 12, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                   {v.description}

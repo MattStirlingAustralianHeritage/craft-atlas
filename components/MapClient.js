@@ -81,7 +81,7 @@ export default function MapPageClient() {
     async function fetchData() {
       const supabase = getSupabase()
       const [{ data: studioData }, { data: eventData }, { data: { user: currentUser } }] = await Promise.all([
-        supabase.from('venues').select('id, name, slug, type, state, sub_region, latitude, longitude, listing_tier, is_claimed, description').eq('status', 'published'),
+        supabase.from('venues').select('id, name, slug, category, state, suburb, latitude, longitude, tier, description').eq('published', true),
         supabase.from('events').select('venue_id, title, event_date, event_type').gte('event_date', new Date().toISOString()).order('event_date', { ascending: true }),
         supabase.auth.getUser(),
       ])
@@ -232,7 +232,7 @@ export default function MapPageClient() {
                 <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap;">
                   <span style="display:inline-flex;align-items:center;gap:5px;background:${props.color}18;border:1px solid ${props.color}33;padding:3px 9px;border-radius:2px;">
                     <span style="width:5px;height:5px;border-radius:50%;background:${props.color};display:inline-block;"></span>
-                    <span style="font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:${props.color};">${props.type}</span>
+                    <span style="font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:${props.color};">${props.category}</span>
                   </span>${tierBadge}
                 </div>
                 <div style="font-family:Georgia,serif;font-size:17px;font-weight:400;color:#1a1614;margin-bottom:3px;letter-spacing:-0.01em;line-height:1.2;">${props.name}</div>
@@ -604,7 +604,7 @@ export default function MapPageClient() {
 
 function getFiltered(studios, typeFilter, stateFilter, search, experiencesFilter = false) {
   return studios.filter(v => {
-    const matchType = typeFilter === 'All' || v.type === typeFilter.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_')
+    const matchType = typeFilter === 'All' || v.category === typeFilter.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_')
     const matchState = stateFilter === 'All States' || v.state === stateFilter
     const matchSearch = !search || v.name.toLowerCase().includes(search.toLowerCase())
     const matchExperiences = !experiencesFilter || v.experiences_and_classes === true
@@ -616,14 +616,14 @@ function buildGeoJSON(studios, studiosWithEvents, eventByStudio = {}) {
   return {
     type: 'FeatureCollection',
     features: studios.filter(v => v.latitude && v.longitude).map(v => {
-      const color = TYPE_COLORS[v.type] || '#C1603A'
-      const tier = v.listing_tier || 'basic'
+      const color = TYPE_COLORS[v.category] || '#C1603A'
+      const tier = v.tier || 'basic'
       const hasEvent = studiosWithEvents.has(v.id)
       const nextEvent = eventByStudio[v.id]
       return {
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [parseFloat(v.longitude), parseFloat(v.latitude)] },
-        properties: { id: v.id, name: v.name, slug: v.slug, type: v.type, tier, color: tier === 'premium' ? PREMIUM_COLOR : color, hasEvent, eventTitle: nextEvent ? nextEvent.title : null, eventDate: nextEvent ? nextEvent.event_date : null, location: [v.sub_region, v.state].filter(Boolean).join(', '), description: v.description || '' },
+        properties: { id: v.id, name: v.name, slug: v.slug, category: v.category, tier, color: tier === 'premium' ? PREMIUM_COLOR : color, hasEvent, eventTitle: nextEvent ? nextEvent.title : null, eventDate: nextEvent ? nextEvent.event_date : null, location: [v.suburb, v.state].filter(Boolean).join(', '), description: v.description || '' },
       }
     }),
   }

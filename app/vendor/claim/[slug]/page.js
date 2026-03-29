@@ -61,7 +61,7 @@ export default function VendorClaimPage() {
 
       const { data, error } = await supabase
         .from('venues')
-        .select('id, name, slug, type, state, sub_region, is_claimed')
+        .select('id, name, slug, category, state, suburb')
         .eq('slug', slug)
         .single()
 
@@ -218,7 +218,7 @@ export default function VendorClaimPage() {
             {venue?.name}
           </h1>
           <div style={{ fontSize: 13, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>
-            {[venue?.sub_region, venue?.state].filter(Boolean).join(', ')} · {venue?.type}
+            {[venue?.suburb, venue?.state].filter(Boolean).join(', ')} · {venue?.category}
           </div>
         </div>
       </div>

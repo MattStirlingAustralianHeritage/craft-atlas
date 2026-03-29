@@ -30,7 +30,7 @@ function detectRegion(message) {
   const lower = message.toLowerCase();
   for (const [city, subregion] of Object.entries(CITY_REGION_MAP)) {
     const regex = new RegExp(`\\b${city.replace(' ', '\\s')}\\b`, 'i');
-    if (regex.test(lower)) return { type: 'sub_region', value: subregion };
+    if (regex.test(lower)) return { type: 'suburb', value: subregion };
   }
   for (const [name, code] of Object.entries(REGION_MAP)) {
     const regex = new RegExp(`\\b${name}\\b`, 'i');
@@ -43,13 +43,13 @@ async function fetchVenues(region, limit = 80) {
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
   let query = supabase
     .from('venues')
-    .select('id, name, slug, type, subtype, description, state, sub_region, google_rating, is_verified, custom_tags, tags, opening_hours')
+    .select('id, name, slug, category, subcategories, description, state, suburb, opening_hours')
     .not('description', 'is', null)
     .limit(limit);
 
   if (region) {
-    if (region.type === 'sub_region') {
-      query = query.ilike('sub_region', `%${region.value}%`);
+    if (region.type === 'suburb') {
+      query = query.ilike('suburb', `%${region.value}%`);
     } else {
       query = query.eq('state', region.value);
     }
@@ -62,12 +62,8 @@ async function fetchVenues(region, limit = 80) {
 
 function buildVenueContext(venues) {
   return venues.map(v => {
-    const rating = v.google_rating ? ` Rating: ${v.google_rating}.` : '';
-    const verified = v.is_verified ? ' [Verified]' : '';
-    const tags = [...(v.custom_tags || []), ...(v.tags || [])].filter(Boolean);
-    const tagStr = tags.length > 0 ? ` Tags: ${tags.join(', ')}.` : '';
     const hours = v.opening_hours ? ` Hours: ${v.opening_hours}.` : '';
-    return `- ${v.name} (${v.type}${v.subtype ? '/' + v.subtype : ''}) in ${v.sub_region || v.state}.${verified} ${v.description || ''}${rating}${tagStr}${hours} URL: https://www.craftatlas.com.au/venue/${v.slug}`;
+    return `- ${v.name} (${v.category}${v.subcategories ? '/' + v.subcategories : ''}) in ${v.suburb || v.state}. ${v.description || ''}${hours} URL: https://www.craftatlas.com.au/venue/${v.slug}`;
   }).join('\n');
 }
 
@@ -79,7 +75,7 @@ export async function POST(req) {
     const region = detectRegion(lastMessage);
     let venues = await fetchVenues(region, 80);
 
-    if (venues.length === 0 && region?.type === 'sub_region') {
+    if (venues.length === 0 && region?.type === 'suburb') {
       const stateEntries = Object.entries(REGION_MAP);
       for (const [city, subregion] of Object.entries(CITY_REGION_MAP)) {
         if (subregion === region.value) {

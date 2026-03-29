@@ -17,7 +17,7 @@ export async function POST(request) {
     const { claim_id, venue_id } = event.data.object.metadata || {}
     if (claim_id && venue_id) {
       await supabaseAdmin.from('claims').update({ status: 'approved', selected_tier: 'standard' }).eq('id', claim_id)
-      await supabaseAdmin.from('venues').update({ is_claimed: true, listing_tier: 'standard' }).eq('id', venue_id)
+      await supabaseAdmin.from('venues').update({ tier: 'standard' }).eq('id', venue_id)
       console.log(`Claim ${claim_id} approved for venue ${venue_id}`)
     }
   }

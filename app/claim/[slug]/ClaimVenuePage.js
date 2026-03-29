@@ -61,8 +61,8 @@ export default function ClaimVenuePage({ venue }) {
     } catch (err) { setError(err.message); setLoading(false) }
   }
 
-  const typeLabel = venue.type ? venue.type.charAt(0).toUpperCase() + venue.type.slice(1) : 'Institution'
-  const location = [venue.sub_region, venue.state].filter(Boolean).join(', ')
+  const typeLabel = venue.category ? venue.category.charAt(0).toUpperCase() + venue.category.slice(1) : 'Institution'
+  const location = [venue.suburb, venue.state].filter(Boolean).join(', ')
   const inp = { width: '100%', padding: '10px 12px', border: '1px solid var(--border)', borderRadius: 2, background: 'var(--bg)', color: 'var(--text)', fontFamily: 'var(--font-sans)', fontSize: 14, outline: 'none', boxSizing: 'border-box' }
   const btn = (dis) => ({ background: dis ? 'var(--border)' : 'var(--primary)', color: '#fff', border: 'none', padding: '13px 24px', borderRadius: 2, fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', cursor: dis ? 'not-allowed' : 'pointer', width: '100%', marginTop: 4 })
   const freeFeats = ['Edit your institution description and details','Update opening hours and contact info','Manage your public listing','Upgrade anytime to add photos and events']

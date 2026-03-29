@@ -30,9 +30,9 @@ export default function ClaimClient({ venues }) {
     return venues.filter(v => {
       const matchSearch = !search ||
         v.name?.toLowerCase().includes(search.toLowerCase()) ||
-        v.sub_region?.toLowerCase().includes(search.toLowerCase()) ||
+        v.suburb?.toLowerCase().includes(search.toLowerCase()) ||
         v.state?.toLowerCase().includes(search.toLowerCase())
-      const matchType = typeFilter === 'all' || v.type === typeFilter
+      const matchType = typeFilter === 'all' || v.category === typeFilter
       const matchState = stateFilter === 'all' || v.state === stateFilter
       return matchSearch && matchType && matchState
     })
@@ -163,8 +163,8 @@ export default function ClaimClient({ venues }) {
 }
 
 function VenueCard({ venue }) {
-  const color = TYPE_COLORS[venue.type] || 'var(--text-3)'
-  const label = TYPE_LABELS[venue.type] || venue.type
+  const color = TYPE_COLORS[venue.category] || 'var(--text-3)'
+  const label = TYPE_LABELS[venue.category] || venue.category
 
   return (
     <div style={{
@@ -200,7 +200,7 @@ function VenueCard({ venue }) {
 
       {/* Location */}
       <div style={{ fontSize: 12, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', marginBottom: 10 }}>
-        {[venue.sub_region, venue.state].filter(Boolean).join(', ')}
+        {[venue.suburb, venue.state].filter(Boolean).join(', ')}
       </div>
 
       {/* Description */}

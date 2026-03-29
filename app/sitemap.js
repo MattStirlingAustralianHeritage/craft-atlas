@@ -8,7 +8,7 @@ export default async function sitemap() {
   const { data: venues } = await supabase
     .from('venues')
     .select('slug, updated_at')
-    .eq('status', 'published')
+    .eq('published', true)
     .limit(10000)
 
   const staticPages = [

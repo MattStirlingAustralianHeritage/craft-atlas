@@ -11,9 +11,8 @@ export async function POST(request) {
     if (!name || !email || !password || !venueId) return Response.json({ error: 'All fields are required' }, { status: 400 })
     if (password.length < 8) return Response.json({ error: 'Password must be at least 8 characters' }, { status: 400 })
 
-    const { data: venue } = await supabaseAdmin.from('venues').select('id, name, slug, is_claimed').eq('id', venueId).single()
+    const { data: venue } = await supabaseAdmin.from('venues').select('id, name, slug').eq('id', venueId).single()
     if (!venue) return Response.json({ error: 'Venue not found' }, { status: 404 })
-    if (venue.is_claimed) return Response.json({ error: 'This venue has already been claimed' }, { status: 409 })
 
     const { data: existingClaim } = await supabaseAdmin.from('claims').select('id, status').eq('venue_id', venueId).in('status', ['pending', 'approved']).maybeSingle()
     if (existingClaim) return Response.json({ error: existingClaim.status === 'pending' ? 'A claim is already under review.' : 'Already claimed.' }, { status: 409 })

@@ -301,7 +301,7 @@ function VendorEditInner() {
     setSaveStatus('saving')
     setError(null)
 
-    const tier = venue?.listing_tier || 'free'
+    const tier = venue?.tier || 'free'
     const hours = {}
     openingHours.forEach(item => {
       if (item.closed) {
@@ -478,7 +478,7 @@ function VendorEditInner() {
   )
 
   const color = TYPE_COLORS[venue.type] || '#c8943a'
-  const tier = venue.listing_tier || 'free'
+  const tier = venue.tier || 'free'
   const tierConfig = getTier(tier)
   const maxPhotos = canUse('maxPhotos', tier) || 1
   const visibleTabs = TABS.filter(t => !(t.premiumOnly && tier === 'free'))
@@ -548,8 +548,8 @@ function VendorEditInner() {
               display: 'flex', alignItems: 'center', gap: 8,
             }}>
               <span style={{ textTransform: 'capitalize' }}>{venue.type}</span>
-              {(venue.sub_region || venue.state) && <span style={{ opacity: 0.4 }}>·</span>}
-              <span>{venue.sub_region && `${venue.sub_region}, `}{venue.state}</span>
+              {(venue.suburb || venue.state) && <span style={{ opacity: 0.4 }}>·</span>}
+              <span>{venue.suburb && `${venue.suburb}, `}{venue.state}</span>
             </div>
           </div>
 

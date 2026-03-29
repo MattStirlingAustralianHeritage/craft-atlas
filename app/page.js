@@ -37,18 +37,18 @@ const REGION_DESCRIPTORS = {
 
 export default async function HomePage() {
   const supabase = getSupabase()
-  const { data: venues } = await supabase.from('venues').select('type, longitude, latitude, sub_region, state')
+  const { data: venues } = await supabase.from('venues').select('category, longitude, latitude, suburb, state')
   const { data: latestArticles } = await supabase.from('articles').select('id, title, slug, deck, hero_image_url, category, reading_time').eq('status', 'published').order('published_at', { ascending: false }).limit(6)
-  const { data: featuredVenues } = await supabase.from('venues').select('id, name, slug, type, sub_region, state, hero_image_url, description').eq('status', 'published').in('listing_tier', ['standard', 'premium']).order('listing_tier', { ascending: false }).limit(8)
+  const { data: featuredVenues } = await supabase.from('venues').select('id, name, slug, category, suburb, state, hero_image_url, description').eq('published', true).in('tier', ['standard', 'premium']).order('tier', { ascending: false }).limit(8)
   const REGION_ORDER = [
     { name: 'Blue Mountains', state: 'NSW' },{ name: 'Byron Hinterland', state: 'NSW' },
     { name: 'Yarra Valley', state: 'VIC' },{ name: 'Central Victoria', state: 'VIC' },
     { name: 'Tamar Valley', state: 'TAS' },{ name: 'Adelaide Hills', state: 'SA' },
     { name: 'Mornington Peninsula', state: 'VIC' },{ name: 'Sunshine Coast Hinterland', state: 'QLD' },
   ]
-  const rc=(venues||[]).reduce((a,v)=>{if(v.sub_region)a[v.sub_region]=(a[v.sub_region]||0)+1;return a},{})
+  const rc=(venues||[]).reduce((a,v)=>{if(v.suburb)a[v.suburb]=(a[v.suburb]||0)+1;return a},{})
   const regions=REGION_ORDER.map(r=>({...r,count:rc[r.name]||0}))
-  const tc=(venues||[]).reduce((a,v)=>{if(v.type)a[v.type]=(a[v.type]||0)+1;return a},{})
+  const tc=(venues||[]).reduce((a,v)=>{if(v.category)a[v.category]=(a[v.category]||0)+1;return a},{})
   const types=Object.entries(tc).sort(([,a],[,b])=>b-a).slice(0,5)
   const total=(venues||[]).length
   return (
@@ -110,8 +110,8 @@ export default async function HomePage() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}>
               {featuredVenues.map(venue => {
-                const typeColor = { ceramics: '#C1603A', visual_art: '#4a7c59', jewellery: '#6b4f2a', textile: '#4a3d6b', wood: '#7a5c2e', glass: '#6b5a1a' }[venue.type] || '#6b4f2a'
-                const typeLabel = { ceramics: 'Ceramics', visual_art: 'Visual Art', jewellery: 'Jewellery', textile: 'Textile', wood: 'Wood & Furniture', glass: 'Glass' }[venue.type] || venue.type
+                const typeColor = { ceramics: '#C1603A', visual_art: '#4a7c59', jewellery: '#6b4f2a', textile: '#4a3d6b', wood: '#7a5c2e', glass: '#6b5a1a' }[venue.category] || '#6b4f2a'
+                const typeLabel = { ceramics: 'Ceramics', visual_art: 'Visual Art', jewellery: 'Jewellery', textile: 'Textile', wood: 'Wood & Furniture', glass: 'Glass' }[venue.category] || venue.category
                 return (
                   <Link key={venue.id} href={`/venue/${venue.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
                     <div style={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 3, overflow: 'hidden' }}>
@@ -124,7 +124,7 @@ export default async function HomePage() {
                       <div style={{ padding: '12px 14px' }}>
                         <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: typeColor, marginBottom: 4, fontFamily: 'var(--font-sans)' }}>{typeLabel}</div>
                         <div style={{ fontFamily: 'var(--font-serif)', fontSize: 15, color: 'var(--text)', marginBottom: 4, lineHeight: 1.3 }}>{venue.name}</div>
-                        <div style={{ fontSize: 11, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>{[venue.sub_region, venue.state].filter(Boolean).join(', ')}</div>
+                        <div style={{ fontSize: 11, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>{[venue.suburb, venue.state].filter(Boolean).join(', ')}</div>
                       </div>
                     </div>
                   </Link>

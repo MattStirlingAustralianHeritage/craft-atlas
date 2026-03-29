@@ -1284,11 +1284,7 @@ export default function AdminPage() {
     await supabase.from('claims').update({ status }).eq('id', id)
     if (status === 'approved') {
       const claim = claims.find(c => c.id === id)
-      if (claim?.venue_id) await supabase.from('venues').update({ is_claimed: true }).eq('id', claim.venue_id)
-    }
-    if (status === 'rejected') {
-      const claim = claims.find(c => c.id === id)
-      if (claim?.venue_id) await supabase.from('venues').update({ is_claimed: false }).eq('id', claim.venue_id)
+      // is_claimed column removed — claim status tracked via claims table
     }
     fetchClaims(); setUpdating(null)
   }

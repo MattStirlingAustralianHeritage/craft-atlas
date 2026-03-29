@@ -117,7 +117,7 @@ function VenueHeroCard({ venue, pageViews, tierInfo, isFreeTier, currentTier, on
                 {venue.name}
               </h2>
               <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', fontFamily: 'var(--font-sans)' }}>
-                {venue.sub_region && `${venue.sub_region}, `}{venue.state}
+                {venue.suburb && `${venue.suburb}, `}{venue.state}
               </div>
             </div>
             <button
@@ -323,7 +323,7 @@ export default function VendorDashboardPage() {
   )
 
   const userName = user?.user_metadata?.full_name?.split(' ')[0] || profile?.contact_name?.split(' ')[0] || 'there'
-  const currentTier = venue?.subscription_tier || venue?.listing_tier || profile?.selected_tier || 'free'
+  const currentTier = venue?.subscription_tier || venue?.tier || profile?.selected_tier || 'free'
   const isFreeTier = currentTier === 'free' || currentTier === 'basic'
   const tierInfo = TIER_INFO[currentTier] || TIER_INFO.free
   const hour = new Date().getHours()

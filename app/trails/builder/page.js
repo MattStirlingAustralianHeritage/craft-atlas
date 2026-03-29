@@ -90,7 +90,7 @@ function TrailBuilderInner() {
   const getFiltered = useCallback((venues) => {
     if (activeTypes.has('All')) return venues
     return venues.filter(v => activeTypes.has(
-      v.type.split('_').map(w => w[0].toUpperCase() + w.slice(1)).join(' ')
+      v.category.split('_').map(w => w[0].toUpperCase() + w.slice(1)).join(' ')
     ))
   }, [activeTypes])
 
@@ -192,8 +192,8 @@ function TrailBuilderInner() {
       setUser(user)
       const { data: venueData } = await supabase
         .from('venues')
-        .select('id, name, slug, type, state, sub_region, latitude, longitude, description')
-        .eq('status', 'published')
+        .select('id, name, slug, category, state, suburb, latitude, longitude, description')
+        .eq('published', true)
       setAllVenues(venueData || [])
       if (editId) {
         const { data: trail } = await supabase
@@ -204,7 +204,7 @@ function TrailBuilderInner() {
           setVisibility(trail.visibility)
           const { data: stopData } = await supabase
             .from('user_trail_venues')
-            .select('position, venues(id, name, slug, type, state, sub_region, latitude, longitude, description)')
+            .select('position, venues(id, name, slug, category, state, suburb, latitude, longitude, description)')
             .eq('trail_id', editId).order('position', { ascending: true })
           const loadedStops = (stopData || [])
             .map(s => Array.isArray(s.venues) ? s.venues[0] : s.venues).filter(Boolean)
@@ -348,7 +348,7 @@ function TrailBuilderInner() {
         const anchorLng = parseFloat(anchor.longitude)
         // Build query from stop types and regions
         const types = [...new Set(stops.map(s => s.type.replace('_', ' ')))]
-        const regions = [...new Set(stops.map(s => s.sub_region || s.state).filter(Boolean))]
+        const regions = [...new Set(stops.map(s => s.suburb || s.state).filter(Boolean))]
         const q = [...types, ...regions].slice(0, 6).join(' ')
         const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`)
         if (!res.ok) throw new Error()
@@ -451,7 +451,7 @@ function TrailBuilderInner() {
     searchTimeout.current = setTimeout(() => {
       const filtered = getFiltered(allVenues).filter(v =>
         v.name.toLowerCase().includes(val.toLowerCase()) ||
-        (v.sub_region || '').toLowerCase().includes(val.toLowerCase())
+        (v.suburb || '').toLowerCase().includes(val.toLowerCase())
       ).slice(0, 8)
       setSearchResults(filtered)
     }, 200)
@@ -667,7 +667,7 @@ function TrailBuilderInner() {
                   <div style={{ width: 22, height: 22, borderRadius: '50%', background: AMBER, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, flexShrink: 0, fontFamily: 'var(--font-sans)' }}>{i + 1}</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--text)', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{stop.name}</div>
-                    <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-3)', textTransform: 'capitalize' }}>{stop.type}{stop.sub_region ? ` · ${stop.sub_region}` : ''}</div>
+                    <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-3)', textTransform: 'capitalize' }}>{stop.category}{stop.suburb ? ` · ${stop.suburb}` : ''}</div>
                   </div>
                   <div style={{ display: 'flex', gap: 2, flexShrink: 0 }}>
                     <button onClick={() => moveStop(i, -1)} disabled={i === 0} style={{ width: 20, height: 20, border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-3)', borderRadius: 2, fontSize: 10, cursor: i === 0 ? 'not-allowed' : 'pointer', opacity: i === 0 ? 0.4 : 1 }}>↑</button>
@@ -692,7 +692,7 @@ function TrailBuilderInner() {
                     >
                       <div style={{ minWidth: 0 }}>
                         <div style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text)', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{venue.name}</div>
-                        <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-3)', textTransform: 'capitalize' }}>{venue.type.replace('_',' ')}{venue.sub_region ? ` · ${venue.sub_region}` : ''}</div>
+                        <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-3)', textTransform: 'capitalize' }}>{venue.category.replace('_',' ')}{venue.suburb ? ` · ${venue.suburb}` : ''}</div>
                       </div>
                       <button onClick={e => { e.stopPropagation(); addStop(venue) }}
                         style={{ flexShrink: 0, padding: '3px 8px', background: 'none', border: '1px solid var(--border)', borderRadius: 2, fontSize: 11, color: AMBER, cursor: 'pointer', fontFamily: 'var(--font-sans)', fontWeight: 600, letterSpacing: '0.04em' }}>
@@ -788,9 +788,9 @@ function buildGeoJSON(venues) {
       type: 'Feature',
       geometry: { type: 'Point', coordinates: [parseFloat(v.longitude), parseFloat(v.latitude)] },
       properties: {
-        id: v.id, name: v.name, slug: v.slug, type: v.type,
-        color: TYPE_COLORS[v.type] || AMBER,
-        location: [v.sub_region, v.state].filter(Boolean).join(', '),
+        id: v.id, name: v.name, slug: v.slug, type: v.category,
+        color: TYPE_COLORS[v.category] || AMBER,
+        location: [v.suburb, v.state].filter(Boolean).join(', '),
         description: v.description || '',
       },
     })),

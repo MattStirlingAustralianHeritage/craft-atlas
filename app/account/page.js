@@ -26,7 +26,7 @@ function AccountPageInner() {
         const [{ data: favData }, { data: trailData }] = await Promise.all([
           supabase
             .from('favourites')
-            .select('id, created_at, venues(id, name, slug, sub_region, state, type, description)')
+            .select('id, created_at, venues(id, name, slug, suburb, state, category, description)')
             .eq('user_id', user.id)
             .order('created_at', { ascending: false }),
           supabase
@@ -150,7 +150,7 @@ function AccountPageInner() {
                       {venue.name}
                     </Link>
                     <p style={{ fontSize: 13, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', margin: '0 0 6px' }}>
-                      {venue.type} · {venue.sub_region || venue.state}
+                      {venue.category} · {venue.suburb || venue.state}
                     </p>
                     {venue.description && (
                       <p style={{ fontSize: 13, color: 'var(--text-2)', fontFamily: 'var(--font-sans)', lineHeight: 1.6, margin: 0, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>

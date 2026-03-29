@@ -20,7 +20,7 @@ export default function VendorClaimPage() {
   useEffect(() => {
     async function fetchVenues() {
       const supabase = getSupabase()
-      const { data } = await supabase.from('venues').select('id, name, slug, type, state, sub_region, description, is_claimed, listing_tier').eq('status', 'published').order('name')
+      const { data } = await supabase.from('venues').select('id, name, slug, category, state, suburb, description, tier').eq('published', true).order('name')
       if (data) setVenues(data)
       setLoading(false)
     }
@@ -29,9 +29,9 @@ export default function VendorClaimPage() {
 
   const filtered = venues.filter(v => {
     const typeKey = TYPE_KEYS[typeFilter] || 'All'
-    const matchType = typeKey === 'All' || v.type === typeKey
+    const matchType = typeKey === 'All' || v.category === typeKey
     const matchState = stateFilter === 'All States' || v.state === stateFilter
-    const matchSearch = !search || v.name.toLowerCase().includes(search.toLowerCase()) || (v.sub_region && v.sub_region.toLowerCase().includes(search.toLowerCase()))
+    const matchSearch = !search || v.name.toLowerCase().includes(search.toLowerCase()) || (v.suburb && v.suburb.toLowerCase().includes(search.toLowerCase()))
     return matchType && matchState && matchSearch
   })
 
@@ -73,16 +73,16 @@ export default function VendorClaimPage() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           {filtered.map(venue => {
-            const color = TYPE_COLORS[venue.type] || '#c8943a'
+            const color = TYPE_COLORS[venue.category] || '#c8943a'
             return (
               <Link key={venue.id} href={`/vendor/claim/${venue.slug}`}
                 style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '16px 20px', background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 2, textDecoration: 'none', transition: 'all 0.15s ease', opacity: venue.is_claimed ? 0.5 : 1, pointerEvents: venue.is_claimed ? 'none' : 'auto' }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: color, flexShrink: 0, boxShadow: `0 0 6px ${color}44` }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontFamily: 'var(--font-serif)', fontSize: 17, color: 'var(--text)', marginBottom: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{venue.name}</div>
-                  <div style={{ fontSize: 12, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>{venue.sub_region && `${venue.sub_region}, `}{venue.state}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>{venue.suburb && `${venue.suburb}, `}{venue.state}</div>
                 </div>
-                <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color, flexShrink: 0, fontFamily: 'var(--font-sans)' }}>{TYPE_LABELS[venue.type] || venue.type}</div>
+                <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color, flexShrink: 0, fontFamily: 'var(--font-sans)' }}>{TYPE_LABELS[venue.category] || venue.category}</div>
                 {venue.is_claimed ? (
                   <span style={{ fontSize: 10, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', flexShrink: 0 }}>Claimed</span>
                 ) : (

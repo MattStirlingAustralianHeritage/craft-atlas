@@ -7,9 +7,9 @@ export async function generateMetadata({ params }) {
   const supabase = getSupabase()
   const { data: venue } = await supabase
     .from('venues')
-    .select('name, sub_region, state')
+    .select('name, suburb, state')
     .eq('slug', params.slug)
-    .eq('status', 'published')
+    .eq('published', true)
     .single()
 
   if (!venue) return {}
@@ -24,9 +24,9 @@ export default async function ClaimVenueServerPage({ params }) {
   const supabase = getSupabase()
   const { data: venue } = await supabase
     .from('venues')
-    .select('id, name, slug, type, sub_region, state, description, is_claimed')
+    .select('id, name, slug, category, suburb, state, description')
     .eq('slug', params.slug)
-    .eq('status', 'published')
+    .eq('published', true)
     .single()
 
   if (!venue) {

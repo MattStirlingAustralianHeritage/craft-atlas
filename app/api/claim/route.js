@@ -15,12 +15,11 @@ export async function POST(request) {
     // Check venue exists and is not already claimed
     const { data: venue } = await supabaseAdmin
       .from('venues')
-      .select('id, name, is_claimed')
+      .select('id, name')
       .eq('id', venueId)
       .single()
 
     if (!venue) return Response.json({ error: 'Venue not found' }, { status: 404 })
-    if (venue.is_claimed) return Response.json({ error: 'This venue has already been claimed' }, { status: 409 })
 
     // Check no pending/approved claim already exists for this venue
     const { data: existingClaim } = await supabaseAdmin

@@ -21,8 +21,7 @@ function VenueCard({ venue }) {
         {venue.name}
       </div>
       <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 2, fontFamily: 'var(--font-sans)' }}>
-        {venue.type} · {venue.sub_region || venue.state}
-        {venue.google_rating ? ` · ★ ${venue.google_rating}` : ''}
+        {venue.category} · {venue.suburb || venue.state}
       </div>
     </Link>
   )

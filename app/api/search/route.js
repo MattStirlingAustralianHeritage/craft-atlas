@@ -108,11 +108,10 @@ async function queryVenues(filters, keyword) {
 async function keywordFallback(q) {
   const { data, error } = await getSupabase()
     .from('venues')
-    .select('id, name, slug, type, subtype, state, sub_region, address, latitude, longitude, website, phone, description, hero_image_url, google_rating, google_rating_count, opening_hours, features, listing_tier, is_verified, status')
-    .eq('status', 'published')
-    .or(`name.ilike.%${q}%,type.ilike.%${q}%,description.ilike.%${q}%`)
-    .order('listing_tier', { ascending: false, nullsFirst: false })
-    .order('is_verified', { ascending: false, nullsFirst: false })
+    .select('id, name, slug, category, subcategories, state, suburb, address, latitude, longitude, website, phone, description, hero_image_url, opening_hours, tier, published')
+    .eq('published', true)
+    .or(`name.ilike.%${q}%,category.ilike.%${q}%,description.ilike.%${q}%`)
+    .order('tier', { ascending: false, nullsFirst: false })
     .limit(50)
   if (error) throw error
   return data || []

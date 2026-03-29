@@ -22,9 +22,9 @@ export default async function RegionPage({ params }) {
   const region = REGION_INFO[slug]
   const regionName = region ? region.name : slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
   const supabase = await createServerSupabase()
-  const { data: venues } = await supabase.from('venues').select('*').eq('status', 'published').eq('sub_region', regionName)
+  const { data: venues } = await supabase.from('venues').select('*').eq('published', true).eq('suburb', regionName)
   const typeCounts = {}
-  ;(venues || []).forEach(v => { typeCounts[v.type] = (typeCounts[v.type] || 0) + 1 })
+  ;(venues || []).forEach(v => { typeCounts[v.category] = (typeCounts[v.category] || 0) + 1 })
 
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>

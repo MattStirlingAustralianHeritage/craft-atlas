@@ -31,12 +31,12 @@ function cleanWebsite(url) {
 export async function generateMetadata({ params }) {
   const { slug } = await params
   const supabase = await createServerSupabase()
-  const { data: venue } = await supabase.from('venues').select('id, name, type, subtype, sub_region, state, description, hero_image_url, slug').eq('slug', slug).eq('status', 'published').single()
+  const { data: venue } = await supabase.from('venues').select('id, name, category, subcategories, suburb, state, description, hero_image_url, slug').eq('slug', slug).eq('published', true).single()
   if (!venue) return { title: 'Venue not found' }
-  const label = venue.subtype || TYPE_LABELS[venue.type] || venue.type
+  const label = venue.subcategories || TYPE_LABELS[venue.category] || venue.category
   return {
-    title: `${venue.name} — ${label} in ${venue.sub_region || venue.state}`,
-    description: venue.description || `Visit ${venue.name}, a ${label} in ${venue.sub_region || venue.state}, Australia.`,
+    title: `${venue.name} — ${label} in ${venue.suburb || venue.state}`,
+    description: venue.description || `Visit ${venue.name}, a ${label} in ${venue.suburb || venue.state}, Australia.`,
     openGraph: { images: venue.hero_image_url ? [venue.hero_image_url] : [] },
   }
 }
@@ -45,7 +45,7 @@ export default async function VenuePage({ params }) {
   const { slug } = await params
   const supabase = await createServerSupabase()
 
-  const { data: venue, error } = await supabase.from('venues').select('*').eq('slug', slug).eq('status', 'published').single()
+  const { data: venue, error } = await supabase.from('venues').select('*').eq('slug', slug).eq('published', true).single()
   if (error || !venue) notFound()
 
   // Check if venue is already claimed
@@ -59,8 +59,8 @@ export default async function VenuePage({ params }) {
 
   // Nearby venues
   const { data: nearbyRaw } = await supabase.from('venues')
-    .select('name, slug, type, sub_region, state, latitude, longitude, google_rating')
-    .eq('status', 'published').eq('state', venue.state).neq('slug', slug).limit(100)
+    .select('name, slug, category, suburb, state, latitude, longitude')
+    .eq('published', true).eq('state', venue.state).neq('slug', slug).limit(100)
 
   const nearby = (nearbyRaw || [])
     .map(v => ({ ...v, distance: haversineKm(venue.latitude, venue.longitude, v.latitude, v.longitude) }))
@@ -77,7 +77,7 @@ export default async function VenuePage({ params }) {
     .order('event_date', { ascending: true })
     .limit(6)
 
-  const color = TYPE_COLORS[venue.type] || '#5F8A7E'
+  const color = TYPE_COLORS[venue.category] || '#5F8A7E'
 
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
@@ -97,10 +97,10 @@ export default async function VenuePage({ params }) {
       `}</style>
 
       {/* HERO IMAGE — full width above header */}
-      {(venue.hero_image_url || getDefaultImage(venue.type, venue.id)) && (
+      {(venue.hero_image_url || getDefaultImage(venue.category, venue.id)) && (
         <div style={{ width: '100%', maxHeight: 480, overflow: 'hidden', marginBottom: 0, position: 'relative' }}>
           <Image
-            src={venue.hero_image_url || getDefaultImage(venue.type, venue.id)}
+            src={venue.hero_image_url || getDefaultImage(venue.category, venue.id)}
             alt={venue.name}
             width={1200}
             height={480}
@@ -116,7 +116,7 @@ export default async function VenuePage({ params }) {
           <Link href="/map" style={{ color: 'var(--text-3)', textDecoration: 'none' }}>Map</Link>
           <span>›</span>
           {venue.state && <Link href={`/map?state=${venue.state}`} style={{ color: 'var(--text-3)', textDecoration: 'none' }}>{venue.state}</Link>}
-          {venue.sub_region && <><span>›</span><span>{venue.sub_region}</span></>}
+          {venue.suburb && <><span>›</span><span>{venue.suburb}</span></>}
         </div>
       </div>
 
@@ -127,16 +127,16 @@ export default async function VenuePage({ params }) {
           borderRadius: 2, fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase',
           color: color, marginBottom: 16, fontFamily: 'var(--font-sans)',
         }}>
-          {TYPE_LABELS[venue.type] || venue.type}
+          {TYPE_LABELS[venue.category] || venue.category}
         </div>
 
         <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 400, color: 'var(--text)', lineHeight: 1.1, marginBottom: 8 }}>
           {venue.name}
         </h1>
 
-        {venue.sub_region && (
+        {venue.suburb && (
           <div style={{ fontSize: 16, color: 'var(--text-2)', fontFamily: 'var(--font-serif)', fontStyle: 'italic', marginBottom: 16 }}>
-            {venue.sub_region}, {venue.state}
+            {venue.suburb}, {venue.state}
           </div>
         )}
 
@@ -150,19 +150,6 @@ export default async function VenuePage({ params }) {
           </div>
         )}
 
-        {venue.google_rating && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
-            <div style={{ display: 'flex', gap: 2 }}>
-              {[1,2,3,4,5].map(star => (
-                <span key={star} style={{ color: star <= Math.round(venue.google_rating) ? '#5F8A7E' : '#d4c9b8', fontSize: 16 }}>★</span>
-              ))}
-            </div>
-            <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)' }}>{venue.google_rating.toFixed(1)}</span>
-            {venue.google_rating_count && (
-              <span style={{ fontSize: 13, color: 'var(--text-3)' }}>({venue.google_rating_count.toLocaleString()} reviews)</span>
-            )}
-          </div>
-        )}
 
         {venue.description && (
           <p style={{ fontSize: 16, color: 'var(--text-2)', lineHeight: 1.7, maxWidth: 640, fontFamily: 'var(--font-sans)', marginBottom: 24 }}>
@@ -258,16 +245,6 @@ export default async function VenuePage({ params }) {
             </div>
           )}
 
-          {venue.features && venue.features.length > 0 && (
-            <div style={{ marginBottom: 28 }}>
-              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 10, fontFamily: 'var(--font-sans)' }}>Features</div>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                {venue.features.map(f => (
-                  <span key={f} style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', padding: '6px 14px', borderRadius: 2, fontSize: 13, color: 'var(--text-2)', fontFamily: 'var(--font-sans)' }}>{f}</span>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* DETAILS SIDEBAR */}
@@ -495,15 +472,14 @@ export default async function VenuePage({ params }) {
                 <Link key={v.slug} href={`/venue/${v.slug}`} style={{
                   display: 'block', padding: '20px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 2, textDecoration: 'none', transition: 'all 0.2s ease',
                 }}>
-                  <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: TYPE_COLORS[v.type] || '#5F8A7E', marginBottom: 6, fontFamily: 'var(--font-sans)' }}>
-                    {TYPE_LABELS[v.type] || v.type}
+                  <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: TYPE_COLORS[v.category] || '#5F8A7E', marginBottom: 6, fontFamily: 'var(--font-sans)' }}>
+                    {TYPE_LABELS[v.category] || v.category}
                   </div>
                   <div style={{ fontFamily: 'var(--font-serif)', fontSize: 16, color: 'var(--text)', marginBottom: 4 }}>{v.name}</div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: 12, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>
-                      {v.sub_region || v.state} · {v.distance < 1 ? '<1' : Math.round(v.distance)} km
+                      {v.suburb || v.state} · {v.distance < 1 ? '<1' : Math.round(v.distance)} km
                     </span>
-                    {v.google_rating && <span style={{ fontSize: 12, color: '#5F8A7E' }}>★ {v.google_rating.toFixed(1)}</span>}
                   </div>
                 </Link>
               ))}

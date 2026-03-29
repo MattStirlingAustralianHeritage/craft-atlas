@@ -22,7 +22,7 @@ export default function ExploreClient() {
   useEffect(() => {
     async function fetchStudios() {
       const supabase = getSupabase()
-      const { data, error } = await supabase.from('venues').select('*').eq('status', 'published')
+      const { data, error } = await supabase.from('venues').select('*').eq('published', true)
       if (!error && data) setStudios(data)
       setLoading(false)
     }
@@ -31,14 +31,14 @@ export default function ExploreClient() {
 
   const filtered = studios
     .filter(v => {
-      const matchType = typeFilter === 'All' || v.type === typeFilter.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_')
+      const matchType = typeFilter === 'All' || v.category === typeFilter.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_')
       const matchState = stateFilter === 'All States' || v.state === stateFilter
-      const matchSearch = !search || v.name.toLowerCase().includes(search.toLowerCase()) || (v.sub_region && v.sub_region.toLowerCase().includes(search.toLowerCase()))
+      const matchSearch = !search || v.name.toLowerCase().includes(search.toLowerCase()) || (v.suburb && v.suburb.toLowerCase().includes(search.toLowerCase()))
       const matchFeature = !featureFilter || (featureFilter === 'Experiences & Classes' ? v.experiences_and_classes === true : (v.features && v.features.includes(featureFilter)))
       return matchType && matchState && matchSearch && matchFeature
     })
     .sort((a, b) => {
-      if (sort === 'featured') { const t = { featured: 0, premium: 1, basic: 2 }; return (t[a.listing_tier] || 2) - (t[b.listing_tier] || 2) }
+      if (sort === 'featured') { const t = { featured: 0, premium: 1, basic: 2 }; return (t[a.tier] || 2) - (t[b.tier] || 2) }
       if (sort === 'name') return a.name.localeCompare(b.name)
       if (sort === 'state') return a.state.localeCompare(b.state)
       return 0
@@ -134,7 +134,7 @@ export default function ExploreClient() {
 }
 
 function StudioCard({ studio }) {
-  const color = TYPE_COLORS[studio.type] || '#C1603A'
+  const color = TYPE_COLORS[studio.category] || '#C1603A'
   return (
     <Link href={`/venue/${studio.slug}`} style={{
       display: 'block', textDecoration: 'none', background: 'var(--bg-2)', border: '1px solid var(--border)', padding: 24, transition: 'all 0.2s',
@@ -142,12 +142,12 @@ function StudioCard({ studio }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: `${color}18`, border: `1px solid ${color}33`, padding: '3px 10px', borderRadius: 2 }}>
           <span style={{ width: 5, height: 5, borderRadius: '50%', background: color, display: 'inline-block' }} />
-          <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color }}>{studio.type}</span>
+          <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color }}>{studio.category}</span>
         </div>
-        {studio.listing_tier === 'featured' && <span style={{ fontSize: 10, color: 'var(--primary)', fontWeight: 600, letterSpacing: '0.06em' }}>★ FEATURED</span>}
+        {studio.tier === 'featured' && <span style={{ fontSize: 10, color: 'var(--primary)', fontWeight: 600, letterSpacing: '0.06em' }}>★ FEATURED</span>}
       </div>
       <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 400, color: 'var(--text)', marginBottom: 4, letterSpacing: '-0.01em' }}>{studio.name}</h3>
-      <div style={{ fontSize: 12, color: 'var(--text-3)', marginBottom: 12 }}>{studio.sub_region && `${studio.sub_region}, `}{studio.state}</div>
+      <div style={{ fontSize: 12, color: 'var(--text-3)', marginBottom: 12 }}>{studio.suburb && `${studio.suburb}, `}{studio.state}</div>
       {studio.description && (
         <p style={{ fontSize: 13, color: 'var(--text-2)', lineHeight: 1.6, marginBottom: 16, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{studio.description}</p>
       )}
@@ -164,7 +164,7 @@ function StudioCard({ studio }) {
 }
 
 function StudioRow({ studio }) {
-  const color = TYPE_COLORS[studio.type] || '#C1603A'
+  const color = TYPE_COLORS[studio.category] || '#C1603A'
   return (
     <Link href={`/venue/${studio.slug}`} style={{
       display: 'flex', alignItems: 'center', gap: 24, textDecoration: 'none', padding: '16px 20px', borderBottom: '1px solid var(--border)', transition: 'background 0.15s',
@@ -173,8 +173,8 @@ function StudioRow({ studio }) {
       <div style={{ flex: 1, minWidth: 0 }}>
         <span style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 400, color: 'var(--text)' }}>{studio.name}</span>
       </div>
-      <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color, width: 80, flexShrink: 0 }}>{studio.type}</div>
-      <div style={{ fontSize: 12, color: 'var(--text-3)', width: 180, flexShrink: 0 }}>{studio.sub_region && `${studio.sub_region}, `}{studio.state}</div>
+      <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color, width: 80, flexShrink: 0 }}>{studio.category}</div>
+      <div style={{ fontSize: 12, color: 'var(--text-3)', width: 180, flexShrink: 0 }}>{studio.suburb && `${studio.suburb}, `}{studio.state}</div>
       {studio.features && (
         <div style={{ display: 'flex', gap: 4, width: 200, flexShrink: 0 }}>
           {studio.features.slice(0, 2).map(f => (
@@ -182,7 +182,7 @@ function StudioRow({ studio }) {
           ))}
         </div>
       )}
-      {studio.listing_tier === 'featured' && <span style={{ fontSize: 10, color: 'var(--primary)', fontWeight: 600, flexShrink: 0 }}>★</span>}
+      {studio.tier === 'featured' && <span style={{ fontSize: 10, color: 'var(--primary)', fontWeight: 600, flexShrink: 0 }}>★</span>}
     </Link>
   )
 }

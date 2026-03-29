@@ -15,9 +15,8 @@ export async function POST(request) {
     const { venueId } = await request.json()
     if (!venueId) return Response.json({ error: 'venueId is required' }, { status: 400 })
 
-    const { data: venue } = await supabaseAdmin.from('venues').select('id, name, slug, is_claimed').eq('id', venueId).single()
+    const { data: venue } = await supabaseAdmin.from('venues').select('id, name, slug').eq('id', venueId).single()
     if (!venue) return Response.json({ error: 'Venue not found' }, { status: 404 })
-    if (venue.is_claimed) return Response.json({ error: 'Already claimed' }, { status: 409 })
 
 await supabaseAdmin.from('vendor_profiles').upsert({ user_id: user.id, email: user.email }, { onConflict: 'user_id' })
 

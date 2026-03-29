@@ -142,10 +142,7 @@ async function handleClaimPaymentSuccess(supabase, claimId, venueId, tier, subsc
 
   await updateVenueSubscription(supabase, venueId, tier, subscriptionId, 'active')
 
-  await supabase
-    .from('venues')
-    .update({ is_claimed: true })
-    .eq('id', venueId)
+  // is_claimed column removed — claim status tracked via claims table
 }
 
 async function updateVenueSubscription(supabase, venueId, tier, subscriptionId, status) {
