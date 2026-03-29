@@ -37,6 +37,7 @@ const REGION_DESCRIPTORS = {
 
 export default async function HomePage() {
   const supabase = getSupabase()
+  const { count: venueCount } = await supabase.from('venues').select('*', { count: 'exact', head: true }).eq('published', true)
   const { data: venues } = await supabase.from('venues').select('category, longitude, latitude, suburb, state')
   const { data: latestArticles } = await supabase.from('articles').select('id, title, slug, deck, hero_image_url, category, reading_time').eq('status', 'published').order('published_at', { ascending: false }).limit(6)
   const { data: featuredVenues } = await supabase.from('venues').select('id, name, slug, category, suburb, state, hero_image_url, description').eq('published', true).in('tier', ['standard', 'premium']).order('tier', { ascending: false }).limit(8)
@@ -64,7 +65,7 @@ export default async function HomePage() {
             Australian Makers &amp; Studios
           </div>
           <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(30px, 5vw, 58px)', fontWeight: 400, color: 'var(--text)', lineHeight: 1.1, marginBottom: 20 }}>
-            Discover {(venues || []).length.toLocaleString()} makers,<br />
+            Discover {(venueCount || (venues || []).length).toLocaleString()} makers,<br />
             artists <span style={{ fontStyle: 'italic', color: 'var(--primary)' }}>&</span> studios
           </h1>
           <p style={{ fontSize: 16, color: 'var(--text-2)', lineHeight: 1.6, marginBottom: 32, fontFamily: 'var(--font-sans)' }}>

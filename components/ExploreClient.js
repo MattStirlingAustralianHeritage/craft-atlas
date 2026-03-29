@@ -3,7 +3,7 @@ import { getDefaultImage } from '@/lib/defaultImages'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { getSupabase } from '@/lib/supabase'
-import { TYPE_COLORS } from '@/lib/constants'
+import { TYPE_COLORS, TYPE_LABELS } from '@/lib/constants'
 
 const TYPES = ['All', 'Ceramics & Clay', 'Visual Art', 'Jewellery & Metalwork', 'Textile & Fibre', 'Wood & Furniture', 'Glass', 'Printmaking']
 const STATES = ['All States', 'NSW', 'VIC', 'QLD', 'SA', 'WA', 'TAS', 'NT', 'ACT']
@@ -142,7 +142,7 @@ function StudioCard({ studio }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: `${color}18`, border: `1px solid ${color}33`, padding: '3px 10px', borderRadius: 2 }}>
           <span style={{ width: 5, height: 5, borderRadius: '50%', background: color, display: 'inline-block' }} />
-          <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color }}>{studio.category}</span>
+          <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color }}>{TYPE_LABELS[studio.category] || studio.category}</span>
         </div>
         {studio.tier === 'featured' && <span style={{ fontSize: 10, color: 'var(--primary)', fontWeight: 600, letterSpacing: '0.06em' }}>★ FEATURED</span>}
       </div>
@@ -173,7 +173,7 @@ function StudioRow({ studio }) {
       <div style={{ flex: 1, minWidth: 0 }}>
         <span style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 400, color: 'var(--text)' }}>{studio.name}</span>
       </div>
-      <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color, width: 80, flexShrink: 0 }}>{studio.category}</div>
+      <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color, width: 80, flexShrink: 0 }}>{TYPE_LABELS[studio.category] || studio.category}</div>
       <div style={{ fontSize: 12, color: 'var(--text-3)', width: 180, flexShrink: 0 }}>{studio.suburb && `${studio.suburb}, `}{studio.state}</div>
       {studio.features && (
         <div style={{ display: 'flex', gap: 4, width: 200, flexShrink: 0 }}>

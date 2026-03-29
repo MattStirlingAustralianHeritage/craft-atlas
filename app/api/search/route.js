@@ -11,10 +11,12 @@ function getAnthropic() {
 
 const PARSE_SYSTEM_PROMPT = `You are a search query parser for Craft Atlas, a curated Australian maker and studio directory. Parse natural language search queries into structured filter objects.
 
+The database uses these column names: "category" (not "type"), "suburb" (not "sub_region"), "state", "description" (enriched text about each maker's practice).
+
 RULES:
 - Return ONLY a valid JSON object — no preamble, no markdown fences, no explanation
 - Only include fields you can confidently infer — set everything else to null
-- Craft categories: ceramics_clay, visual_art, jewellery_metalwork, textile_fibre, wood_furniture, glass, printmaking
+- Craft categories (stored in "category" column): ceramics_clay, visual_art, jewellery_metalwork, textile_fibre, wood_furniture, glass, printmaking
 - "ceramics" or "pottery" or "clay" → craft_types: ["ceramics_clay"]
 - "painting" or "painter" or "visual art" → craft_types: ["visual_art"]
 - "jewellery" or "jewelry" or "metalwork" or "silversmith" → craft_types: ["jewellery_metalwork"]
@@ -23,6 +25,7 @@ RULES:
 - "glass" or "glassblowing" or "blown glass" → craft_types: ["glass"]
 - "printmaking" or "screen printing" or "etching" → craft_types: ["printmaking"]
 - Region names like "Blue Mountains", "Byron Bay Hinterland", "Yarra Valley", "Daylesford", "Adelaide Hills", "Huon Valley", "Margaret River", "Sunshine Coast Hinterland" → sub_region: "<exact name>"
+- Suburb names (stored in "suburb" column) can also be searched — if user mentions a specific town/suburb, set keyword to that name
 - City/state names: "Melbourne", "Sydney", "Brisbane", "Perth", "Adelaide", "Hobart" → state only, no sub_region
 - "open studio" → visitor_experience: ["open_studio"]
 - "workshops" or "classes" → visitor_experience: ["workshops"]
@@ -110,7 +113,7 @@ async function keywordFallback(q) {
     .from('venues')
     .select('id, name, slug, category, subcategories, state, suburb, address, latitude, longitude, website, phone, description, hero_image_url, opening_hours, tier, published')
     .eq('published', true)
-    .or(`name.ilike.%${q}%,category.ilike.%${q}%,description.ilike.%${q}%`)
+    .or(`name.ilike.%${q}%,category.ilike.%${q}%,description.ilike.%${q}%,suburb.ilike.%${q}%,state.ilike.%${q}%`)
     .order('tier', { ascending: false, nullsFirst: false })
     .limit(50)
   if (error) throw error

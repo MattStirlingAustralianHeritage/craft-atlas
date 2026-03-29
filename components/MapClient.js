@@ -2,7 +2,7 @@
 import { useRef, useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { getSupabase } from '@/lib/supabase'
-import { TYPE_COLORS, STATES } from '@/lib/constants'
+import { TYPE_COLORS, TYPE_LABELS, STATES } from '@/lib/constants'
 import SemanticSearchBar from './SemanticSearchBar'
 
 const PRIMARY = '#C1603A'
@@ -232,7 +232,7 @@ export default function MapPageClient() {
                 <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap;">
                   <span style="display:inline-flex;align-items:center;gap:5px;background:${props.color}18;border:1px solid ${props.color}33;padding:3px 9px;border-radius:2px;">
                     <span style="width:5px;height:5px;border-radius:50%;background:${props.color};display:inline-block;"></span>
-                    <span style="font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:${props.color};">${props.category}</span>
+                    <span style="font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:${props.color};">${props.categoryLabel}</span>
                   </span>${tierBadge}
                 </div>
                 <div style="font-family:Georgia,serif;font-size:17px;font-weight:400;color:#1a1614;margin-bottom:3px;letter-spacing:-0.01em;line-height:1.2;">${props.name}</div>
@@ -402,7 +402,7 @@ export default function MapPageClient() {
                   {Object.entries(TYPE_COLORS).map(([type, color]) => (
                     <div key={type} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       <span style={{ width: 7, height: 7, borderRadius: '50%', background: color, display: 'inline-block', flexShrink: 0 }} />
-                      <span style={{ fontSize: 10, color: 'var(--text-2)', textTransform: 'capitalize' }}>{type.replace(/_/g, ' ')}</span>
+                      <span style={{ fontSize: 10, color: 'var(--text-2)' }}>{TYPE_LABELS[type] || type.replace(/_/g, ' ')}</span>
                     </div>
                   ))}
                 </div>
@@ -480,7 +480,7 @@ export default function MapPageClient() {
                 {Object.entries(TYPE_COLORS).map(([type, color]) => (
                   <div key={type} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ width: 7, height: 7, borderRadius: '50%', background: color, display: 'inline-block', flexShrink: 0 }} />
-                    <span style={{ fontSize: 10, color: 'var(--text-2)', textTransform: 'capitalize' }}>{type.replace(/_/g, ' ')}</span>
+                    <span style={{ fontSize: 10, color: 'var(--text-2)' }}>{TYPE_LABELS[type] || type.replace(/_/g, ' ')}</span>
                   </div>
                 ))}
               </div>
@@ -623,7 +623,7 @@ function buildGeoJSON(studios, studiosWithEvents, eventByStudio = {}) {
       return {
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [parseFloat(v.longitude), parseFloat(v.latitude)] },
-        properties: { id: v.id, name: v.name, slug: v.slug, category: v.category, tier, color: tier === 'premium' ? PREMIUM_COLOR : color, hasEvent, eventTitle: nextEvent ? nextEvent.title : null, eventDate: nextEvent ? nextEvent.event_date : null, location: [v.suburb, v.state].filter(Boolean).join(', '), description: v.description || '' },
+        properties: { id: v.id, name: v.name, slug: v.slug, category: v.category, categoryLabel: TYPE_LABELS[v.category] || v.category, tier, color: tier === 'premium' ? PREMIUM_COLOR : color, hasEvent, eventTitle: nextEvent ? nextEvent.title : null, eventDate: nextEvent ? nextEvent.event_date : null, location: [v.suburb, v.state].filter(Boolean).join(', '), description: v.description || '' },
       }
     }),
   }
