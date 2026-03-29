@@ -1,12 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-)
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.craftatlas.com.au'
 
 function buildEmailHtml(issue, articles, unsubscribeToken) {
@@ -70,6 +64,9 @@ function buildEmailHtml(issue, articles, unsubscribeToken) {
 
 export async function POST(request) {
   try {
+    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
+    const resend = new Resend(process.env.RESEND_API_KEY)
+
     const { searchParams } = new URL(request.url)
     const password = searchParams.get('key')
     if (password !== process.env.ADMIN_PASSWORD) {

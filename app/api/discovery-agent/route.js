@@ -1,11 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
-
 const REGION_MAP = {
   'victoria': 'VIC', 'vic': 'VIC',
   'new south wales': 'NSW', 'nsw': 'NSW',
@@ -45,6 +40,7 @@ function detectRegion(message) {
 }
 
 async function fetchVenues(region, limit = 80) {
+  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
   let query = supabase
     .from('venues')
     .select('id, name, slug, type, subtype, description, state, sub_region, google_rating, is_verified, custom_tags, tags, opening_hours')

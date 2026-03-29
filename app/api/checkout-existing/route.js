@@ -2,12 +2,12 @@ import { createClient } from '@supabase/supabase-js'
 import { createServerSupabase } from '@/lib/supabase'
 import Stripe from 'stripe'
 
-const supabaseAdmin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
-const STANDARD_PRICE_ID = process.env.STRIPE_STANDARD_PRICE_ID
-
 export async function POST(request) {
   try {
+    const supabaseAdmin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+    const STANDARD_PRICE_ID = process.env.STRIPE_STANDARD_PRICE_ID
+
     const supabase = await createServerSupabase()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return Response.json({ error: 'Not authenticated' }, { status: 401 })

@@ -1,12 +1,12 @@
 import { createClient } from '@supabase/supabase-js'
 import Stripe from 'stripe'
 
-const supabaseAdmin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
-const STANDARD_PRICE_ID = process.env.STRIPE_STANDARD_PRICE_ID
-
 export async function POST(request) {
   try {
+    const supabaseAdmin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+    const STANDARD_PRICE_ID = process.env.STRIPE_STANDARD_PRICE_ID
+
     const { name, email, password, venueId } = await request.json()
     if (!name || !email || !password || !venueId) return Response.json({ error: 'All fields are required' }, { status: 400 })
     if (password.length < 8) return Response.json({ error: 'Password must be at least 8 characters' }, { status: 400 })

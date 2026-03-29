@@ -1,13 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
 import { createServerSupabase } from '@/lib/supabase'
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-)
-
 export async function POST(request) {
   try {
+    const supabaseAdmin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
     const supabase = await createServerSupabase()
     const { data: { user } } = await supabase.auth.getUser()
 

@@ -1,12 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import Anthropic from '@anthropic-ai/sdk'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-)
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-
 export async function GET(request) {
   return POST(request)
 }
@@ -16,6 +10,9 @@ export async function POST(request) {
     // Check admin auth — supports both query param (admin UI) and Vercel cron header
     const { searchParams } = new URL(request.url)
     const password = searchParams.get('key')
+    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
+    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+
     const cronSecret = request.headers.get('authorization')?.replace('Bearer ', '')
     const isAuthed = password === process.env.ADMIN_PASSWORD || cronSecret === process.env.CRON_SECRET
     if (!isAuthed) {

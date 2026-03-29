@@ -1,20 +1,12 @@
 // app/api/stripe/webhook/route.js
-// Replaces existing webhook — handles both vendor upgrade and claim_checkout flows
+// Handles both vendor upgrade and claim_checkout flows
 
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2025-01-27.acacia',
-})
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
-  { auth: { persistSession: false } }
-)
-
 export async function POST(request) {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2025-01-27.acacia' })
+  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } })
   const body = await request.text()
   const signature = request.headers.get('stripe-signature')
 
@@ -35,8 +27,6 @@ export async function POST(request) {
     return Response.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
-  console.log(`Stripe webhook received: ${event.type}`)
-
   try {
     switch (event.type) {
 
@@ -56,11 +46,9 @@ export async function POST(request) {
         }
 
         if (type === 'claim_checkout') {
-          // New claim payment — approve the claim and activate the venue subscription
-          await handleClaimPaymentSuccess(claimId, venueId, tier, subscriptionId)
+          await handleClaimPaymentSuccess(supabase, claimId, venueId, tier, subscriptionId)
         } else {
-          // Existing vendor upgrade flow (already claimed venue)
-          await updateVenueSubscription(venueId, tier, subscriptionId, 'active')
+          await updateVenueSubscription(supabase, venueId, tier, subscriptionId, 'active')
         }
         break
       }
@@ -76,7 +64,7 @@ export async function POST(request) {
 
         if (!venueId) break
 
-        await updateVenueSubscription(venueId, tier, subscriptionId, 'active')
+        await updateVenueSubscription(supabase, venueId, tier, subscriptionId, 'active')
         break
       }
 
@@ -124,12 +112,9 @@ export async function POST(request) {
         const tier = getTierFromPriceId(priceId)
         const status = subscription.status === 'active' ? 'active' : subscription.status
 
-        await updateVenueSubscription(venueId, tier, subscription.id, status)
+        await updateVenueSubscription(supabase, venueId, tier, subscription.id, status)
         break
       }
-
-      default:
-        console.log(`Unhandled event type: ${event.type}`)
     }
 
     return Response.json({ received: true })
@@ -139,14 +124,12 @@ export async function POST(request) {
   }
 }
 
-// Handle a brand-new claim where the vendor has just paid
-async function handleClaimPaymentSuccess(claimId, venueId, tier, subscriptionId) {
+async function handleClaimPaymentSuccess(supabase, claimId, venueId, tier, subscriptionId) {
   if (!claimId) {
     console.error('claim_checkout missing claim_id in metadata')
     return
   }
 
-  // 1. Mark the claim as approved
   const { error: claimError } = await supabase
     .from('claims')
     .update({ status: 'approved' })
@@ -157,18 +140,15 @@ async function handleClaimPaymentSuccess(claimId, venueId, tier, subscriptionId)
     throw claimError
   }
 
-  // 2. Activate the venue subscription and mark as claimed
-  await updateVenueSubscription(venueId, tier, subscriptionId, 'active')
+  await updateVenueSubscription(supabase, venueId, tier, subscriptionId, 'active')
 
   await supabase
     .from('venues')
     .update({ is_claimed: true })
     .eq('id', venueId)
-
-  console.log(`Claim ${claimId} approved — venue ${venueId} activated on ${tier}`)
 }
 
-async function updateVenueSubscription(venueId, tier, subscriptionId, status) {
+async function updateVenueSubscription(supabase, venueId, tier, subscriptionId, status) {
   const tierName = tier || 'standard'
   const expiresAt = new Date()
   expiresAt.setFullYear(expiresAt.getFullYear() + 1)
@@ -187,8 +167,6 @@ async function updateVenueSubscription(venueId, tier, subscriptionId, status) {
     console.error(`Failed to update venue ${venueId}:`, error)
     throw error
   }
-
-  console.log(`Updated venue ${venueId} to ${tierName} (${status})`)
 }
 
 function getTierFromPriceId(priceId) {
