@@ -22,7 +22,7 @@ export default function ExploreClient() {
   useEffect(() => {
     async function fetchStudios() {
       const supabase = getSupabase()
-      const { data, error } = await supabase.from('venues').select('*').eq('published', true)
+      const { data, error } = await supabase.from('venues').select('*').eq('published', true).neq('address', '').not('address', 'is', null)
       if (!error && data) setStudios(data)
       setLoading(false)
     }

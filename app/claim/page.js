@@ -13,6 +13,8 @@ export default async function ClaimPage() {
     .from('venues')
     .select('id, name, slug, category, subcategories, state, suburb, description, hero_image_url, tier')
     .eq('published', true)
+    .neq('address', '')
+    .not('address', 'is', null)
     .order('name')
 
   return <Suspense fallback={null}><ClaimClient venues={venues || []} /></Suspense>

@@ -4,25 +4,19 @@ import { getSupabase } from '@/lib/supabase'
 import RegionCarousel from '@/components/RegionCarousel'
 import { HeroMap, NewsletterForm, NewsletterToast } from '@/components/HomeClient'
 import SemanticSearchBar from '@/components/SemanticSearchBar'
+import { TYPE_COLORS, TYPE_LABELS_PLURAL } from '@/lib/constants'
 
-
-const TYPE_COLORS = {
-  ceramics: '#C1603A',
-  visual_art: '#4a7c59',
-  jewellery: '#6b4f2a',
-  textile: '#4a3d6b',
-  wood: '#7a5c2e',
-  glass: '#6b5a1a',
-}
-
-const TYPE_LABELS_PLURAL = {
-  ceramics: 'Ceramics',
-  visual_art: 'Visual Art',
-  jewellery: 'Jewellery',
-  textile: 'Textile',
-  wood: 'Wood & Furniture',
-  glass: 'Glass',
-}
+// Region definitions with center coordinates and radius (km) for geo-matching
+const REGION_DEFS = [
+  { name: 'Blue Mountains', slug: 'blue-mountains', state: 'NSW', lat: -33.72, lng: 150.31, radius: 35 },
+  { name: 'Byron Hinterland', slug: 'byron-hinterland', state: 'NSW', lat: -28.64, lng: 153.44, radius: 35 },
+  { name: 'Yarra Valley', slug: 'yarra-valley', state: 'VIC', lat: -37.75, lng: 145.50, radius: 30 },
+  { name: 'Central Victoria', slug: 'central-victoria', state: 'VIC', lat: -37.05, lng: 144.28, radius: 40 },
+  { name: 'Tamar Valley', slug: 'tamar-valley', state: 'TAS', lat: -41.20, lng: 146.95, radius: 30 },
+  { name: 'Adelaide Hills', slug: 'adelaide-hills', state: 'SA', lat: -35.02, lng: 138.72, radius: 30 },
+  { name: 'Mornington Peninsula', slug: 'mornington-peninsula', state: 'VIC', lat: -38.35, lng: 145.05, radius: 25 },
+  { name: 'Sunshine Coast Hinterland', slug: 'sunshine-coast-hinterland', state: 'QLD', lat: -26.70, lng: 152.90, radius: 30 },
+]
 
 const REGION_DESCRIPTORS = {
   'blue-mountains': { badge: 'Craft Region', desc: 'Mountain studios, open-air galleries, and a deep tradition of making.' },
@@ -35,23 +29,40 @@ const REGION_DESCRIPTORS = {
   'sunshine-coast-hinterland': { badge: 'Craft Region', desc: 'Subtropical studios, ceramicists, and furniture makers in the hinterland.' },
 }
 
+// Haversine distance in km
+function distKm(lat1, lng1, lat2, lng2) {
+  const R = 6371
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLng = (lng2 - lng1) * Math.PI / 180
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+}
+
 export default async function HomePage() {
   const supabase = getSupabase()
-  const { count: venueCount } = await supabase.from('venues').select('*', { count: 'exact', head: true }).eq('published', true)
-  const { data: venues } = await supabase.from('venues').select('category, longitude, latitude, suburb, state')
+  // Only count venues with a physical address (visitability filter)
+  const { count: venueCount } = await supabase.from('venues').select('*', { count: 'exact', head: true }).eq('published', true).neq('address', '').not('address', 'is', null)
+  const { data: venues } = await supabase.from('venues').select('category, longitude, latitude, suburb, state, address').eq('published', true).neq('address', '').not('address', 'is', null)
   const { data: latestArticles } = await supabase.from('articles').select('id, title, slug, deck, hero_image_url, category, reading_time').eq('status', 'published').order('published_at', { ascending: false }).limit(6)
-  const { data: featuredVenues } = await supabase.from('venues').select('id, name, slug, category, suburb, state, hero_image_url, description').eq('published', true).in('tier', ['standard', 'premium']).order('tier', { ascending: false }).limit(8)
-  const REGION_ORDER = [
-    { name: 'Blue Mountains', state: 'NSW' },{ name: 'Byron Hinterland', state: 'NSW' },
-    { name: 'Yarra Valley', state: 'VIC' },{ name: 'Central Victoria', state: 'VIC' },
-    { name: 'Tamar Valley', state: 'TAS' },{ name: 'Adelaide Hills', state: 'SA' },
-    { name: 'Mornington Peninsula', state: 'VIC' },{ name: 'Sunshine Coast Hinterland', state: 'QLD' },
-  ]
-  const rc=(venues||[]).reduce((a,v)=>{if(v.suburb)a[v.suburb]=(a[v.suburb]||0)+1;return a},{})
-  const regions=REGION_ORDER.map(r=>({...r,count:rc[r.name]||0}))
-  const tc=(venues||[]).reduce((a,v)=>{if(v.category)a[v.category]=(a[v.category]||0)+1;return a},{})
-  const types=Object.entries(tc).sort(([,a],[,b])=>b-a).slice(0,5)
-  const total=(venues||[]).length
+  const { data: featuredVenues } = await supabase.from('venues').select('id, name, slug, category, suburb, state, hero_image_url, description').eq('published', true).neq('address', '').not('address', 'is', null).in('tier', ['standard', 'premium']).order('tier', { ascending: false }).limit(8)
+
+  // Count venues per region using geographic proximity
+  const regionCounts = {}
+  REGION_DEFS.forEach(r => { regionCounts[r.slug] = 0 })
+  ;(venues || []).forEach(v => {
+    if (!v.latitude || !v.longitude) return
+    for (const r of REGION_DEFS) {
+      if (distKm(v.latitude, v.longitude, r.lat, r.lng) <= r.radius) {
+        regionCounts[r.slug]++
+        break
+      }
+    }
+  })
+  const regions = REGION_DEFS.map(r => ({ ...r, count: regionCounts[r.slug] || 0 }))
+
+  const tc = (venues||[]).reduce((a,v) => { if(v.category) a[v.category]=(a[v.category]||0)+1; return a }, {})
+  const types = Object.entries(tc).sort(([,a],[,b]) => b-a).slice(0,7)
+  const total = (venues||[]).length
   return (
 
     <div>
@@ -111,8 +122,8 @@ export default async function HomePage() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}>
               {featuredVenues.map(venue => {
-                const typeColor = { ceramics: '#C1603A', visual_art: '#4a7c59', jewellery: '#6b4f2a', textile: '#4a3d6b', wood: '#7a5c2e', glass: '#6b5a1a' }[venue.category] || '#6b4f2a'
-                const typeLabel = { ceramics: 'Ceramics', visual_art: 'Visual Art', jewellery: 'Jewellery', textile: 'Textile', wood: 'Wood & Furniture', glass: 'Glass' }[venue.category] || venue.category
+                const typeColor = TYPE_COLORS[venue.category] || '#6b4f2a'
+                const typeLabel = TYPE_LABELS_PLURAL[venue.category] || venue.category
                 return (
                   <Link key={venue.id} href={`/venue/${venue.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
                     <div style={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 3, overflow: 'hidden' }}>
@@ -139,12 +150,12 @@ export default async function HomePage() {
       <section style={{ borderTop: '1px solid var(--border)', background: 'var(--bg-2)', paddingBottom: 40 }}>
         <div id="regionsTrack" style={{ overflowX: 'auto', scrollbarWidth: 'none', display: 'flex', gap: 16, padding: '32px 60px' }}>
           {regions.map(region => {
-            const meta = REGION_DESCRIPTORS[region.name.toLowerCase().replace(/ /g, '-')] || { badge: 'Region', desc: '' }
+            const meta = REGION_DESCRIPTORS[region.slug] || { badge: 'Region', desc: '' }
             return (
-              <Link key={region.name} href={`/explore?region=${region.name.toLowerCase().replace(/ /g, '-')}`}
+              <Link key={region.slug} href={`/explore?region=${region.slug}`}
                 className="region-card"
               >
-                <div className="region-card-image" style={{ backgroundImage: `url(/images/regions/${region.name.toLowerCase().replace(/ /g, '-')}.jpg)` }} />
+                <div className="region-card-image" style={{ backgroundImage: `url(/images/regions/${region.slug}.jpg)` }} />
                 <div className="region-card-overlay" />
                 <div className="region-card-badge">{meta.badge}</div>
                 <div className="region-card-body">

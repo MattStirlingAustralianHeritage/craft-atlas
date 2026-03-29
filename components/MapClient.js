@@ -81,7 +81,7 @@ export default function MapPageClient() {
     async function fetchData() {
       const supabase = getSupabase()
       const [{ data: studioData }, { data: eventData }, { data: { user: currentUser } }] = await Promise.all([
-        supabase.from('venues').select('id, name, slug, category, state, suburb, latitude, longitude, tier, description').eq('published', true),
+        supabase.from('venues').select('id, name, slug, category, state, suburb, latitude, longitude, tier, description, address').eq('published', true).neq('address', '').not('address', 'is', null),
         supabase.from('events').select('venue_id, title, event_date, event_type').gte('event_date', new Date().toISOString()).order('event_date', { ascending: true }),
         supabase.auth.getUser(),
       ])

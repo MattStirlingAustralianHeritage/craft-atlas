@@ -192,8 +192,10 @@ function TrailBuilderInner() {
       setUser(user)
       const { data: venueData } = await supabase
         .from('venues')
-        .select('id, name, slug, category, state, suburb, latitude, longitude, description')
+        .select('id, name, slug, category, state, suburb, latitude, longitude, description, address')
         .eq('published', true)
+        .neq('address', '')
+        .not('address', 'is', null)
       setAllVenues(venueData || [])
       if (editId) {
         const { data: trail } = await supabase

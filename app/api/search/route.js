@@ -113,6 +113,8 @@ async function keywordFallback(q) {
     .from('venues')
     .select('id, name, slug, category, subcategories, state, suburb, address, latitude, longitude, website, phone, description, hero_image_url, opening_hours, tier, published')
     .eq('published', true)
+    .neq('address', '')
+    .not('address', 'is', null)
     .or(`name.ilike.%${q}%,category.ilike.%${q}%,description.ilike.%${q}%,suburb.ilike.%${q}%,state.ilike.%${q}%`)
     .order('tier', { ascending: false, nullsFirst: false })
     .limit(50)

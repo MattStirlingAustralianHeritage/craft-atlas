@@ -59,8 +59,8 @@ export default async function VenuePage({ params }) {
 
   // Nearby venues
   const { data: nearbyRaw } = await supabase.from('venues')
-    .select('name, slug, category, suburb, state, latitude, longitude')
-    .eq('published', true).eq('state', venue.state).neq('slug', slug).limit(100)
+    .select('name, slug, category, suburb, state, latitude, longitude, address')
+    .eq('published', true).neq('address', '').not('address', 'is', null).eq('state', venue.state).neq('slug', slug).limit(100)
 
   const nearby = (nearbyRaw || [])
     .map(v => ({ ...v, distance: haversineKm(venue.latitude, venue.longitude, v.latitude, v.longitude) }))

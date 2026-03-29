@@ -9,6 +9,8 @@ export default async function sitemap() {
     .from('venues')
     .select('slug, updated_at')
     .eq('published', true)
+    .neq('address', '')
+    .not('address', 'is', null)
     .limit(10000)
 
   const staticPages = [
