@@ -7,6 +7,18 @@ export default function Footer() {
       borderTop: '1px solid var(--border)',
       textAlign: 'center',
     }}>
+      <p style={{
+        fontSize: 12,
+        color: 'var(--text-3)',
+        fontFamily: 'var(--font-sans)',
+        fontWeight: 300,
+        marginBottom: 8,
+      }}>
+        Part of the{' '}
+        <a href="https://www.australianatlas.com.au" style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
+          Australian Atlas network
+        </a>
+      </p>
       <div style={{
         fontSize: 11,
         color: 'var(--text-3)',

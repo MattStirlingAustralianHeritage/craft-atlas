@@ -98,9 +98,9 @@ export default async function HomePage() {
         <div className="home-stats-bar">
           {types.map(([type, count]) => (
             <div key={type} style={{ textAlign: 'center', alignItems: 'center' }}>
-              <div style={{ fontSize: 26, fontFamily: 'var(--font-serif)', color: TYPE_COLORS[type] || 'var(--text)', fontWeight: 400, lineHeight: 1, marginBottom: 4 }}>
+              <Link href={`/map?type=${type}`} style={{ fontSize: 26, fontFamily: 'var(--font-serif)', color: TYPE_COLORS[type] || 'var(--text)', fontWeight: 400, lineHeight: 1, marginBottom: 4, textDecoration: 'none', display: 'block', transition: 'opacity 0.15s' }} className="stat-number-link">
                 {count}
-              </div>
+              </Link>
               <div style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>
                 {TYPE_LABELS_PLURAL[type] || type}
               </div>

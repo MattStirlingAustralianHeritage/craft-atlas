@@ -4,6 +4,8 @@ import { venueJsonLd } from '@/lib/jsonLd'
 import { TYPE_COLORS, TYPE_LABELS } from '@/lib/constants'
 import VenueMap from '@/components/VenueMap'
 import FavouriteButton from '@/components/FavouriteButton'
+import CrossVerticalNearby from '@/components/CrossVerticalNearby'
+import RegionalBacklink from '@/components/RegionalBacklink'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -461,32 +463,21 @@ export default async function VenuePage({ params }) {
         </div>
       )}
 
-      {/* NEARBY VENUES */}
-      {nearby.length > 0 && (
-        <section style={{ borderTop: '1px solid var(--border)', padding: '48px 24px 64px', background: 'var(--bg-2)' }}>
-          <div style={{ maxWidth: 900, margin: '0 auto' }}>
-            <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 12, fontFamily: 'var(--font-sans)' }}>Nearby</div>
-            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 24, fontWeight: 400, color: 'var(--text)', marginBottom: 28 }}>More to explore nearby</h2>
-            <div className="venue-nearby-grid">
-              {nearby.map(v => (
-                <Link key={v.slug} href={`/venue/${v.slug}`} style={{
-                  display: 'block', padding: '20px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 2, textDecoration: 'none', transition: 'all 0.2s ease',
-                }}>
-                  <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: TYPE_COLORS[v.category] || '#5F8A7E', marginBottom: 6, fontFamily: 'var(--font-sans)' }}>
-                    {TYPE_LABELS[v.category] || v.category}
-                  </div>
-                  <div style={{ fontFamily: 'var(--font-serif)', fontSize: 16, color: 'var(--text)', marginBottom: 4 }}>{v.name}</div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: 12, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>
-                      {v.suburb || v.state} · {v.distance < 1 ? '<1' : Math.round(v.distance)} km
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      {/* CROSS-VERTICAL NEARBY */}
+      <CrossVerticalNearby
+        lat={venue.latitude}
+        lng={venue.longitude}
+        currentVertical="craft"
+        listingName={venue.name}
+      />
+
+      {/* REGIONAL BACKLINK */}
+      <RegionalBacklink
+        regionName={venue.suburb}
+        regionSlug={venue.suburb ? venue.suburb.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : null}
+        regionDescription={null}
+        venueName={venue.name}
+      />
     </div>
   )
 }

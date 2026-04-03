@@ -3,6 +3,7 @@ import DiscoveryAgent from '@/components/DiscoveryAgent'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import PageTracker from '@/components/PageTracker'
+import AtlasAnalytics from '@/components/AtlasAnalytics'
 
 export const metadata = {
   title: {
@@ -28,6 +29,7 @@ export default function RootLayout({ children }) {
 
       <body>
         <PageTracker />
+        <AtlasAnalytics />
         <Nav />
         <main style={{ paddingTop: 64 }}>
           {children}

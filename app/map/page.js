@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import MapPageClient from '@/components/MapClient'
 
 export const dynamic = 'force-dynamic'
@@ -8,5 +9,9 @@ export const metadata = {
 }
 
 export default function MapPage() {
-  return <MapPageClient />
+  return (
+    <Suspense fallback={null}>
+      <MapPageClient />
+    </Suspense>
+  )
 }

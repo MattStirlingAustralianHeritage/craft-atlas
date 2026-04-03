@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "atlas-cms",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--prefix", "/Users/matt/Desktop/Australian Atlas Websites/atlas-cms"],
+      "port": 3001
+    },
+    {
+      "name": "heritage",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--prefix", "/Users/matt/Desktop/Australian Heritage Website"],
+      "port": 3002
+    },
+    {
+      "name": "heritage-cms",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--prefix", "/Users/matt/Desktop/Australian Heritage CMS"],
+      "port": 3003
+    }
+  ]
+}

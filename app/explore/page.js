@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import ExploreClient from '@/components/ExploreClient'
 
 export const metadata = {
@@ -6,5 +7,9 @@ export const metadata = {
 }
 
 export default function ExplorePage() {
-  return <ExploreClient />
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--bg)' }} />}>
+      <ExploreClient />
+    </Suspense>
+  )
 }

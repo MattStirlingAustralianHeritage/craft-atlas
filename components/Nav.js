@@ -73,6 +73,22 @@ export default function Nav() {
             For Makers
           </Link>
           <NavAuth />
+          <a
+            href="https://www.australianatlas.com.au"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              fontSize: 11,
+              fontWeight: 300,
+              color: 'var(--text-3)',
+              textDecoration: 'none',
+              fontFamily: 'var(--font-sans)',
+              whiteSpace: 'nowrap',
+              marginLeft: 4,
+            }}
+          >
+            Part of Australian Atlas
+          </a>
         </div>
 
         {/* Mobile right side — auth + hamburger */}

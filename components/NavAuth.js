@@ -2,32 +2,36 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { getSupabase } from '@/lib/supabase'
-import AuthModal from './AuthModal'
+
+const ATLAS_AUTH_URL = process.env.NEXT_PUBLIC_ATLAS_AUTH_URL || 'https://www.australianatlas.com.au'
+const TOKEN_KEY = 'atlas_auth_token'
+const VERTICAL = 'Craft Atlas'
 
 export default function NavAuth() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [authOpen, setAuthOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef(null)
 
   useEffect(() => {
-    const supabase = getSupabase()
+    // Check URL for incoming token (redirect back from auth)
+    const params = new URLSearchParams(window.location.search)
+    const token = params.get('atlas_token')
+    if (token) {
+      localStorage.setItem(TOKEN_KEY, token)
+      // Clean URL
+      const url = new URL(window.location)
+      url.searchParams.delete('atlas_token')
+      window.history.replaceState({}, '', url.toString())
+    }
 
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user)
+    // Check stored token
+    const stored = localStorage.getItem(TOKEN_KEY)
+    if (stored) {
+      verifyToken(stored)
+    } else {
       setLoading(false)
-    })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_, session) => {
-        setUser(session?.user ?? null)
-        setLoading(false)
-      }
-    )
-
-    return () => subscription.unsubscribe()
+    }
   }, [])
 
   useEffect(() => {
@@ -40,47 +44,63 @@ export default function NavAuth() {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
-  useEffect(() => {
-    function handleOpenAuth() { setAuthOpen(true) }
-    window.addEventListener('ca:openauth', handleOpenAuth)
-    return () => window.removeEventListener('ca:openauth', handleOpenAuth)
-  }, [])
+  async function verifyToken(token) {
+    try {
+      const res = await fetch(`${ATLAS_AUTH_URL}/api/auth/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setUser(data.user)
+      } else {
+        localStorage.removeItem(TOKEN_KEY)
+      }
+    } catch {
+      // Offline or error — keep token, try again later
+    }
+    setLoading(false)
+  }
 
-  async function handleSignOut() {
-    const supabase = getSupabase()
-    await supabase.auth.signOut()
-    setMenuOpen(false)
+  function signIn() {
+    const returnUrl = window.location.href
+    window.location.href = `${ATLAS_AUTH_URL}/api/auth/shared?return_url=${encodeURIComponent(returnUrl)}&vertical=${encodeURIComponent(VERTICAL)}`
+  }
+
+  function signOut() {
+    localStorage.removeItem(TOKEN_KEY)
     setUser(null)
+    setMenuOpen(false)
   }
 
   if (!user) {
     return (
-      <>
-        <button
-          onClick={() => !loading && setAuthOpen(true)}
-          style={{
-            fontSize: 11,
-            fontWeight: 600,
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-            color: loading ? 'var(--text-3)' : 'var(--text-2)',
-            background: 'none',
-            border: 'none',
-            cursor: loading ? 'default' : 'pointer',
-            fontFamily: 'var(--font-sans)',
-            padding: 0,
-            opacity: loading ? 0.5 : 1,
-            transition: 'opacity 0.2s ease',
-          }}
-        >
-          Sign in
-        </button>
-        <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />
-      </>
+      <button
+        onClick={() => !loading && signIn()}
+        style={{
+          fontSize: 11,
+          fontWeight: 600,
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+          color: loading ? 'var(--text-3)' : 'var(--text-2)',
+          background: 'none',
+          border: 'none',
+          cursor: loading ? 'default' : 'pointer',
+          fontFamily: 'var(--font-sans)',
+          padding: 0,
+          opacity: loading ? 0.5 : 1,
+          transition: 'opacity 0.2s ease',
+        }}
+      >
+        Sign in
+      </button>
     )
   }
 
   const initials = user.email?.slice(0, 2).toUpperCase() ?? '??'
+  const isVendor = user.role === 'vendor' || user.role === 'admin'
+  const isAdmin = user.role === 'admin'
 
   const menuLinkStyle = {
     display: 'flex',
@@ -94,6 +114,9 @@ export default function NavAuth() {
     borderBottom: '1px solid var(--border)',
   }
 
+  // Vendor/admin get a sage-coloured avatar; regular users get the vertical primary
+  const avatarBg = isVendor ? 'var(--sage, #6B7F5E)' : 'var(--primary, #C1603A)'
+
   return (
     <div style={{ position: 'relative' }} ref={menuRef}>
       <button
@@ -103,7 +126,7 @@ export default function NavAuth() {
           width: 32,
           height: 32,
           borderRadius: '50%',
-          background: 'var(--primary)',
+          background: avatarBg,
           color: '#fff',
           fontSize: 11,
           fontWeight: 700,
@@ -123,7 +146,7 @@ export default function NavAuth() {
           position: 'absolute',
           right: 0,
           top: 'calc(100% + 8px)',
-          width: 210,
+          width: 220,
           background: 'var(--bg)',
           border: '1px solid var(--border)',
           borderRadius: 4,
@@ -131,11 +154,25 @@ export default function NavAuth() {
           zIndex: 200,
           overflow: 'hidden',
         }}>
-          {/* Email header */}
+          {/* Email header with role badge */}
           <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--border)' }}>
             <p style={{ fontSize: 11, color: 'var(--text-3)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'var(--font-sans)' }}>
               {user.email}
             </p>
+            {isVendor && (
+              <span style={{
+                display: 'inline-block',
+                marginTop: 4,
+                fontSize: 9,
+                fontWeight: 700,
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                color: isAdmin ? '#B45309' : 'var(--sage, #6B7F5E)',
+                fontFamily: 'var(--font-sans)',
+              }}>
+                {isAdmin ? 'Admin' : 'Vendor'}
+              </span>
+            )}
           </div>
 
           {/* My account */}
@@ -145,20 +182,27 @@ export default function NavAuth() {
 
           {/* Saved makers */}
           <Link href="/account?tab=venues" onClick={() => setMenuOpen(false)} style={{ ...menuLinkStyle, fontSize: 12, color: 'var(--text-2)' }}>
-            <span style={{ fontSize: 14, opacity: 0.6 }}>♡</span>
             Saved makers
           </Link>
 
-          {/* My trails */}
-          <Link href="/account?tab=trails" onClick={() => setMenuOpen(false)} style={{ ...menuLinkStyle, fontSize: 12, color: 'var(--text-2)', borderBottom: 'none' }}>
-            <span style={{ fontSize: 14, opacity: 0.6 }}>🗺</span>
-            My trails
-          </Link>
+          {/* Vendor Dashboard — only shown for vendors and admins */}
+          {isVendor && (
+            <Link href="/vendor/dashboard" onClick={() => setMenuOpen(false)} style={{ ...menuLinkStyle, color: 'var(--sage, #6B7F5E)', fontWeight: 500 }}>
+              Vendor Dashboard
+            </Link>
+          )}
+
+          {/* Admin — only shown for admin role */}
+          {isAdmin && (
+            <Link href="/admin" onClick={() => setMenuOpen(false)} style={{ ...menuLinkStyle, color: '#B45309', fontWeight: 500, borderBottom: 'none' }}>
+              Admin
+            </Link>
+          )}
 
           {/* Sign out */}
           <div style={{ borderTop: '1px solid var(--border)' }}>
             <button
-              onClick={handleSignOut}
+              onClick={signOut}
               style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '10px 16px', fontSize: 13, color: 'var(--text-3)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)', textAlign: 'left' }}
             >
               Sign out

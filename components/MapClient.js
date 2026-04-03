@@ -1,6 +1,6 @@
 'use client'
 import { useRef, useEffect, useState, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { getSupabase } from '@/lib/supabase'
 import { TYPE_COLORS, TYPE_LABELS, STATES } from '@/lib/constants'
 import SemanticSearchBar from './SemanticSearchBar'
@@ -48,6 +48,8 @@ const STATE_BOUNDS = {
 
 export default function MapPageClient() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const typeParam = searchParams.get('type')
   const mapContainer = useRef(null)
   const map = useRef(null)
   const popup = useRef(null)
@@ -56,7 +58,8 @@ export default function MapPageClient() {
   const [allStudios, setAllStudios] = useState([])
   const [studios, setStudios] = useState([])
   const [events, setEvents] = useState([])
-  const [typeFilter, setTypeFilter] = useState('All')
+  const initialType = typeParam ? (TYPES.find(t => t.toLowerCase().replace(/ & /g, '_').replace(/ /g, '_') === typeParam) || 'All') : 'All'
+  const [typeFilter, setTypeFilter] = useState(initialType)
   const [stateFilter, setStateFilter] = useState('All States')
   const [experiencesFilter, setExperiencesFilter] = useState(false)
   const [search, setSearch] = useState('')
@@ -72,10 +75,51 @@ export default function MapPageClient() {
   const [mobileLegendOpen, setMobileLegendOpen] = useState(false)
   const [legendCollapsed, setLegendCollapsed] = useState(false)
 
+  // Geocoding place search state
+  const [placeQuery, setPlaceQuery] = useState('')
+  const [placeResults, setPlaceResults] = useState([])
+  const [showPlaceDropdown, setShowPlaceDropdown] = useState(false)
+  const placeSearchRef = useRef(null)
+
   // Keep a ref to studios so the map source update effect always has the latest value
   const studiosRef = useRef([])
   useEffect(() => { studiosRef.current = studios }, [studios])
   const pendingFitRef = useRef(null) // studios to fit bounds to once map is ready
+
+  // Debounced geocoding search
+  useEffect(() => {
+    if (!placeQuery || placeQuery.length < 2) { setPlaceResults([]); return }
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(placeQuery)}.json?country=AU&types=country,region,postcode,district,place,locality,neighborhood,address&access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`)
+        const data = await res.json()
+        setPlaceResults(data.features || [])
+        setShowPlaceDropdown(true)
+      } catch (e) { console.error('Geocoding error:', e) }
+    }, 400)
+    return () => clearTimeout(timer)
+  }, [placeQuery])
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (placeSearchRef.current && !placeSearchRef.current.contains(e.target)) setShowPlaceDropdown(false)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  function getZoomForPlaceType(placeType) {
+    const zooms = { country: 4, region: 6, postcode: 9, district: 9, place: 11, locality: 13, neighborhood: 13, address: 15 }
+    return zooms[placeType] || 11
+  }
+
+  function handlePlaceSelect(feature) {
+    const [lng, lat] = feature.center
+    const placeType = feature.place_type?.[0] || 'place'
+    map.current?.flyTo({ center: [lng, lat], zoom: getZoomForPlaceType(placeType), duration: 1500 })
+    setPlaceQuery(feature.place_name)
+    setShowPlaceDropdown(false)
+  }
 
   useEffect(() => {
     async function fetchData() {
@@ -364,9 +408,26 @@ export default function MapPageClient() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', borderBottom: '1px solid var(--border)', background: 'var(--bg-2)', flexWrap: 'wrap', flexShrink: 0, zIndex: 10 }}>
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Filter by name..."
               style={{ padding: '6px 12px', background: 'var(--bg)', border: '1px solid var(--border-2)', color: 'var(--text)', fontSize: 12, outline: 'none', borderRadius: 2, width: 160, fontFamily: 'var(--font-sans)' }} />
+            {/* Geocoding place search */}
+            <div ref={placeSearchRef} style={{ position: 'relative', minWidth: 150, maxWidth: 200 }}>
+              <input type="text" placeholder="Search a location..." value={placeQuery}
+                onChange={e => { setPlaceQuery(e.target.value); if (!e.target.value) setShowPlaceDropdown(false) }}
+                onFocus={() => { if (placeResults.length) setShowPlaceDropdown(true) }}
+                style={{ padding: '6px 12px', background: 'var(--bg)', border: '1px solid var(--border-2)', color: 'var(--text)', fontSize: 12, outline: 'none', borderRadius: 2, width: '100%', fontFamily: 'var(--font-sans)' }} />
+              {showPlaceDropdown && placeResults.length > 0 && (
+                <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 2, background: '#fff', border: '1px solid var(--border)', borderRadius: 4, boxShadow: '0 4px 16px rgba(0,0,0,0.12)', zIndex: 1000, maxHeight: 260, overflowY: 'auto' }}>
+                  {placeResults.map(f => (
+                    <button key={f.id} onClick={() => handlePlaceSelect(f)} style={{ display: 'block', width: '100%', padding: '8px 10px', background: 'none', border: 'none', borderBottom: '1px solid var(--border)', cursor: 'pointer', textAlign: 'left', fontFamily: 'var(--font-sans)' }}>
+                      <div style={{ fontSize: 12, color: 'var(--text)', fontWeight: 500, lineHeight: 1.3 }}>{f.text}</div>
+                      <div style={{ fontSize: 10, color: 'var(--text-3)', marginTop: 1 }}>{f.place_name.replace(f.text + ', ', '')}</div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <div style={{ width: 1, height: 18, background: 'var(--border)' }} />
             {TYPES.map(t => (
-              <button key={t} onClick={() => setTypeFilter(t)} style={{ padding: '5px 12px', borderRadius: 2, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 500, fontFamily: 'var(--font-sans)', background: typeFilter === t ? 'var(--primary)' : 'rgba(139,117,87,0.1)', color: typeFilter === t ? 'var(--bg)' : 'var(--text-2)', transition: 'all 0.15s' }}>{t}</button>
+              <button key={t} onClick={() => setTypeFilter(t)} style={{ padding: '5px 12px', borderRadius: 2, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 500, fontFamily: 'var(--font-sans)', background: typeFilter === t ? 'var(--primary)' : 'rgba(139,117,87,0.1)', color: typeFilter === t ? 'var(--bg)' : 'var(--text-2)', transition: 'all 0.15s' }}>{t}
             ))}
             <div style={{ width: 1, height: 18, background: 'var(--border)' }} />
             <button onClick={() => setExperiencesFilter(v => !v)} style={{ padding: '5px 12px', borderRadius: 2, border: experiencesFilter ? '1px solid var(--accent)' : '1px solid transparent', cursor: 'pointer', fontSize: 11, fontWeight: 500, fontFamily: 'var(--font-sans)', background: experiencesFilter ? 'rgba(122,140,126,0.15)' : 'rgba(139,117,87,0.1)', color: experiencesFilter ? 'var(--accent)' : 'var(--text-2)', transition: 'all 0.15s' }}>Experiences & Classes</button>

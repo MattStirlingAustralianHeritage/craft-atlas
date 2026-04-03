@@ -247,6 +247,7 @@ a { color: inherit; }
   gap: 20px;
 }
 .home-stats-bar{display:flex;justify-content:center;align-items:center;gap:48px;flex-wrap:wrap;max-width:700px;margin:0 auto}
+.stat-number-link:hover{opacity:0.7;text-decoration:underline;text-underline-offset:3px}
 
 
 .home-hero { position: relative; overflow: hidden; height: 520px; }
