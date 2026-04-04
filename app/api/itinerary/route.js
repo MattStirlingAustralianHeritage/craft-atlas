@@ -124,7 +124,7 @@ export async function GET(request) {
 
   const { data: candidates } = await supabase
     .from('venues')
-    .select('id, name, slug, category, suburb, state, latitude, longitude, description')
+    .select('id, name, slug, category, suburb, state, latitude, longitude, description, claimed, listing_tier')
     .eq('published', true)
     .not('latitude', 'is', null)
     .not('longitude', 'is', null)
@@ -136,14 +136,21 @@ export async function GET(request) {
     return NextResponse.json({ error: 'insufficient_venues', message: `Not enough makers or studios found in ${geoBounds.label} to build a trail.`, region_label: geoBounds.label }, { status: 400 })
   }
 
-  const venueList = candidates.map(v => `[ID:${v.id}] ${v.name} (${v.category}) \u2014 ${v.suburb || v.state || ''}${v.description ? '. ' + v.description.slice(0, 120) : ''}`).join('\n')
+  // Sort: claimed and paid-tier venues first
+  candidates.sort((a, b) => {
+    const aScore = (a.claimed ? 2 : 0) + (a.listing_tier && a.listing_tier !== 'free' ? 1 : 0)
+    const bScore = (b.claimed ? 2 : 0) + (b.listing_tier && b.listing_tier !== 'free' ? 1 : 0)
+    return bScore - aScore
+  })
+
+  const venueList = candidates.map(v => `${v.claimed ? '[FEATURED] ' : ''}[ID:${v.id}] ${v.name} (${v.category}) \u2014 ${v.suburb || v.state || ''}${v.description ? '. ' + v.description.slice(0, 120) : ''}`).join('\n')
 
   try {
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
     const response = await anthropic.messages.create({
       model: 'claude-haiku-4-5',
       max_tokens: 2000,
-      system: `You are a makers and studios travel planner for Craft Atlas, an Australian directory of makers, artists, studios, and creative spaces. Generate a makers trail using ONLY the venues provided. Never invent venues.\n\nOutput JSON only. Format:\n{"title":"string","summary":"string","days":[{"label":"Day 1: [Theme]","stops":[{"venue_id":"uuid","venue_name":"string","note":"1-2 sentences"}]}]}\n\nRules:\n- CRITICAL: Each venue_id MUST be copied exactly from the [ID:...] prefix in the venue list. Do not modify, abbreviate, or invent IDs.\n- Use ONLY venues from the provided list\n- ${stopsPerDay} stops per day, ${days} day(s) total\n- Group geographically close venues on the same day\n- Vary craft types where possible (ceramics, glass, wood, textiles, etc.)\n- Notes should be specific and practical, mentioning the craft practiced`,
+      system: `You are a makers and studios travel planner for Craft Atlas, an Australian directory of makers, artists, studios, and creative spaces. Generate a makers trail using ONLY the venues provided. Never invent venues.\n\nOutput JSON only. Format:\n{"title":"string","summary":"string","days":[{"label":"Day 1: [Theme]","stops":[{"venue_id":"uuid","venue_name":"string","note":"1-2 sentences"}]}]}\n\nRules:\n- CRITICAL: Each venue_id MUST be copied exactly from the [ID:...] prefix in the venue list. Do not modify, abbreviate, or invent IDs.\n- Use ONLY venues from the provided list\n- ${stopsPerDay} stops per day, ${days} day(s) total\n- Group geographically close venues on the same day\n- Vary craft types where possible (ceramics, glass, wood, textiles, etc.)\n- Notes should be specific and practical, mentioning the craft practiced\n- TIER WEIGHTING: Venues marked [FEATURED] are verified, operator-managed listings. Prefer them over unmarked venues of similar relevance and location.`,
       messages: [{ role: 'user', content: `Plan a ${days}-day makers trail in ${geoBounds.label}: "${q}"\n\nAvailable venues:\n${venueList}` }],
     })
 
