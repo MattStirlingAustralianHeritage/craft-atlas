@@ -141,9 +141,9 @@ export async function GET(request) {
   try {
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-haiku-4-5',
       max_tokens: 2000,
-      system: `You are a makers and studios travel planner for Craft Atlas, an Australian directory of makers, artists, studios, and creative spaces. Generate a makers trail using ONLY the venues provided. Never invent venues.\n\nOutput JSON only. Format:\n{"title":"string","summary":"string","days":[{"label":"Day 1: [Theme]","stops":[{"venue_id":"uuid","venue_name":"string","note":"1-2 sentences"}]}]}\n\nRules:\n- Use ONLY venue IDs from the provided list\n- ${stopsPerDay} stops per day, ${days} day(s) total\n- Group geographically close venues on the same day\n- Vary craft types where possible (ceramics, glass, wood, textiles, etc.)\n- Notes should be specific and practical, mentioning the craft practiced`,
+      system: `You are a makers and studios travel planner for Craft Atlas, an Australian directory of makers, artists, studios, and creative spaces. Generate a makers trail using ONLY the venues provided. Never invent venues.\n\nOutput JSON only. Format:\n{"title":"string","summary":"string","days":[{"label":"Day 1: [Theme]","stops":[{"venue_id":"uuid","venue_name":"string","note":"1-2 sentences"}]}]}\n\nRules:\n- CRITICAL: Each venue_id MUST be copied exactly from the [ID:...] prefix in the venue list. Do not modify, abbreviate, or invent IDs.\n- Use ONLY venues from the provided list\n- ${stopsPerDay} stops per day, ${days} day(s) total\n- Group geographically close venues on the same day\n- Vary craft types where possible (ceramics, glass, wood, textiles, etc.)\n- Notes should be specific and practical, mentioning the craft practiced`,
       messages: [{ role: 'user', content: `Plan a ${days}-day makers trail in ${geoBounds.label}: "${q}"\n\nAvailable venues:\n${venueList}` }],
     })
 
@@ -158,7 +158,7 @@ export async function GET(request) {
 
     const enrichedDays = (itinerary.days || []).map(day => {
       const stops = (day.stops || []).reduce((acc, stop) => {
-        const c = candidates.find(v => v.id === stop.venue_id)
+        const c = candidates.find(v => String(v.id) === String(stop.venue_id))
         if (!c) return acc
         acc.push({ ...stop, slug: c.slug, category: c.category, suburb: c.suburb, state: c.state, lat: c.latitude, lng: c.longitude })
         return acc
