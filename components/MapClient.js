@@ -427,7 +427,7 @@ export default function MapPageClient() {
             </div>
             <div style={{ width: 1, height: 18, background: 'var(--border)' }} />
             {TYPES.map(t => (
-              <button key={t} onClick={() => setTypeFilter(t)} style={{ padding: '5px 12px', borderRadius: 2, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 500, fontFamily: 'var(--font-sans)', background: typeFilter === t ? 'var(--primary)' : 'rgba(139,117,87,0.1)', color: typeFilter === t ? 'var(--bg)' : 'var(--text-2)', transition: 'all 0.15s' }}>{t}
+              <button key={t} onClick={() => setTypeFilter(t)} style={{ padding: '5px 12px', borderRadius: 2, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 500, fontFamily: 'var(--font-sans)', background: typeFilter === t ? 'var(--primary)' : 'rgba(139,117,87,0.1)', color: typeFilter === t ? 'var(--bg)' : 'var(--text-2)', transition: 'all 0.15s' }}>{t}</button>
             ))}
             <div style={{ width: 1, height: 18, background: 'var(--border)' }} />
             <button onClick={() => setExperiencesFilter(v => !v)} style={{ padding: '5px 12px', borderRadius: 2, border: experiencesFilter ? '1px solid var(--accent)' : '1px solid transparent', cursor: 'pointer', fontSize: 11, fontWeight: 500, fontFamily: 'var(--font-sans)', background: experiencesFilter ? 'rgba(122,140,126,0.15)' : 'rgba(139,117,87,0.1)', color: experiencesFilter ? 'var(--accent)' : 'var(--text-2)', transition: 'all 0.15s' }}>Experiences & Classes</button>

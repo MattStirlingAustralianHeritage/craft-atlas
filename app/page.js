@@ -3,7 +3,8 @@ export const revalidate = 60
 import { getSupabase } from '@/lib/supabase'
 import RegionCarousel from '@/components/RegionCarousel'
 import { HeroMap, NewsletterForm, NewsletterToast } from '@/components/HomeClient'
-import SemanticSearchBar from '@/components/SemanticSearchBar'
+import HomeSearch from '@/components/HomeSearch'
+import TrailPromptSection from '@/components/TrailPromptSection'
 import { TYPE_COLORS, TYPE_LABELS_PLURAL } from '@/lib/constants'
 
 // Region definitions with center coordinates and radius (km) for geo-matching
@@ -83,7 +84,7 @@ export default async function HomePage() {
             From the Blue Mountains to the Tamar — every studio, workshop and gallery on one beautiful map.
           </p>
           <div style={{ width: '100%', maxWidth: 560, margin: '0 auto' }}>
-            <SemanticSearchBar />
+            <HomeSearch />
           </div>
           <div style={{ marginTop: 16 }}>
             <Link href="/map" style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', textDecoration: 'none', fontFamily: 'var(--font-sans)', letterSpacing: '0.05em' }}>
@@ -108,6 +109,8 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+
+      <TrailPromptSection />
 
       {/* FEATURED MAKERS */}
       {featuredVenues && featuredVenues.length >= 3 && (

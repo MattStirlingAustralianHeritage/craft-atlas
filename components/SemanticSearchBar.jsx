@@ -20,7 +20,7 @@ const SUGGESTIONS = [
   'textile artists South Australia',
 ]
 
-export default function SemanticSearchBar({ mapRef, onResults, onLoading }) {
+export default function SemanticSearchBar({ mapRef, onResults, onLoading, placeholder: customPlaceholder }) {
   const [query, setQuery] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -171,7 +171,7 @@ export default function SemanticSearchBar({ mapRef, onResults, onLoading }) {
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           onFocus={() => setShowSuggestions(true)}
-          placeholder="Search by vibe, practice, region… try 'hand-thrown ceramics Yarra Valley'"
+          placeholder={customPlaceholder || "Find a maker, artist, or studio\u2026"}
           autoComplete="off"
           autoCorrect="off"
           spellCheck="false"
