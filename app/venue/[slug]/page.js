@@ -277,18 +277,23 @@ export default async function VenuePage({ params }) {
               </div>
             )}
 
-            {venue.opening_hours && Object.keys(venue.opening_hours).length > 0 && (
+            {venue.opening_hours && typeof venue.opening_hours === 'object' && ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'].some(d => venue.opening_hours[d] && venue.opening_hours[d] !== '') && (
               <div style={{ marginBottom: 20 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-3)', marginBottom: 8, fontFamily: 'var(--font-sans)' }}>Opening Hours</div>
-                <div style={{ fontSize: 13, color: 'var(--text-2)', lineHeight: 1.8 }}>
-                  {['monday','tuesday','wednesday','thursday','friday','saturday','sunday'].map(day => (
-                    venue.opening_hours[day] ? (
+                <div style={{ fontSize: 13, lineHeight: 1.8 }}>
+                  {['monday','tuesday','wednesday','thursday','friday','saturday','sunday'].map(day => {
+                    const hours = venue.opening_hours[day]
+                    const hasHours = hours && hours !== ''
+                    const isClosed = hours === 'Closed' || hours === 'closed'
+                    return (
                       <div key={day} style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
-                        <span style={{ textTransform: 'capitalize' }}>{day}</span>
-                        <span>{venue.opening_hours[day]}</span>
+                        <span style={{ textTransform: 'capitalize', color: 'var(--text-2)' }}>{day}</span>
+                        <span style={{ color: hasHours && !isClosed ? 'var(--text-2)' : 'var(--text-3)', opacity: !hasHours ? 0.5 : 1 }}>
+                          {isClosed ? 'Closed' : (hasHours ? hours : '—')}
+                        </span>
                       </div>
-                    ) : null
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             )}
