@@ -33,7 +33,7 @@ function cleanWebsite(url) {
 export async function generateMetadata({ params }) {
   const { slug } = await params
   const supabase = await createServerSupabase()
-  const { data: venue } = await supabase.from('venues').select('id, name, category, subcategories, suburb, state, description, hero_image_url, slug').eq('slug', slug).eq('published', true).single()
+  const { data: venue } = await supabase.from('venues').select('id, name, category, subcategories, suburb, state, description, hero_image_url, slug').eq('slug', slug).eq('published', true).maybeSingle()
   if (!venue) return { title: 'Venue not found' }
   const label = venue.subcategories || TYPE_LABELS[venue.category] || venue.category
   return {
@@ -47,7 +47,7 @@ export default async function VenuePage({ params }) {
   const { slug } = await params
   const supabase = await createServerSupabase()
 
-  const { data: venue, error } = await supabase.from('venues').select('*').eq('slug', slug).eq('published', true).single()
+  const { data: venue, error } = await supabase.from('venues').select('*').eq('slug', slug).eq('published', true).maybeSingle()
   if (error || !venue) notFound()
 
   // Check if venue is already claimed
@@ -56,18 +56,22 @@ export default async function VenuePage({ params }) {
     .select('id')
     .eq('venue_id', venue.id)
     .eq('status', 'approved')
-    .single()
+    .maybeSingle()
   const isClaimed = !!claimProfile
 
-  // Nearby venues
-  const { data: nearbyRaw } = await supabase.from('venues')
-    .select('name, slug, category, suburb, state, latitude, longitude, address')
-    .eq('published', true).neq('address', '').not('address', 'is', null).eq('state', venue.state).neq('slug', slug).limit(100)
+  // Nearby venues (only compute if current venue has coordinates)
+  let nearby = []
+  if (venue.latitude != null && venue.longitude != null) {
+    const { data: nearbyRaw } = await supabase.from('venues')
+      .select('name, slug, category, suburb, state, latitude, longitude, address')
+      .eq('published', true).neq('address', '').not('address', 'is', null).eq('state', venue.state).neq('slug', slug)
+      .not('latitude', 'is', null).not('longitude', 'is', null).limit(100)
 
-  const nearby = (nearbyRaw || [])
-    .map(v => ({ ...v, distance: haversineKm(venue.latitude, venue.longitude, v.latitude, v.longitude) }))
-    .sort((a, b) => a.distance - b.distance)
-    .slice(0, 6)
+    nearby = (nearbyRaw || [])
+      .map(v => ({ ...v, distance: haversineKm(venue.latitude, venue.longitude, v.latitude, v.longitude) }))
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, 6)
+  }
 
   // Upcoming events — future only, ordered by date
   const now = new Date().toISOString()
@@ -154,9 +158,10 @@ export default async function VenuePage({ params }) {
 
 
         {venue.description && (
-          <p style={{ fontSize: 16, color: 'var(--text-2)', lineHeight: 1.7, maxWidth: 640, fontFamily: 'var(--font-sans)', marginBottom: 24 }}>
-            {venue.description}
-          </p>
+          <div style={{ borderLeft: `3px solid ${color}40`, paddingLeft: 20, marginBottom: 28 }}>
+            <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 8, fontFamily: 'var(--font-sans)' }}>The Story</div>
+            <p style={{ fontSize: 16, color: 'var(--text-2)', lineHeight: 1.7, maxWidth: 640, fontFamily: 'var(--font-sans)', margin: 0 }}>{venue.description}</p>
+          </div>
         )}
 
         <div className="venue-actions" style={{ marginBottom: 40 }}>
@@ -167,11 +172,13 @@ export default async function VenuePage({ params }) {
               letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)',
             }}>Visit Website</a>
           )}
-          <a href={`https://www.google.com/maps/dir/?api=1&destination=${venue.latitude},${venue.longitude}`} target="_blank" rel="noopener noreferrer" style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6, background: 'transparent', color: 'var(--text-2)',
-            border: '1px solid var(--border-2)', padding: '12px 24px', borderRadius: 2, fontSize: 12, fontWeight: 600,
-            textDecoration: 'none', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)',
-          }}>Get Directions</a>
+          {venue.latitude != null && venue.longitude != null && (
+            <a href={`https://www.google.com/maps/dir/?api=1&destination=${venue.latitude},${venue.longitude}`} target="_blank" rel="noopener noreferrer" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6, background: 'transparent', color: 'var(--text-2)',
+              border: '1px solid var(--border-2)', padding: '12px 24px', borderRadius: 2, fontSize: 12, fontWeight: 600,
+              textDecoration: 'none', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)',
+            }}>Get Directions</a>
+          )}
           {venue.phone && (
             <a href={`tel:${venue.phone}`} style={{
               display: 'inline-flex', alignItems: 'center', gap: 6, background: 'transparent', color: 'var(--text-2)',
@@ -183,11 +190,10 @@ export default async function VenuePage({ params }) {
         </div>
 
         {!isClaimed && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '14px 0', borderTop: '1px solid var(--border)' }}>
-            <span style={{ fontSize: 13, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>Own this studio?</span>
-            <Link href={`/claim/${venue.slug}`} style={{ fontSize: 13, fontWeight: 600, color: 'var(--primary)', textDecoration: 'none', fontFamily: 'var(--font-sans)' }}>
-              Claim this listing →
-            </Link>
+          <div style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 4, padding: '20px 24px', marginTop: 24 }}>
+            <div style={{ fontFamily: 'var(--font-serif)', fontSize: 18, color: 'var(--text)', marginBottom: 6 }}>Is this your studio?</div>
+            <p style={{ fontSize: 13, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', marginBottom: 14, lineHeight: 1.5 }}>Claim this listing to update details, add photos, and connect with customers.</p>
+            <a href={`https://australianatlas.com.au/claim/${venue.slug}`} style={{ display: 'inline-block', padding: '10px 24px', background: 'var(--amber, #B8862B)', color: '#fff', borderRadius: 3, fontSize: 12, fontWeight: 600, textDecoration: 'none', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)' }}>Claim Listing</a>
           </div>
         )}
       </header>
@@ -469,12 +475,15 @@ export default async function VenuePage({ params }) {
       )}
 
       {/* CROSS-VERTICAL NEARBY */}
-      <CrossVerticalNearby
-        lat={venue.latitude}
-        lng={venue.longitude}
-        currentVertical="craft"
-        listingName={venue.name}
-      />
+      {venue.latitude != null && venue.longitude != null && (
+        <CrossVerticalNearby
+          lat={venue.latitude}
+          lng={venue.longitude}
+          currentVertical="craft"
+          listingName={venue.name}
+          subRegion={venue.suburb}
+        />
+      )}
 
       {/* REGIONAL BACKLINK */}
       <RegionalBacklink
