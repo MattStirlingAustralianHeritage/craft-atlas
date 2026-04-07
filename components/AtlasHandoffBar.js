@@ -11,7 +11,7 @@ import { useState, useEffect } from 'react'
 
 const VERTICAL_NAMES = {
   'smallbatchatlas.com.au': 'Small Batch Atlas',
-  'collectionatlas.com.au': 'Collection Atlas',
+  'collectionatlas.com.au': 'Culture Atlas',
   'craftatlas.com.au': 'Craft Atlas',
   'finegroundsatlas.com.au': 'Fine Grounds Atlas',
   'restatlas.com.au': 'Rest Atlas',
