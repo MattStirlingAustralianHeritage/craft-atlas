@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
+  <rect width="800" height="600" fill="#F5EDE8"/>
+  <circle cx="400" cy="280" r="180" fill="#EBE0D8" opacity="0.7"/>
+  <g transform="translate(400,270)" opacity="0.3" fill="none" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Vessel / pottery outline -->
+    <path d="M-40,-70 C-40,-70 -55,-50 -55,-20 C-55,15 -50,40 -45,55 C-42,64 -30,72 0,72 C30,72 42,64 45,55 C50,40 55,15 55,-20 C55,-50 40,-70 40,-70"/>
+    <!-- Rim -->
+    <ellipse cx="0" cy="-70" rx="40" ry="10"/>
+    <!-- Decorative band -->
+    <path d="M-52,-10 C-30,-4 30,-4 52,-10" opacity="0.5"/>
+    <path d="M-50,5 C-28,11 28,11 50,5" opacity="0.5"/>
+  </g>
+  <text x="400" y="540" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="18" font-variant="small-caps" letter-spacing="3" fill="#D85A30" opacity="0.6">Craft Atlas</text>
+</svg>
