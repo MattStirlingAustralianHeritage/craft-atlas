@@ -4,6 +4,7 @@ import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import PageTracker from '@/components/PageTracker'
 import AtlasAnalytics from '@/components/AtlasAnalytics'
+import AtlasHandoffBar from '@/components/AtlasHandoffBar'
 
 export const metadata = {
   title: {
@@ -30,6 +31,7 @@ export default function RootLayout({ children }) {
       <body>
         <PageTracker />
         <AtlasAnalytics />
+        <AtlasHandoffBar />
         <Nav />
         <main style={{ paddingTop: 64 }}>
           {children}
