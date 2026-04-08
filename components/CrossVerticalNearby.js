@@ -16,7 +16,19 @@ const VERTICAL_STYLES = {
   found:        { bg: '#F1EFE8', text: '#5F5E5A', label: 'Found' },
 }
 
-export default function CrossVerticalNearby({ lat, lng, currentVertical, listingName }) {
+const VERTICAL_CARD_COLORS = {
+  sba:          { bg: '#2D1F14', text: '#E8D5C4' },
+  collection:   { bg: '#1A2C28', text: '#C4D8D0' },
+  craft:        { bg: '#3D2318', text: '#E0C8B8' },
+  fine_grounds: { bg: '#1C1A10', text: '#D4D0B8' },
+  rest:         { bg: '#1E2535', text: '#C4CCD8' },
+  field:        { bg: '#162418', text: '#C0D4C4' },
+  table:        { bg: '#1A2410', text: '#C8D4B8' },
+  corner:       { bg: '#2A1F30', text: '#D0C4D8' },
+  found:        { bg: '#2C2010', text: '#D8CCB4' },
+}
+
+export default function CrossVerticalNearby({ lat, lng, currentVertical, listingName, subRegion }) {
   const [listings, setListings] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -54,11 +66,13 @@ export default function CrossVerticalNearby({ lat, lng, currentVertical, listing
 
   if (listings.length < 3) return null
 
+  const heading = subRegion ? `More in ${subRegion}` : 'Also nearby'
+
   return (
     <section style={{ maxWidth: 900, margin: '0 auto', padding: '0 24px 48px' }}>
       <div style={{ borderTop: '0.5px solid var(--border)', paddingTop: '1.5rem' }}>
         <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 6, fontFamily: 'var(--font-sans)' }}>
-          Also nearby
+          {heading}
         </div>
         <div style={{ fontSize: 13, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', marginBottom: 24 }}>
           From across the Atlas network
@@ -67,6 +81,7 @@ export default function CrossVerticalNearby({ lat, lng, currentVertical, listing
         <div className="cross-vertical-grid">
           {listings.map(item => {
             const vs = VERTICAL_STYLES[item.vertical] || { bg: '#f0f0f0', text: '#666', label: item.vertical }
+            const dark = VERTICAL_CARD_COLORS[item.vertical] || { bg: '#1a1a1a', text: '#ccc' }
             return (
               <a
                 key={item.id}
@@ -83,13 +98,16 @@ export default function CrossVerticalNearby({ lat, lng, currentVertical, listing
                   transition: 'border-color 0.2s ease',
                 }}
               >
-                <div style={{ aspectRatio: '3/2', background: vs.bg, overflow: 'hidden' }}>
+                <div style={{ aspectRatio: '3/2', background: item.image_url ? vs.bg : dark.bg, overflow: 'hidden' }}>
                   {item.image_url ? (
                     <img src={item.image_url} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
                   ) : (
-                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <span style={{ fontSize: 36, fontWeight: 300, color: vs.text, opacity: 0.4, fontFamily: 'var(--font-serif)' }}>
-                        {item.name?.charAt(0) || '?'}
+                    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px 14px', gap: 8 }}>
+                      <span style={{ fontSize: 15, fontWeight: 400, color: dark.text, fontFamily: 'var(--font-serif)', lineHeight: 1.3, textAlign: 'center', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                        {item.name}
+                      </span>
+                      <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: dark.text, opacity: 0.4, fontFamily: 'var(--font-sans)' }}>
+                        {vs.label}
                       </span>
                     </div>
                   )}

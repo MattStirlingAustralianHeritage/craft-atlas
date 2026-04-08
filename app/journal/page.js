@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { createClient } from '@supabase/supabase-js'
+import TypographicCard from '@/components/TypographicCard'
 
 export const metadata = {
   title: 'Journal — Craft Atlas',
@@ -66,21 +67,7 @@ export default async function JournalPage() {
                   height: '100%',
                 }}>
                   {/* Hero image */}
-                  {article.hero_image_url ? (
-                    <div style={{ aspectRatio: '16/9', overflow: 'hidden', background: 'var(--bg-2)' }}>
-                      <img
-                        src={article.hero_image_url}
-                        alt={article.title}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                    </div>
-                  ) : (
-                    <div style={{ aspectRatio: '16/9', background: 'var(--bg-2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <span style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>
-                        {article.category || 'Journal'}
-                      </span>
-                    </div>
-                  )}
+                  <TypographicCard name={article.title} vertical="craft" category={article.category} aspectRatio="16/9" imageUrl={article.hero_image_url} />
 
                   <div style={{ padding: '20px 22px 24px' }}>
                     {/* Category + partner badge */}

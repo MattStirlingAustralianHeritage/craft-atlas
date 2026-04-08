@@ -1,9 +1,9 @@
 'use client'
-import { getDefaultImage } from '@/lib/defaultImages'
 import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import SemanticSearchBar from '@/components/SemanticSearchBar'
+import TypographicCard from '@/components/TypographicCard'
 
 function SearchResults() {
   const searchParams = useSearchParams()
@@ -92,12 +92,7 @@ function SearchResults() {
               return (
                 <Link key={venue.id} href={`/venue/${venue.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
                   <div style={{ background: 'var(--bg)', border: '1px solid var(--border, #e0d8cc)', borderRadius: '4px', overflow: 'hidden' }}>
-                    <div style={{ aspectRatio: '3/2', background: 'var(--bg-2)', overflow: 'hidden' }}>
-                      {(venue.hero_image_url || getDefaultImage(venue.type, venue.id))
-                        ? <img src={venue.hero_image_url || getDefaultImage(venue.type, venue.id)} alt={venue.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        : <div style={{ width: '100%', height: '100%', background: `${typeColor}22`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ fontSize: '28px', opacity: 0.4 }}>🍷</span></div>
-                      }
-                    </div>
+                    <TypographicCard name={venue.name} vertical="craft" category={typeLabel} region={venue.sub_region} state={venue.state} aspectRatio="3/2" imageUrl={venue.hero_image_url} />
                     <div style={{ padding: '12px 14px' }}>
                       <div style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: typeColor, marginBottom: '4px', fontFamily: 'var(--font-sans)' }}>{typeLabel}</div>
                       <div style={{ fontFamily: 'var(--font-serif)', fontSize: '15px', color: 'var(--text)', marginBottom: '4px', lineHeight: 1.3 }}>{venue.name}</div>

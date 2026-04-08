@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { createServerSupabase } from '@/lib/supabase'
 import BuildTrailButton from '@/components/BuildTrailButton'
+import TypographicCard from '@/components/TypographicCard'
 
 export const dynamic = 'force-dynamic'
 
@@ -159,13 +160,7 @@ function TrailCard({ trail }) {
   return (
     <Link href={`/trails/${trail.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
       <div style={{ background: 'var(--bg-2)', borderRadius: 4, overflow: 'hidden', border: '1px solid var(--border)', transition: 'border-color 0.2s' }}>
-        <div style={{ aspectRatio: '16/9', background: 'var(--bg-3)', overflow: 'hidden' }}>
-          {trail.hero_image_url ? (
-            <img src={trail.hero_image_url} alt={trail.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          ) : (
-            <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #f5f0e8, #e8ddd0)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32 }}>🗺</div>
-          )}
-        </div>
+        <TypographicCard name={trail.name} vertical="craft" category={trail.region} aspectRatio="16/9" imageUrl={trail.hero_image_url} />
         <div style={{ padding: '20px 20px 24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
             {trail.region && <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--primary)', fontFamily: 'var(--font-sans)' }}>{trail.region}</span>}

@@ -1,4 +1,3 @@
-import { getDefaultImage } from '@/lib/defaultImages'
 import { createServerSupabase } from '@/lib/supabase'
 import { venueJsonLd } from '@/lib/jsonLd'
 import { TYPE_COLORS, TYPE_LABELS } from '@/lib/constants'
@@ -6,6 +5,7 @@ import VenueMap from '@/components/VenueMap'
 import FavouriteButton from '@/components/FavouriteButton'
 import CrossVerticalNearby from '@/components/CrossVerticalNearby'
 import RegionalBacklink from '@/components/RegionalBacklink'
+import TypographicCard from '@/components/TypographicCard'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -103,18 +103,9 @@ export default async function VenuePage({ params }) {
       `}</style>
 
       {/* HERO IMAGE — full width above header */}
-      {(venue.hero_image_url || getDefaultImage(venue.category, venue.id)) && (
-        <div style={{ width: '100%', maxHeight: 480, overflow: 'hidden', marginBottom: 0, position: 'relative' }}>
-          <Image
-            src={venue.hero_image_url || getDefaultImage(venue.category, venue.id)}
-            alt={venue.name}
-            width={1200}
-            height={480}
-            priority
-            style={{ width: '100%', height: 480, objectFit: 'cover', display: 'block' }}
-          />
-        </div>
-      )}
+      <div style={{ width: '100%', overflow: 'hidden', marginBottom: 0, position: 'relative' }}>
+        <TypographicCard name={venue.name} vertical="craft" category={TYPE_LABELS[venue.category] || venue.category} region={venue.suburb} state={venue.state} aspectRatio="16/7" imageUrl={venue.hero_image_url} />
+      </div>
 
       {/* BREADCRUMB */}
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '20px 24px 0' }}>

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import SemanticSearchBar from './SemanticSearchBar'
 import { TYPE_COLORS, TYPE_LABELS } from '@/lib/constants'
+import TypographicCard from '@/components/TypographicCard'
 
 export default function HomeSearch() {
   const [results, setResults] = useState(null)
@@ -41,14 +42,8 @@ export default function HomeSearch() {
               <Link key={venue.id} href={`/venue/${venue.slug}`} style={{ display: 'flex', gap: 12, padding: '12px 16px', borderBottom: '1px solid var(--border)', textDecoration: 'none', color: 'inherit', transition: 'background 0.1s' }}
                 onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-2)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                <div style={{ width: 56, height: 56, borderRadius: 4, overflow: 'hidden', flexShrink: 0, background: `${typeColor}15` }}>
-                  {venue.hero_image_url ? (
-                    <img src={venue.hero_image_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  ) : (
-                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <span style={{ fontSize: 18, opacity: 0.3 }}>&#127912;</span>
-                    </div>
-                  )}
+                <div style={{ width: 56, height: 56, borderRadius: 4, overflow: 'hidden', flexShrink: 0 }}>
+                  <TypographicCard name={venue.name} vertical="craft" aspectRatio="1/1" imageUrl={venue.hero_image_url} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontFamily: 'var(--font-serif)', fontSize: 14, color: 'var(--text)', lineHeight: 1.3, marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{venue.name}</div>

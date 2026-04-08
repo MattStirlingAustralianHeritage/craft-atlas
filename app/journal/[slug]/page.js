@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
+import TypographicCard from '@/components/TypographicCard'
 
 export const revalidate = 60
 
@@ -69,12 +70,9 @@ export default async function ArticlePage({ params }) {
     <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
 
       {/* Hero */}
-      {article.hero_image_url && (
-        <div style={{ width: '100%', aspectRatio: '21/9', overflow: 'hidden', background: 'var(--bg-2)', maxHeight: 520, position: 'relative' }}>
-          <img src={article.hero_image_url} alt={article.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(to bottom, transparent, var(--bg))' }} />
-        </div>
-      )}
+      <div style={{ width: '100%', maxHeight: 520, overflow: 'hidden', position: 'relative' }}>
+        <TypographicCard name={article.title} vertical="craft" category={article.category} aspectRatio="21/9" imageUrl={article.hero_image_url} />
+      </div>
 
       <div style={{ maxWidth: 660, margin: '0 auto', padding: '56px 24px 120px' }}>
 

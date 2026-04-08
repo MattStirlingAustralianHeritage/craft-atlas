@@ -1,7 +1,22 @@
 'use client'
 
+import { useState, useEffect } from 'react'
+
+const ATLAS_URL = process.env.NEXT_PUBLIC_ATLAS_API_URL || 'https://australianatlas.com.au'
+
 export default function RegionalBacklink({ regionName, regionSlug, regionDescription, venueName }) {
-  if (!regionName || !regionSlug) return null
+  const [regionValid, setRegionValid] = useState(false)
+
+  useEffect(() => {
+    if (!regionName || !regionSlug) return
+
+    fetch(`${ATLAS_URL}/api/regions/validate?slug=${regionSlug}`)
+      .then(r => r.ok ? r.json() : { exists: false })
+      .then(data => setRegionValid(data.exists === true))
+      .catch(() => setRegionValid(false))
+  }, [regionSlug, regionName])
+
+  if (!regionName || !regionSlug || !regionValid) return null
 
   const snippet = regionDescription
     ? regionDescription.split(/(?<=[.!?])\s+/)[0]

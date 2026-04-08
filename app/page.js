@@ -6,6 +6,7 @@ import { HeroMap, NewsletterForm, NewsletterToast } from '@/components/HomeClien
 import HomeSearch from '@/components/HomeSearch'
 import TrailPromptSection from '@/components/TrailPromptSection'
 import { TYPE_COLORS, TYPE_LABELS_PLURAL } from '@/lib/constants'
+import TypographicCard from '@/components/TypographicCard'
 
 // Region definitions with center coordinates and radius (km) for geo-matching
 const REGION_DEFS = [
@@ -130,12 +131,7 @@ export default async function HomePage() {
                 return (
                   <Link key={venue.id} href={`/venue/${venue.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
                     <div style={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 3, overflow: 'hidden' }}>
-                      <div style={{ aspectRatio: '3/2', background: 'var(--bg-2)', overflow: 'hidden' }}>
-                        {venue.hero_image_url
-                          ? <img src={venue.hero_image_url} alt={venue.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                          : <div style={{ width: '100%', height: '100%', background: `${typeColor}22`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ fontSize: 28, opacity: 0.4 }}>🎨</span></div>
-                        }
-                      </div>
+                      <TypographicCard name={venue.name} vertical="craft" category={typeLabel} region={venue.suburb} state={venue.state} aspectRatio="3/2" imageUrl={venue.hero_image_url} />
                       <div style={{ padding: '12px 14px' }}>
                         <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: typeColor, marginBottom: 4, fontFamily: 'var(--font-sans)' }}>{typeLabel}</div>
                         <div style={{ fontFamily: 'var(--font-serif)', fontSize: 15, color: 'var(--text)', marginBottom: 4, lineHeight: 1.3 }}>{venue.name}</div>
@@ -158,7 +154,7 @@ export default async function HomePage() {
               <Link key={region.slug} href={`/explore?region=${region.slug}`}
                 className="region-card"
               >
-                <div className="region-card-image" style={{ backgroundImage: `url(/images/regions/${region.slug}.jpg)` }} />
+                <div className="region-card-image" style={{ background: '#2a1f14' }} />
                 <div className="region-card-overlay" />
                 <div className="region-card-badge">{meta.badge}</div>
                 <div className="region-card-body">
@@ -234,31 +230,7 @@ export default async function HomePage() {
           <div className="home-journal-carousel">
             {(latestArticles || []).map(article => (
               <Link key={article.id} href={`/journal/${article.slug}`} className="home-journal-card" style={{ textDecoration: 'none', color: 'inherit', display: 'block', flexShrink: 0, position: 'relative' }}>
-                <div style={{ position: 'relative', width: '100%', height: '100%', background: '#1a1a1a', overflow: 'hidden', display: 'block' }}>
-                  {article.hero_image_url ? (
-                    <img src={article.hero_image_url} alt={article.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.5s ease' }} className="journal-card-img" />
-                  ) : (
-                    <div style={{ width: '100%', height: '100%', background: 'var(--bg-2)' }} />
-                  )}
-                  {/* Gradient overlay */}
-                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.85) 100%)' }} />
-                  {/* Content over image */}
-                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '28px 24px 24px' }}>
-                    {article.category && (
-                      <div style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontFamily: 'var(--font-sans)', marginBottom: 10, fontWeight: 600 }}>
-                        {article.category}
-                      </div>
-                    )}
-                    <div style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(18px, 2vw, 22px)', fontWeight: 400, color: '#fff', lineHeight: 1.3, letterSpacing: '-0.01em' }}>
-                      {article.title}
-                    </div>
-                    {article.deck && (
-                      <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', lineHeight: 1.5, fontFamily: 'var(--font-sans)', marginTop: 8 }}>
-                        {article.deck}
-                      </div>
-                    )}
-                  </div>
-                </div>
+                <TypographicCard name={article.title} vertical="craft" category={article.category} aspectRatio="4/3" imageUrl={article.hero_image_url} />
               </Link>
             ))}
           </div>

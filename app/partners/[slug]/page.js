@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { getSupabase } from '@/lib/supabase'
+import TypographicCard from '@/components/TypographicCard'
 
 function formatDate(iso) {
   if (!iso) return ''
@@ -120,11 +121,9 @@ export default function PartnerPage() {
           {submissions.map(sub => (
             <div key={sub.id} style={{ padding: '36px 0', borderBottom: '1px solid var(--border)' }}>
               <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
-                {sub.hero_image_url && (
-                  <div style={{ width: 120, height: 80, flexShrink: 0, borderRadius: 3, overflow: 'hidden', background: 'var(--bg-2)' }}>
-                    <img src={sub.hero_image_url} alt={sub.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  </div>
-                )}
+                <div style={{ width: 120, height: 80, flexShrink: 0, borderRadius: 3, overflow: 'hidden' }}>
+                  <TypographicCard name={sub.title} vertical="craft" aspectRatio="3/2" imageUrl={sub.hero_image_url} />
+                </div>
                 <div style={{ flex: 1 }}>
                   {/* Meta */}
                   <div style={{ display: 'flex', gap: 12, marginBottom: 10, flexWrap: 'wrap' }}>

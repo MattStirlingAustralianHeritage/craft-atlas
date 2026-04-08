@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createServerSupabase } from '@/lib/supabase'
 import TrailMap from '../../trails/[slug]/TrailMap'
+import TypographicCard from '@/components/TypographicCard'
 
 export const dynamic = 'force-dynamic'
 
@@ -80,11 +81,7 @@ export default async function SharedTrailPage({ params }) {
                     {i + 1}
                   </div>
                   <div style={{ flex: 1, background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 3, overflow: 'hidden' }}>
-                    {venue.hero_image_url && (
-                      <div style={{ aspectRatio: '16/6', overflow: 'hidden' }}>
-                        <img src={venue.hero_image_url} alt={venue.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      </div>
-                    )}
+                    <TypographicCard name={venue.name} vertical="craft" aspectRatio="16/6" imageUrl={venue.hero_image_url} />
                     <div style={{ padding: '14px 18px' }}>
                       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
                         <a href={`/venue/${venue.slug}`} style={{ fontFamily: 'var(--font-serif)', fontSize: 18, color: 'var(--text)', textDecoration: 'none' }}>{venue.name}</a>

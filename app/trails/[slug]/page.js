@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createServerSupabase } from '@/lib/supabase'
 import TrailMap from './TrailMap'
+import TypographicCard from '@/components/TypographicCard'
 
 export const dynamic = 'force-dynamic'
 
@@ -38,11 +39,9 @@ export default async function TrailPage({ params }) {
 
       {/* HERO */}
       <section style={{ background: '#1c1a17', padding: '72px 24px 56px', borderBottom: '1px solid var(--border)', position: 'relative', overflow: 'hidden' }}>
-        {trail.hero_image_url && (
-          <div style={{ position: 'absolute', inset: 0 }}>
-            <img src={trail.hero_image_url} alt={trail.name} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.35 }} />
-          </div>
-        )}
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.35 }}>
+          <TypographicCard name={trail.name} vertical="craft" category={trail.region} aspectRatio="" imageUrl={trail.hero_image_url} />
+        </div>
         <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative' }}>
           <div style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 14, fontFamily: 'var(--font-sans)' }}>
             {trail.region ? `${trail.region} · ` : ''}Maker Trail
@@ -133,11 +132,7 @@ function StopCard({ stop, index, isLast }) {
         {index + 1}
       </div>
       <div style={{ flex: 1, background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 3, overflow: 'hidden' }}>
-        {venue.hero_image_url && (
-          <div style={{ aspectRatio: '16/7', overflow: 'hidden' }}>
-            <img src={venue.hero_image_url} alt={venue.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          </div>
-        )}
+        <TypographicCard name={venue.name} vertical="craft" region={venue.address} aspectRatio="16/7" imageUrl={venue.hero_image_url} />
         <div style={{ padding: '16px 20px' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, marginBottom: 4 }}>
             <a href={`/venue/${venue.slug}`} style={{ fontFamily: 'var(--font-serif)', fontSize: 18, fontWeight: 400, color: 'var(--text)', textDecoration: 'none' }}>{venue.name}</a>
