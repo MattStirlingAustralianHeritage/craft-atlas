@@ -104,7 +104,7 @@ export default async function VenuePage({ params }) {
 
       {/* HERO IMAGE — full width above header */}
       <div style={{ width: '100%', overflow: 'hidden', marginBottom: 0, position: 'relative' }}>
-        <TypographicCard name={venue.name} vertical="craft" category={TYPE_LABELS[venue.category] || venue.category} region={venue.suburb} state={venue.state} aspectRatio="16/7" imageUrl={venue.hero_image_url} />
+        <TypographicCard name={venue.name} vertical="craft" category={TYPE_LABELS[venue.category] || venue.category} region={venue.suburb} state={venue.state} aspectRatio="21/7" imageUrl={venue.hero_image_url} />
       </div>
 
       {/* BREADCRUMB */}
