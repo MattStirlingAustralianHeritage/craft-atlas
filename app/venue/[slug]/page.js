@@ -6,8 +6,10 @@ import FavouriteButton from '@/components/FavouriteButton'
 import CrossVerticalNearby from '@/components/CrossVerticalNearby'
 import RegionalBacklink from '@/components/RegionalBacklink'
 import TypographicCard from '@/components/TypographicCard'
+import VerificationBadge from '@/components/VerificationBadge'
 import Image from 'next/image'
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 import { notFound } from 'next/navigation'
 
 export const revalidate = 3600  // 1 hour — events are time-sensitive
@@ -59,6 +61,14 @@ export default async function VenuePage({ params }) {
     .maybeSingle()
   const isClaimed = !!claimProfile
 
+  // Admin check for verification badge
+  let isAdmin = false
+  try {
+    const cookieStore = await cookies()
+    const adminAuth = cookieStore.get('admin_auth')
+    isAdmin = adminAuth?.value === 'admin_authenticated'
+  } catch {}
+
   // Nearby venues (only compute if current venue has coordinates)
   let nearby = []
   if (venue.latitude != null && venue.longitude != null) {
@@ -102,8 +112,8 @@ export default async function VenuePage({ params }) {
         }
       `}</style>
 
-      {/* HERO IMAGE — full width above header */}
-      <div style={{ width: '100%', overflow: 'hidden', marginBottom: 0, position: 'relative' }}>
+      {/* HERO IMAGE — full width above header, capped at 320px */}
+      <div style={{ width: '100%', overflow: 'hidden', marginBottom: 0, position: 'relative', maxHeight: 320 }}>
         <TypographicCard name={venue.name} vertical="craft" category={TYPE_LABELS[venue.category] || venue.category} region={venue.suburb} state={venue.state} aspectRatio="21/7" imageUrl={venue.hero_image_url} />
       </div>
 
@@ -483,6 +493,14 @@ export default async function VenuePage({ params }) {
         regionDescription={null}
         venueName={venue.name}
       />
+
+      {isAdmin && (
+        <VerificationBadge
+          listingId={venue.id}
+          listingName={venue.name}
+          initialVerified={venue.verified || false}
+        />
+      )}
     </div>
   )
 }

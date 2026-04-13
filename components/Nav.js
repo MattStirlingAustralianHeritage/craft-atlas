@@ -65,13 +65,13 @@ export default function Nav() {
               {link.label.toUpperCase()}
             </Link>
           ))}
-          <Link href="/for-vendors" style={{
+          <a href="https://www.australianatlas.com.au/for-venues?vertical=craft" style={{
             fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase',
             color: 'var(--text-3)', textDecoration: 'none', fontFamily: 'var(--font-sans)',
             padding: '6px 14px', border: '1px solid var(--border)', borderRadius: 2,
           }}>
-            For Makers
-          </Link>
+            Claim Your Listing
+          </a>
           <NavAuth />
           <a
             href="https://www.australianatlas.com.au"
@@ -142,14 +142,14 @@ export default function Nav() {
               {link.label}
             </Link>
           ))}
-          <Link href="/for-vendors" style={{
+          <a href="https://www.australianatlas.com.au/for-venues?vertical=craft" style={{
             display: 'block', padding: '16px 28px',
             fontFamily: 'var(--font-sans)', fontSize: 15, fontWeight: 600,
             letterSpacing: '0.08em', textTransform: 'uppercase', textDecoration: 'none',
             color: 'var(--text-3)', borderBottom: '1px solid var(--border)',
           }}>
-            For Makers
-          </Link>
+            Claim Your Listing
+          </a>
         </div>
       )}
 

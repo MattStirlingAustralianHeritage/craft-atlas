@@ -46,7 +46,7 @@ export default async function HomePage() {
   const { count: venueCount } = await supabase.from('venues').select('*', { count: 'exact', head: true }).eq('published', true).neq('address', '').not('address', 'is', null)
   const { data: venues } = await supabase.from('venues').select('category, longitude, latitude, suburb, state, address').eq('published', true).neq('address', '').not('address', 'is', null)
   const { data: latestArticles } = await supabase.from('articles').select('id, title, slug, deck, hero_image_url, category, reading_time').eq('status', 'published').order('published_at', { ascending: false }).limit(6)
-  const { data: featuredVenues } = await supabase.from('venues').select('id, name, slug, category, suburb, state, hero_image_url, description').eq('published', true).neq('address', '').not('address', 'is', null).in('tier', ['standard', 'premium']).order('tier', { ascending: false }).limit(8)
+  const { data: featuredVenues } = await supabase.from('venues').select('id, name, slug, category, suburb, state, hero_image_url, description').eq('published', true).neq('address', '').not('address', 'is', null).in('tier', ['standard', 'premium']).not('name', 'ilike', '\\_%').order('tier', { ascending: false }).limit(8)
 
   // Count venues per region using geographic proximity
   const regionCounts = {}
@@ -247,13 +247,12 @@ export default async function HomePage() {
           <p style={{ fontSize: 15, color: 'var(--text-2)', lineHeight: 1.7, marginBottom: 36, fontFamily: 'var(--font-sans)' }}>
             Craft Atlas is building Australia&apos;s most comprehensive directory of makers and studios. Claim your free listing or upgrade to a standard profile with photos, featured placement, and direct booking links.
           </p>
-          <Link href="/claim" style={{ display: 'inline-block', padding: '14px 36px', background: 'var(--primary)', color: 'var(--bg)', textDecoration: 'none', fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', borderRadius: 2 }}>
-            Claim your free listing →
-          </Link>
+          <a href="https://www.australianatlas.com.au/for-venues?vertical=craft" style={{ display: 'inline-block', padding: '14px 36px', background: 'var(--primary)', color: 'var(--bg)', textDecoration: 'none', fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)', borderRadius: 2 }}>
+            Claim your listing →
+          </a>
         </div>
       </section>
 
-      <NewsletterToast />
       <NewsletterToast />
       {/* NEWSLETTER */}
       <section style={{ padding: '72px 24px', borderTop: '1px solid var(--border)', background: 'var(--bg-2)' }}>

@@ -4,6 +4,8 @@
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 
+const ATLAS_AUTH_URL = process.env.NEXT_PUBLIC_ATLAS_AUTH_URL || 'https://www.australianatlas.com.au'
+
 export async function POST(request) {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2025-01-27.acacia' })
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } })
@@ -25,6 +27,18 @@ export async function POST(request) {
   } catch (err) {
     console.error('Webhook signature verification failed:', err)
     return Response.json({ error: 'Invalid signature' }, { status: 400 })
+  }
+
+  // ── Idempotency check ──────────────────────────────────────────────────────
+  const { data: alreadyProcessed } = await supabase
+    .from('processed_stripe_events')
+    .select('event_id')
+    .eq('event_id', event.id)
+    .maybeSingle()
+
+  if (alreadyProcessed) {
+    console.log(`[stripe-webhook] Skipping duplicate event ${event.id}`)
+    return Response.json({ received: true, duplicate: true })
   }
 
   try {
@@ -117,6 +131,12 @@ export async function POST(request) {
       }
     }
 
+    // ── Record processed event ──────────────────────────────────────────────
+    await supabase
+      .from('processed_stripe_events')
+      .insert({ event_id: event.id, event_type: event.type })
+      .then(null, err => console.error('[stripe-webhook] Failed to record event:', err))
+
     return Response.json({ received: true })
   } catch (error) {
     console.error('Webhook handler error:', error)
@@ -142,7 +162,34 @@ async function handleClaimPaymentSuccess(supabase, claimId, venueId, tier, subsc
 
   await updateVenueSubscription(supabase, venueId, tier, subscriptionId, 'active')
 
-  // is_claimed column removed — claim status tracked via claims table
+  // Mark venue as claimed
+  await supabase.from('venues').update({ is_claimed: true }).eq('id', venueId)
+
+  // Promote vendor role on Australian Atlas (non-fatal)
+  try {
+    const { data: claimData } = await supabase
+      .from('claims')
+      .select('contact_email')
+      .eq('id', claimId)
+      .single()
+
+    if (claimData?.contact_email) {
+      await fetch(`${ATLAS_AUTH_URL}/api/auth/promote-role`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-secret': process.env.SHARED_API_SECRET,
+        },
+        body: JSON.stringify({
+          email: claimData.contact_email,
+          role: 'vendor',
+          vertical: 'craft',
+        }),
+      })
+    }
+  } catch (promoteErr) {
+    console.error('Failed to promote vendor role on Atlas:', promoteErr.message)
+  }
 }
 
 async function updateVenueSubscription(supabase, venueId, tier, subscriptionId, status) {
