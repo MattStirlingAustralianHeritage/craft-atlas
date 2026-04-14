@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
+import { getPortalClient } from '@/lib/portal-client'
 import TypographicCard from '@/components/TypographicCard'
 
 export const revalidate = 60
@@ -33,6 +34,21 @@ function mdToHtml(md) {
 }
 
 async function getArticle(slug) {
+  // Try portal DB first (single source of truth)
+  const portal = getPortalClient()
+  if (portal) {
+    const { data, error } = await portal
+      .from('articles')
+      .select('*')
+      .eq('slug', slug)
+      .eq('status', 'published')
+      .contains('verticals', ['craft'])
+      .single()
+    if (!error && data) return data
+    console.warn('[journal] Portal query failed for slug:', slug, error?.message)
+  }
+
+  // Fallback to local Supabase
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
