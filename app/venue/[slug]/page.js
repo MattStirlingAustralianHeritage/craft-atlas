@@ -72,15 +72,40 @@ export default async function VenuePage({ params }) {
   // Nearby venues (only compute if current venue has coordinates)
   let nearby = []
   if (venue.latitude != null && venue.longitude != null) {
+    const NEARBY_RADIUS = 80
+    const latDelta = NEARBY_RADIUS / 111
+    const lngDelta = NEARBY_RADIUS / (111 * Math.cos(venue.latitude * Math.PI / 180))
+
     const { data: nearbyRaw } = await supabase.from('venues')
       .select('name, slug, category, suburb, state, latitude, longitude, address')
-      .eq('published', true).neq('address', '').not('address', 'is', null).eq('state', venue.state).neq('slug', slug)
-      .not('latitude', 'is', null).not('longitude', 'is', null).limit(100)
+      .eq('published', true).neq('slug', slug)
+      .gte('latitude', venue.latitude - latDelta).lte('latitude', venue.latitude + latDelta)
+      .gte('longitude', venue.longitude - lngDelta).lte('longitude', venue.longitude + lngDelta)
+      .limit(50)
 
-    nearby = (nearbyRaw || [])
+    const allNearby = (nearbyRaw || [])
       .map(v => ({ ...v, distance: haversineKm(venue.latitude, venue.longitude, v.latitude, v.longitude) }))
+      .filter(v => v.distance <= NEARBY_RADIUS)
       .sort((a, b) => a.distance - b.distance)
-      .slice(0, 6)
+
+    // Same-category first, then others
+    const sameCategory = allNearby.filter(v => v.category === venue.category)
+    const otherCategory = allNearby.filter(v => v.category !== venue.category)
+    nearby = [...sameCategory, ...otherCategory].slice(0, 6)
+
+    // State fallback if fewer than 3 results
+    if (nearby.length < 3 && venue.state) {
+      const { data: stateFallback } = await supabase.from('venues')
+        .select('name, slug, category, suburb, state, latitude, longitude, address')
+        .eq('published', true).eq('state', venue.state).neq('slug', slug)
+        .not('latitude', 'is', null).not('longitude', 'is', null).limit(50)
+      const existing = new Set(nearby.map(v => v.slug))
+      const extras = (stateFallback || [])
+        .filter(v => !existing.has(v.slug))
+        .map(v => ({ ...v, distance: haversineKm(venue.latitude, venue.longitude, v.latitude, v.longitude) }))
+        .sort((a, b) => a.distance - b.distance)
+      nearby = [...nearby, ...extras].slice(0, 6)
+    }
   }
 
   // Upcoming events — future only, ordered by date
