@@ -86,6 +86,8 @@ export default async function VenuePage({ params }) {
     const allNearby = (nearbyRaw || [])
       .map(v => ({ ...v, distance: haversineKm(venue.latitude, venue.longitude, v.latitude, v.longitude) }))
       .filter(v => v.distance <= NEARBY_RADIUS)
+      // Cross-state guard: only allow different-state results within 30km (border towns)
+      .filter(v => v.state === venue.state || v.distance <= 30)
       .sort((a, b) => a.distance - b.distance)
 
     // Same-category first, then others
