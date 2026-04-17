@@ -261,9 +261,11 @@ export default async function VenuePage({ params }) {
       {/* TWO COLUMN: MAP + DETAILS */}
       <div className="venue-grid">
         <div>
+          {!venue.address_on_request && (
           <div className="venue-map-container" style={{ marginBottom: 32 }}>
             <VenueMap venue={venue} nearby={nearby} />
           </div>
+          )}
 
           {venue.materials && venue.materials.length > 0 && (
             <div style={{ marginBottom: 28 }}>

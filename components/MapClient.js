@@ -676,7 +676,7 @@ function getFiltered(studios, typeFilter, stateFilter, search, experiencesFilter
 function buildGeoJSON(studios, studiosWithEvents, eventByStudio = {}) {
   return {
     type: 'FeatureCollection',
-    features: studios.filter(v => v.latitude && v.longitude).map(v => {
+    features: studios.filter(v => v.latitude && v.longitude && !v.address_on_request).map(v => {
       const color = TYPE_COLORS[v.category] || '#C1603A'
       const tier = v.tier || 'basic'
       const hasEvent = studiosWithEvents.has(v.id)
