@@ -1,4 +1,5 @@
 import { createServerSupabase } from '@/lib/supabase'
+import { isApprovedImageSource } from '@/lib/image-utils'
 import { venueJsonLd } from '@/lib/jsonLd'
 import { TYPE_COLORS, TYPE_LABELS } from '@/lib/constants'
 import VenueMap from '@/components/VenueMap'
@@ -41,7 +42,7 @@ export async function generateMetadata({ params }) {
   return {
     title: `${venue.name} — ${label} in ${venue.suburb || venue.state}`,
     description: venue.description || `Visit ${venue.name}, a ${label} in ${venue.suburb || venue.state}, Australia.`,
-    openGraph: { images: venue.hero_image_url ? [venue.hero_image_url] : [] },
+    openGraph: { images: isApprovedImageSource(venue.hero_image_url) ? [venue.hero_image_url] : [] },
   }
 }
 
@@ -200,12 +201,19 @@ export default async function VenuePage({ params }) {
               letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)',
             }}>Visit Website</a>
           )}
-          {venue.latitude != null && venue.longitude != null && (
+          {venue.latitude != null && venue.longitude != null && !venue.address_on_request && (
             <a href={`https://www.google.com/maps/dir/?api=1&destination=${venue.latitude},${venue.longitude}`} target="_blank" rel="noopener noreferrer" style={{
               display: 'inline-flex', alignItems: 'center', gap: 6, background: 'transparent', color: 'var(--text-2)',
               border: '1px solid var(--border-2)', padding: '12px 24px', borderRadius: 2, fontSize: 12, fontWeight: 600,
               textDecoration: 'none', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)',
             }}>Get Directions</a>
+          )}
+          {venue.address_on_request && venue.website && (
+            <a href={venue.website} target="_blank" rel="noopener noreferrer" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6, background: 'transparent', color: 'var(--text-2)',
+              border: '1px solid var(--border-2)', padding: '12px 24px', borderRadius: 2, fontSize: 12, fontWeight: 600,
+              textDecoration: 'none', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)',
+            }}>Contact to Visit</a>
           )}
           {venue.phone && (
             <a href={`tel:${venue.phone}`} style={{
@@ -288,7 +296,13 @@ export default async function VenuePage({ params }) {
           <div style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 4, padding: 24 }}>
             <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 16, fontFamily: 'var(--font-sans)' }}>Details</div>
 
-            {venue.address && (
+            {venue.address_on_request ? (
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-3)', marginBottom: 4, fontFamily: 'var(--font-sans)' }}>Location</div>
+                <div style={{ fontSize: 14, color: 'var(--text)', lineHeight: 1.5 }}>{[venue.suburb, venue.state, venue.postcode].filter(Boolean).join(', ')}</div>
+                <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 6, fontStyle: 'italic', fontFamily: 'var(--font-sans)' }}>Address provided on booking</div>
+              </div>
+            ) : venue.address && (
               <div style={{ marginBottom: 20 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-3)', marginBottom: 4, fontFamily: 'var(--font-sans)' }}>Address</div>
                 <div style={{ fontSize: 14, color: 'var(--text)', lineHeight: 1.5 }}>{venue.address}</div>
@@ -346,7 +360,7 @@ export default async function VenuePage({ params }) {
         <div style={{ maxWidth: 900, margin: '0 auto 40px', padding: '0 24px' }}>
           <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 12, fontFamily: 'var(--font-sans)' }}>Gallery</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 8 }}>
-            {venue.gallery_images.map((url, i) => (
+            {venue.gallery_images.filter(url => isApprovedImageSource(url)).map((url, i) => (
               <Image key={i} src={url} alt={`${venue.name} ${i + 1}`}
                 width={400} height={400}
                 style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: 4, display: 'block' }} />

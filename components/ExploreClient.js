@@ -43,6 +43,8 @@ const CATEGORY_LABEL_MAP = {
   printmaking: 'Printmaking',
 }
 
+const PAGE_SIZE = 500
+
 function groupByCategory(items, key) {
   const groups = {}
   items.forEach(item => {
@@ -64,6 +66,8 @@ export default function ExploreClient() {
   const [regionFilter, setRegionFilter] = useState(null)
   const [view, setView] = useState('grid')
   const [sort, setSort] = useState('featured')
+  const [hasMore, setHasMore] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
 
   // Read region query parameter on mount
   useEffect(() => {
@@ -77,12 +81,26 @@ export default function ExploreClient() {
   useEffect(() => {
     async function fetchStudios() {
       const supabase = getSupabase()
-      const { data, error } = await supabase.from('venues').select('*').eq('published', true).neq('address', '').not('address', 'is', null)
-      if (!error && data) setStudios(data)
+      const { data, error } = await supabase.from('venues').select('*').eq('published', true).neq('address', '').not('address', 'is', null).range(0, PAGE_SIZE - 1)
+      if (!error && data) {
+        setStudios(data)
+        setHasMore(data.length === PAGE_SIZE)
+      }
       setLoading(false)
     }
     fetchStudios()
   }, [])
+
+  async function loadMore() {
+    setLoadingMore(true)
+    const supabase = getSupabase()
+    const { data, error } = await supabase.from('venues').select('*').eq('published', true).neq('address', '').not('address', 'is', null).range(studios.length, studios.length + PAGE_SIZE - 1)
+    if (!error && data) {
+      setStudios(prev => [...prev, ...data])
+      setHasMore(data.length === PAGE_SIZE)
+    }
+    setLoadingMore(false)
+  }
 
   // Clear region filter when user manually changes state filter
   function handleStateFilter(s) {
@@ -211,6 +229,18 @@ export default function ExploreClient() {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             {filtered.map(studio => <StudioRow key={studio.id} studio={studio} />)}
+          </div>
+        )}
+        {hasMore && !loading && (
+          <div style={{ textAlign: 'center', padding: '40px 0 0' }}>
+            <button onClick={loadMore} disabled={loadingMore} style={{
+              padding: '10px 32px', background: 'transparent', border: '1px solid var(--border-2)',
+              color: 'var(--text-2)', fontSize: 12, fontWeight: 500, letterSpacing: '0.04em',
+              textTransform: 'uppercase', cursor: loadingMore ? 'default' : 'pointer',
+              fontFamily: 'var(--font-sans)', borderRadius: 2, opacity: loadingMore ? 0.6 : 1,
+            }}>
+              {loadingMore ? 'Loading...' : 'Load more studios'}
+            </button>
           </div>
         )}
       </div>

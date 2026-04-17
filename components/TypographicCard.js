@@ -1,6 +1,6 @@
 'use client'
 
-import { isUnsplashUrl } from '@/lib/image-utils'
+import { isApprovedImageSource } from '@/lib/image-utils'
 
 const VERTICAL_TOKENS = {
   sba:          { bg: '#1a2e1f', text: '#e8f0e9', label: 'Small Batch Atlas' },
@@ -36,7 +36,7 @@ function TopoLines({ color }) {
 export default function TypographicCard({ name, vertical = 'craft', category, region, state, aspectRatio = '3/2', imageUrl, showVerticalTag = false }) {
   const tokens = VERTICAL_TOKENS[vertical] || VERTICAL_TOKENS.sba
   const isField = vertical === 'field'
-  if (imageUrl && !isUnsplashUrl(imageUrl)) {
+  if (imageUrl && isApprovedImageSource(imageUrl)) {
     return (<div style={{ position: 'relative', aspectRatio, borderRadius: 8, overflow: 'hidden', background: tokens.bg }}><img src={imageUrl} alt={name || ''} loading="lazy" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} /></div>)
   }
   const topLine = showVerticalTag ? `${tokens.label}${category ? '  \u00B7  ' + category : ''}`.toUpperCase() : category ? category.toUpperCase() : null

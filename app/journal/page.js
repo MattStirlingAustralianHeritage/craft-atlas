@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { createClient } from '@supabase/supabase-js'
 import { getPortalClient } from '@/lib/portal-client'
 import TypographicCard from '@/components/TypographicCard'
 
@@ -11,30 +10,16 @@ export const metadata = {
 export const revalidate = 60
 
 async function getArticles() {
-  // Try portal DB first (single source of truth)
   const portal = getPortalClient()
-  if (portal) {
-    const { data, error } = await portal
-      .from('articles')
-      .select('*')
-      .eq('status', 'published')
-      .contains('verticals', ['craft'])
-      .order('published_at', { ascending: false })
-      .limit(50)
-    if (!error && data) return data
-    console.warn('[journal] Portal query failed, falling back to local DB:', error?.message)
-  }
-
-  // Fallback to local Supabase
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  )
-  const { data } = await supabase
+  if (!portal) return []
+  const { data } = await portal
     .from('articles')
-    .select('id, title, slug, deck, category, author, reading_time, hero_image_url, published_at, tags, is_partner_content, partner_id')
+    .select('*')
     .eq('status', 'published')
+    .contains('verticals', ['craft'])
     .order('published_at', { ascending: false })
+    .limit(50)
+
   return data || []
 }
 
