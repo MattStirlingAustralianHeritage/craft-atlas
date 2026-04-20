@@ -214,6 +214,7 @@ function VendorEditInner() {
   const [phone, setPhone] = useState('')
   const [website, setWebsite] = useState('')
   const [bookingUrl, setBookingUrl] = useState('')
+  const [onlineShopUrl, setOnlineShopUrl] = useState('')
   const [address, setAddress] = useState('')
   const [features, setFeatures] = useState([])
   const [heroImage, setHeroImage] = useState('')
@@ -266,6 +267,7 @@ function VendorEditInner() {
       setPhone(venueData.phone || '')
       setWebsite(venueData.website || '')
       setBookingUrl(venueData.booking_url || '')
+      setOnlineShopUrl(venueData.online_shop_url || '')
       setAddress(venueData.address || '')
       setFeatures(venueData.features || [])
       setHeroImage(venueData.hero_image_url || '')
@@ -317,6 +319,7 @@ function VendorEditInner() {
       phone: phone.trim() || null,
       website: website.trim() || null,
       booking_url: canUse('bookingLink', tier) ? (bookingUrl.trim() || null) : undefined,
+      online_shop_url: onlineShopUrl.trim() || null,
       address: address.trim() || null,
       features: features.length > 0 ? features : null,
       hero_image_url: heroImage || null,
@@ -712,7 +715,7 @@ function VendorEditInner() {
                 </div>
               </div>
 
-              <div className="vendor-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 36 }}>
+              <div className="vendor-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
                 <div>
                   <label style={labelStyle}>Address</label>
                   <input className="vendor-input" value={address} onChange={e => { setAddress(e.target.value); markDirty() }} placeholder="123 Main St, Town VIC 3000" style={inputStyle} />
@@ -721,6 +724,11 @@ function VendorEditInner() {
                   <label style={labelStyle}>Booking URL</label>
                   <input className="vendor-input" value={bookingUrl} onChange={e => { setBookingUrl(e.target.value); markDirty() }} placeholder="https://book.yourvenue.com.au" style={inputStyle} />
                 </div>
+              </div>
+
+              <div style={{ marginBottom: 36 }}>
+                <label style={labelStyle}>Online Shop</label>
+                <input className="vendor-input" value={onlineShopUrl} onChange={e => { setOnlineShopUrl(e.target.value); markDirty() }} placeholder="https://shop.yourstudio.com.au" style={inputStyle} />
               </div>
 
               {/* Section divider */}

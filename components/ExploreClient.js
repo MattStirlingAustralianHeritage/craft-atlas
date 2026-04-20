@@ -260,6 +260,11 @@ function StudioCard({ studio }) {
           <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color }}>{TYPE_LABELS[studio.category] || studio.category}</span>
         </div>
         {studio.tier === 'featured' && <span style={{ fontSize: 10, color: 'var(--primary)', fontWeight: 600, letterSpacing: '0.06em' }}>★ FEATURED</span>}
+        {studio.visitable === false && studio.presence_type && studio.presence_type !== 'permanent' && (
+          <span style={{ fontSize: 9, fontWeight: 500, color: '#8B6B8A', background: 'rgba(139,107,138,0.1)', padding: '2px 7px', borderRadius: 2, letterSpacing: '0.04em', textTransform: 'capitalize' }}>
+            {studio.presence_type === 'by_appointment' ? 'By appointment' : studio.presence_type === 'online' ? 'Online' : studio.presence_type.replace(/_/g, ' ')}
+          </span>
+        )}
       </div>
       <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 400, color: 'var(--text)', marginBottom: 4, letterSpacing: '-0.01em' }}>{studio.name}</h3>
       <div style={{ fontSize: 12, color: 'var(--text-3)', marginBottom: 12 }}>{studio.suburb && `${studio.suburb}, `}{studio.state}</div>

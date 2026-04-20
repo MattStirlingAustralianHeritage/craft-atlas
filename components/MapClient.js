@@ -125,7 +125,7 @@ export default function MapPageClient() {
     async function fetchData() {
       const supabase = getSupabase()
       const [{ data: studioData }, { data: eventData }, { data: { user: currentUser } }] = await Promise.all([
-        supabase.from('venues').select('id, name, slug, category, state, suburb, latitude, longitude, tier, description, address').eq('published', true).neq('address', '').not('address', 'is', null),
+        supabase.from('venues').select('id, name, slug, category, state, suburb, latitude, longitude, tier, description, address, visitable, presence_type').eq('published', true),
         supabase.from('events').select('venue_id, title, event_date, event_type').gte('event_date', new Date().toISOString()).order('event_date', { ascending: true }),
         supabase.auth.getUser(),
       ])
@@ -234,8 +234,12 @@ export default function MapPageClient() {
           layout: { 'text-field': '{point_count_abbreviated}', 'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'], 'text-size': 13 },
           paint: { 'text-color': '#ffffff' }
         })
+        map.current.addLayer({ id: 'pins-appointment', type: 'circle', source: 'studios-clustered',
+          filter: ['all', ['!', ['has', 'point_count']], ['==', ['get', 'tier'], 'appointment']],
+          paint: { 'circle-radius': 6, 'circle-color': 'transparent', 'circle-stroke-width': 2, 'circle-stroke-color': ['get', 'color'], 'circle-opacity': 0 }
+        })
         map.current.addLayer({ id: 'pins-basic', type: 'circle', source: 'studios-clustered',
-          filter: ['all', ['!', ['has', 'point_count']], ['!', ['in', ['get', 'tier'], ['literal', ['standard', 'premium']]]]],
+          filter: ['all', ['!', ['has', 'point_count']], ['!', ['in', ['get', 'tier'], ['literal', ['standard', 'premium', 'appointment']]]]],
           paint: { 'circle-radius': 6, 'circle-color': ['get', 'color'], 'circle-stroke-width': 2, 'circle-stroke-color': '#ffffff', 'circle-opacity': 1 }
         })
         map.current.addLayer({ id: 'pins-standard-glow', type: 'circle', source: 'studios-clustered',
@@ -255,7 +259,7 @@ export default function MapPageClient() {
           paint: { 'circle-radius': 14, 'circle-color': 'transparent', 'circle-stroke-width': 2, 'circle-stroke-color': PREMIUM_COLOR, 'circle-stroke-opacity': 0.6, 'circle-opacity': 0 }
         })
 
-        const pinLayers = ['pins-basic', 'pins-standard-glow', 'pins-standard', 'pins-premium']
+        const pinLayers = ['pins-appointment', 'pins-basic', 'pins-standard-glow', 'pins-standard', 'pins-premium']
         pinLayers.forEach(layer => {
           map.current.on('mouseenter', layer, () => { map.current.getCanvas().style.cursor = 'pointer' })
           map.current.on('mouseleave', layer, () => { map.current.getCanvas().style.cursor = '' })
@@ -268,6 +272,9 @@ export default function MapPageClient() {
             const tierBadge = props.tier === 'premium'
               ? `<span style="display:inline-flex;align-items:center;gap:3px;background:rgba(200,148,58,0.12);border:1px solid rgba(200,148,58,0.3);padding:2px 7px;border-radius:2px;font-size:9px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:${PREMIUM_COLOR};">★ PREMIUM</span>`
               : ''
+            const appointmentBadge = props.isByAppointment === true || props.isByAppointment === 'true'
+              ? `<span style="display:inline-flex;align-items:center;padding:2px 7px;border-radius:2px;font-size:9px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#8B6B8A;background:rgba(139,107,138,0.1);border:1px solid rgba(139,107,138,0.25);">By appointment</span>`
+              : ''
             const desc = props.description && props.description !== 'null'
               ? props.description.length > 110 ? props.description.slice(0, 110).trimEnd() + '…' : props.description
               : ''
@@ -277,7 +284,7 @@ export default function MapPageClient() {
                   <span style="display:inline-flex;align-items:center;gap:5px;background:${props.color}18;border:1px solid ${props.color}33;padding:3px 9px;border-radius:2px;">
                     <span style="width:5px;height:5px;border-radius:50%;background:${props.color};display:inline-block;"></span>
                     <span style="font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:${props.color};">${props.categoryLabel}</span>
-                  </span>${tierBadge}
+                  </span>${tierBadge}${appointmentBadge}
                 </div>
                 <div style="font-family:Georgia,serif;font-size:17px;font-weight:400;color:#1a1614;margin-bottom:3px;letter-spacing:-0.01em;line-height:1.2;">${props.name}</div>
                 <div style="font-size:11px;color:#9a8878;margin-bottom:${desc ? 8 : 10}px;">${props.location}</div>
@@ -290,7 +297,7 @@ export default function MapPageClient() {
         })
 
         map.current.on('click', (e) => {
-          const features = map.current.queryRenderedFeatures(e.point, { layers: ['pins-basic','pins-standard-glow','pins-standard','pins-premium'] })
+          const features = map.current.queryRenderedFeatures(e.point, { layers: ['pins-appointment','pins-basic','pins-standard-glow','pins-standard','pins-premium'] })
           if (!features.length) popup.current.remove()
         })
         map.current.on('click', 'clusters', (e) => {
@@ -676,15 +683,21 @@ function getFiltered(studios, typeFilter, stateFilter, search, experiencesFilter
 function buildGeoJSON(studios, studiosWithEvents, eventByStudio = {}) {
   return {
     type: 'FeatureCollection',
-    features: studios.filter(v => v.latitude && v.longitude && !v.address_on_request).map(v => {
+    features: studios.filter(v => {
+      if (!v.latitude || !v.longitude) return false
+      if (v.address_on_request) return false
+      if (v.visitable === false && !['by_appointment'].includes(v.presence_type)) return false
+      return true
+    }).map(v => {
       const color = TYPE_COLORS[v.category] || '#C1603A'
       const tier = v.tier || 'basic'
       const hasEvent = studiosWithEvents.has(v.id)
       const nextEvent = eventByStudio[v.id]
+      const isByAppointment = v.presence_type === 'by_appointment'
       return {
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [parseFloat(v.longitude), parseFloat(v.latitude)] },
-        properties: { id: v.id, name: v.name, slug: v.slug, category: v.category, categoryLabel: TYPE_LABELS[v.category] || v.category, tier, color: tier === 'premium' ? PREMIUM_COLOR : color, hasEvent, eventTitle: nextEvent ? nextEvent.title : null, eventDate: nextEvent ? nextEvent.event_date : null, location: [v.suburb, v.state].filter(Boolean).join(', '), description: v.description || '' },
+        properties: { id: v.id, name: v.name, slug: v.slug, category: v.category, categoryLabel: TYPE_LABELS[v.category] || v.category, tier: isByAppointment ? 'appointment' : tier, color: tier === 'premium' ? PREMIUM_COLOR : color, hasEvent, eventTitle: nextEvent ? nextEvent.title : null, eventDate: nextEvent ? nextEvent.event_date : null, location: [v.suburb, v.state].filter(Boolean).join(', '), description: v.description || '', isByAppointment },
       }
     }),
   }

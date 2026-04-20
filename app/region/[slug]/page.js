@@ -48,20 +48,22 @@ export default async function RegionPage({ params }) {
   const supabase = await createServerSupabase()
   const geo = REGION_GEO[slug]
 
-  let venues = []
+  let allRegionVenues = []
   if (geo) {
-    // Fetch all published venues with addresses, then filter by distance
-    const { data: allVenues } = await supabase.from('venues').select('*').eq('published', true).neq('address', '').not('address', 'is', null)
-    venues = (allVenues || []).filter(v =>
+    const { data: allVenues } = await supabase.from('venues').select('*').eq('published', true)
+    allRegionVenues = (allVenues || []).filter(v =>
       v.latitude && v.longitude && distKm(v.latitude, v.longitude, geo.lat, geo.lng) <= geo.radius
     )
   } else {
-    // Fallback: try matching by suburb or address text
-    const { data } = await supabase.from('venues').select('*').eq('published', true).neq('address', '').not('address', 'is', null).ilike('address', `%${regionName}%`)
-    venues = data || []
+    const { data } = await supabase.from('venues').select('*').eq('published', true).ilike('address', `%${regionName}%`)
+    allRegionVenues = data || []
   }
+
+  const venues = allRegionVenues.filter(v => v.visitable !== false)
+  const nonVisitableVenues = allRegionVenues.filter(v => v.visitable === false)
+
   const typeCounts = {}
-  ;(venues || []).forEach(v => { typeCounts[v.category] = (typeCounts[v.category] || 0) + 1 })
+  ;(allRegionVenues || []).forEach(v => { typeCounts[v.category] = (typeCounts[v.category] || 0) + 1 })
 
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
@@ -106,6 +108,36 @@ export default async function RegionPage({ params }) {
       </div>
 
       <RegionFilters venues={venues || []} regionName={regionName} />
+
+      {nonVisitableVenues.length > 0 && (
+        <section style={{ maxWidth: 960, margin: '0 auto', padding: '40px 24px' }}>
+          <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 8, fontFamily: 'var(--font-sans)' }}>More makers in {regionName}</div>
+          <p style={{ fontSize: 14, color: 'var(--text-2)', lineHeight: 1.6, fontFamily: 'var(--font-sans)', marginBottom: 24, maxWidth: 600 }}>
+            These makers are based in {regionName} but don&apos;t have a public shopfront. Find them online or at markets.
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 16 }}>
+            {nonVisitableVenues.map(v => (
+              <Link key={v.id} href={`/venue/${v.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div style={{ padding: 16, border: '1px solid var(--border)', borderRadius: 4, background: 'var(--bg)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                    <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', border: `2px solid ${TYPE_COLORS[v.category] || '#C1603A'}` }} />
+                    <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: TYPE_COLORS[v.category] || 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>
+                      {TYPE_LABELS[v.category] || v.category}
+                    </span>
+                    <span style={{ fontSize: 9, fontWeight: 500, color: '#8B6B8A', background: 'rgba(139,107,138,0.1)', padding: '1px 6px', borderRadius: 2, fontFamily: 'var(--font-sans)', textTransform: 'capitalize' }}>
+                      {(v.presence_type || 'online').replace(/_/g, ' ')}
+                    </span>
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-serif)', fontSize: 16, color: 'var(--text)', marginBottom: 4 }}>{v.name}</div>
+                  {v.description && (
+                    <div style={{ fontSize: 13, color: 'var(--text-2)', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{v.description}</div>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section style={{ borderTop: '1px solid var(--border)', padding: '48px 24px', background: 'var(--bg-2)', textAlign: 'center' }}>
         <div style={{ maxWidth: 480, margin: '0 auto' }}>

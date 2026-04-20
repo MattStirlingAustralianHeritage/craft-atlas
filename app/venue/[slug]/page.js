@@ -80,6 +80,7 @@ export default async function VenuePage({ params }) {
     const { data: nearbyRaw } = await supabase.from('venues')
       .select('name, slug, category, suburb, state, latitude, longitude, address')
       .eq('published', true).neq('slug', slug)
+      .or('visitable.eq.true,visitable.is.null')
       .gte('latitude', venue.latitude - latDelta).lte('latitude', venue.latitude + latDelta)
       .gte('longitude', venue.longitude - lngDelta).lte('longitude', venue.longitude + lngDelta)
       .limit(50)
@@ -261,7 +262,7 @@ export default async function VenuePage({ params }) {
       {/* TWO COLUMN: MAP + DETAILS */}
       <div className="venue-grid">
         <div>
-          {!venue.address_on_request && (
+          {!venue.address_on_request && venue.visitable !== false && !['markets', 'online', 'mobile'].includes(venue.presence_type) && (
           <div className="venue-map-container" style={{ marginBottom: 32 }}>
             <VenueMap venue={venue} nearby={nearby} />
           </div>
@@ -298,11 +299,40 @@ export default async function VenuePage({ params }) {
           <div style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 4, padding: 24 }}>
             <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 16, fontFamily: 'var(--font-sans)' }}>Details</div>
 
-            {venue.address_on_request ? (
+            {venue.presence_type === 'online' ? (
               <div style={{ marginBottom: 20 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-3)', marginBottom: 4, fontFamily: 'var(--font-sans)' }}>Location</div>
-                <div style={{ fontSize: 14, color: 'var(--text)', lineHeight: 1.5 }}>{[venue.suburb, venue.state, venue.postcode].filter(Boolean).join(', ')}</div>
-                <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 6, fontStyle: 'italic', fontFamily: 'var(--font-sans)' }}>Address provided on booking</div>
+                <div style={{ fontSize: 14, color: 'var(--text)', lineHeight: 1.5 }}>Based in {[venue.suburb || venue.region, venue.state].filter(Boolean).join(', ')}</div>
+                <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 6, fontStyle: 'italic', fontFamily: 'var(--font-sans)' }}>Shop online — no public shopfront</div>
+              </div>
+            ) : venue.presence_type === 'markets' ? (
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-3)', marginBottom: 4, fontFamily: 'var(--font-sans)' }}>Location</div>
+                <div style={{ fontSize: 14, color: 'var(--text)', lineHeight: 1.5 }}>Based in {[venue.suburb || venue.region, venue.state].filter(Boolean).join(', ')}</div>
+                <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 6, fontStyle: 'italic', fontFamily: 'var(--font-sans)' }}>Find them at markets</div>
+                {venue.market_appearances && venue.market_appearances.length > 0 && (
+                  <div style={{ marginTop: 12 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-3)', marginBottom: 6, fontFamily: 'var(--font-sans)' }}>Find them at</div>
+                    {venue.market_appearances.map((m, i) => (
+                      <div key={i} style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.8 }}>
+                        {m.url ? <a href={m.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)', textDecoration: 'none' }}>{m.name}</a> : m.name}
+                        {m.frequency && <span style={{ color: 'var(--text-3)', marginLeft: 6 }}>({m.frequency})</span>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : venue.presence_type === 'mobile' ? (
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-3)', marginBottom: 4, fontFamily: 'var(--font-sans)' }}>Location</div>
+                <div style={{ fontSize: 14, color: 'var(--text)', lineHeight: 1.5 }}>Based in {[venue.suburb || venue.region, venue.state].filter(Boolean).join(', ')}</div>
+                <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 6, fontStyle: 'italic', fontFamily: 'var(--font-sans)' }}>Check their website or social media for current location</div>
+              </div>
+            ) : venue.address_on_request || venue.presence_type === 'by_appointment' ? (
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-3)', marginBottom: 4, fontFamily: 'var(--font-sans)' }}>Location</div>
+                <div style={{ fontSize: 14, color: 'var(--text)', lineHeight: 1.5 }}>{venue.address || [venue.suburb, venue.state, venue.postcode].filter(Boolean).join(', ')}</div>
+                <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 6, fontStyle: 'italic', fontFamily: 'var(--font-sans)' }}>Visits by appointment — contact the maker to arrange</div>
               </div>
             ) : venue.address && (
               <div style={{ marginBottom: 20 }}>
@@ -327,7 +357,14 @@ export default async function VenuePage({ params }) {
               </div>
             )}
 
-            {venue.opening_hours && typeof venue.opening_hours === 'object' && ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'].some(d => venue.opening_hours[d] && venue.opening_hours[d] !== '') && (
+            {venue.presence_type === 'seasonal' && (
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-3)', marginBottom: 4, fontFamily: 'var(--font-sans)' }}>Availability</div>
+                <div style={{ fontSize: 13, color: 'var(--text-2)', fontStyle: 'italic' }}>{venue.hours_notes || 'Open seasonally — check website for current hours'}</div>
+              </div>
+            )}
+
+            {!['online', 'markets', 'mobile', 'seasonal'].includes(venue.presence_type) && venue.presence_type !== 'by_appointment' && venue.opening_hours && typeof venue.opening_hours === 'object' && ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'].some(d => venue.opening_hours[d] && venue.opening_hours[d] !== '') && (
               <div style={{ marginBottom: 20 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-3)', marginBottom: 8, fontFamily: 'var(--font-sans)' }}>Opening Hours</div>
                 <div style={{ fontSize: 13, lineHeight: 1.8 }}>
