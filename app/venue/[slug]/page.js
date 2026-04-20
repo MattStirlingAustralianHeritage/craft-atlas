@@ -1,6 +1,6 @@
 import { createServerSupabase } from '@/lib/supabase'
 import { isApprovedImageSource } from '@/lib/image-utils'
-import { venueJsonLd } from '@/lib/jsonLd'
+import { venueJsonLd, classesJsonLd } from '@/lib/jsonLd'
 import { TYPE_COLORS, TYPE_LABELS } from '@/lib/constants'
 import VenueMap from '@/components/VenueMap'
 import FavouriteButton from '@/components/FavouriteButton'
@@ -127,6 +127,9 @@ export default async function VenuePage({ params }) {
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(venueJsonLd(venue)) }} />
+      {classesJsonLd(venue) && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(classesJsonLd(venue)) }} />
+      )}
       <style>{`
         .venue-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 32px; max-width: 900px; margin: 0 auto; padding: 0 24px 48px; }
         .venue-map-container { height: 360px; }
@@ -404,6 +407,114 @@ export default async function VenuePage({ params }) {
                 width={400} height={400}
                 style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: 4, display: 'block' }} />
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* CLASSES & WORKSHOPS */}
+      {venue.offers_classes && venue.classes?.length > 0 && (
+        <div style={{ maxWidth: 900, margin: '0 auto 56px', padding: '0 24px' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 20 }}>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 4, fontFamily: 'var(--font-sans)' }}>Classes & Workshops</div>
+              <div style={{ fontSize: 13, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>
+                {venue.classes.length} class{venue.classes.length !== 1 ? 'es' : ''} available
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {venue.classes.map((cls, idx) => {
+              const skillColors = { beginner: '#4a7c59', intermediate: '#b8860b', advanced: '#c04b4b', all_levels: '#4a6fa5' }
+              const skillLabels = { beginner: 'Beginner', intermediate: 'Intermediate', advanced: 'Advanced', all_levels: 'All Levels' }
+              const typeLabels = { workshop: 'Workshop', course: 'Course', class: 'Class', masterclass: 'Masterclass', tasting: 'Tasting', tour: 'Tour' }
+              const skillColor = skillColors[cls.skill_level] || '#666'
+              const isFirst = idx === 0
+              const isLast = idx === venue.classes.length - 1
+
+              return (
+                <div key={idx} style={{
+                  overflow: 'hidden',
+                  background: isFirst ? `${color}06` : 'var(--bg-2)',
+                  border: '1px solid var(--border)',
+                  borderTop: idx > 0 ? 'none' : '1px solid var(--border)',
+                  borderRadius: isFirst && isLast ? 4 : isFirst ? '4px 4px 0 0' : isLast ? '0 0 4px 4px' : 0,
+                  padding: '20px 24px',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
+                    <span style={{ fontFamily: 'var(--font-serif)', fontSize: 17, color: 'var(--text)', lineHeight: 1.2 }}>
+                      {cls.title}
+                    </span>
+                    {cls.type && (
+                      <span style={{
+                        fontSize: 9, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase',
+                        padding: '2px 8px', borderRadius: 2,
+                        background: `${color}15`, color: color, border: `1px solid ${color}30`, flexShrink: 0,
+                      }}>
+                        {typeLabels[cls.type] || cls.type}
+                      </span>
+                    )}
+                    {cls.skill_level && (
+                      <span style={{
+                        fontSize: 9, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase',
+                        padding: '2px 8px', borderRadius: 2,
+                        background: `${skillColor}15`, color: skillColor, border: `1px solid ${skillColor}30`, flexShrink: 0,
+                      }}>
+                        {skillLabels[cls.skill_level] || cls.skill_level}
+                      </span>
+                    )}
+                  </div>
+
+                  <div style={{
+                    fontSize: 12, color: 'var(--text-3)', fontFamily: 'var(--font-sans)',
+                    marginBottom: cls.description ? 8 : 10,
+                    display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap',
+                  }}>
+                    {cls.duration && <span>{cls.duration}</span>}
+                    {cls.duration && cls.frequency && <span style={{ opacity: 0.35 }}>·</span>}
+                    {cls.frequency && <span>{cls.frequency}</span>}
+                    {(cls.duration || cls.frequency) && cls.group_size && <span style={{ opacity: 0.35 }}>·</span>}
+                    {cls.group_size && <span>Max {cls.group_size} people</span>}
+                  </div>
+
+                  {cls.price && (
+                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', fontFamily: 'var(--font-sans)', marginBottom: 8 }}>
+                      {cls.price}
+                    </div>
+                  )}
+
+                  {cls.description && (
+                    <div style={{
+                      fontSize: 13, color: 'var(--text-2)', fontFamily: 'var(--font-sans)',
+                      lineHeight: 1.6, marginBottom: 12,
+                    }}>
+                      {cls.description}
+                    </div>
+                  )}
+
+                  {(cls.includes_materials || cls.includes_firing || cls.take_home) && (
+                    <div style={{
+                      display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 12,
+                      fontSize: 11, color: 'var(--text-3)', fontFamily: 'var(--font-sans)',
+                    }}>
+                      {cls.includes_materials && <span>Materials included</span>}
+                      {cls.includes_firing && <span>Firing included</span>}
+                      {cls.take_home && <span>Take home your work</span>}
+                    </div>
+                  )}
+
+                  {cls.booking_url && (
+                    <a href={cls.booking_url} target="_blank" rel="noopener noreferrer" style={{
+                      fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase',
+                      color: '#fff', background: color, padding: '7px 14px', borderRadius: 2,
+                      textDecoration: 'none', fontFamily: 'var(--font-sans)', display: 'inline-block',
+                    }}>
+                      Book this class →
+                    </a>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </div>
       )}

@@ -43,6 +43,7 @@ const TABS = [
   { id: 'features', label: 'Features', icon: '✦' },
   { id: 'practice', label: 'Practice', icon: '◈' },
   { id: 'materials',label: 'Materials',icon: '◆' },
+  { id: 'classes',  label: 'Classes',  icon: '◈', premiumOnly: false },
   { id: 'events',   label: 'Workshops & Events',   icon: '◉', premiumOnly: false },
   { id: 'premium',  label: 'Premium',  icon: '★', premiumOnly: true },
 ]
@@ -231,6 +232,8 @@ function VendorEditInner() {
   const [seasonalHighlights, setSeasonalHighlights] = useState([])
   const [promotions, setPromotions] = useState([])
   const [featuredOnHomepage, setFeaturedOnHomepage] = useState(true)
+  const [offersClasses, setOffersClasses] = useState(false)
+  const [classes, setClasses] = useState([])
   const [events, setEvents] = useState([])
 
   const heroInputRef = useRef(null)
@@ -277,6 +280,8 @@ function VendorEditInner() {
       setMaterials(venueData.materials || [])
       setCommissionAvailable(venueData.commission_available || false)
       setExperiencesAndClasses(venueData.experiences_and_classes || false)
+      setOffersClasses(venueData.offers_classes || false)
+      setClasses(venueData.classes || [])
       setTags(venueData.tags || [])
       setFeaturedVideoUrl(venueData.featured_video_url || '')
       setSeasonalHighlights(venueData.seasonal_highlights || [])
@@ -329,6 +334,8 @@ function VendorEditInner() {
       materials: materials.length > 0 ? materials : null,
       commission_available: commissionAvailable,
       experiences_and_classes: experiencesAndClasses,
+      offers_classes: offersClasses,
+      classes: classes.filter(c => c.title?.trim()).length > 0 ? classes.filter(c => c.title?.trim()) : null,
       updated_at: new Date().toISOString(),
     }
 
@@ -441,6 +448,10 @@ function VendorEditInner() {
   const updatePromotion = mkUpdate(setPromotions)
   const removePromotion = mkRemove(setPromotions)
 
+  const addClass    = mkAdd(setClasses, { title: '', type: 'workshop', duration: '', frequency: '', price: '', skill_level: 'all_levels', description: '', group_size: '', booking_url: '', includes_materials: false, includes_firing: false, take_home: false })
+  const updateClass = mkUpdate(setClasses)
+  const removeClass = mkRemove(setClasses)
+
   // Materials helpers
   function addMaterial() {
     const trimmed = materialInput.trim()
@@ -463,6 +474,7 @@ function VendorEditInner() {
     features:  features.length > 0,
     practice:  !!practiceDescription.trim(),
     materials: materials.length > 0,
+    classes:   classes.filter(c => c.title?.trim()).length > 0,
     events:    events.filter(e => e.title?.trim()).length > 0,
     premium:   !!(featuredVideoUrl || seasonalHighlights.length || promotions.length),
   }
@@ -1113,6 +1125,132 @@ function VendorEditInner() {
                   </div>
                 </>
               ) : <UpgradeHint feature="Materials list" requiredTier="standard" />}
+            </div>
+          )}
+
+          {/* CLASSES */}
+          {activeTab === 'classes' && (
+            <div>
+              {canUse('experiencesAndClasses', tier) ? (
+                <>
+                  <SectionHeader
+                    icon="◈"
+                    title="Classes & Workshops"
+                    description="Add structured class listings with details like duration, skill level, price, and booking links."
+                  />
+
+                  <div style={{ marginBottom: 24 }}>
+                    <div
+                      onClick={() => { setOffersClasses(v => !v); markDirty() }}
+                      style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        padding: '16px 20px', borderRadius: 4, cursor: 'pointer',
+                        border: `1px solid ${offersClasses ? 'rgba(74,124,89,0.4)' : 'var(--border)'}`,
+                        background: offersClasses ? 'rgba(74,124,89,0.06)' : 'var(--bg)',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', fontFamily: 'var(--font-sans)', marginBottom: 2 }}>
+                          {offersClasses ? '✓ Classes are listed' : 'No classes listed'}
+                        </div>
+                        <div style={{ fontSize: 11, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>
+                          Enable to show your classes on your listing page
+                        </div>
+                      </div>
+                      <div style={{
+                        width: 44, height: 24, borderRadius: 12, position: 'relative', flexShrink: 0,
+                        background: offersClasses ? '#4a7c59' : '#ccc',
+                        transition: 'background 0.2s ease',
+                      }}>
+                        <div style={{
+                          position: 'absolute', top: 3, left: offersClasses ? 23 : 3,
+                          width: 18, height: 18, borderRadius: '50%', background: '#fff',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                          transition: 'left 0.2s ease',
+                        }} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {offersClasses && (
+                    <>
+                      {classes.map((cls, i) => (
+                        <Card key={i}>
+                          <RemoveBtn onClick={() => removeClass(i)} />
+                          <div className="vendor-grid-2" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12, marginBottom: 12 }}>
+                            <div>
+                              <label style={{ ...labelStyle, fontSize: 9 }}>Class Title</label>
+                              <input className="vendor-input" value={cls.title} onChange={e => updateClass(i, 'title', e.target.value)} placeholder="e.g. Introduction to Wheel Throwing" style={{ ...inputStyle, marginBottom: 0 }} />
+                            </div>
+                            <div>
+                              <label style={{ ...labelStyle, fontSize: 9 }}>Type</label>
+                              <select className="vendor-input" value={cls.type} onChange={e => updateClass(i, 'type', e.target.value)} style={{ ...inputStyle, marginBottom: 0, cursor: 'pointer' }}>
+                                <option value="workshop">Workshop</option>
+                                <option value="course">Course</option>
+                                <option value="class">Class</option>
+                                <option value="masterclass">Masterclass</option>
+                                <option value="tasting">Tasting</option>
+                                <option value="tour">Tour</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div className="vendor-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
+                            <div>
+                              <label style={{ ...labelStyle, fontSize: 9 }}>Duration</label>
+                              <input className="vendor-input" value={cls.duration || ''} onChange={e => updateClass(i, 'duration', e.target.value)} placeholder="e.g. 3 hours" style={{ ...inputStyle, marginBottom: 0 }} />
+                            </div>
+                            <div>
+                              <label style={{ ...labelStyle, fontSize: 9 }}>Frequency</label>
+                              <input className="vendor-input" value={cls.frequency || ''} onChange={e => updateClass(i, 'frequency', e.target.value)} placeholder="e.g. Every Saturday" style={{ ...inputStyle, marginBottom: 0 }} />
+                            </div>
+                            <div>
+                              <label style={{ ...labelStyle, fontSize: 9 }}>Price</label>
+                              <input className="vendor-input" value={cls.price || ''} onChange={e => updateClass(i, 'price', e.target.value)} placeholder="e.g. $120 per person" style={{ ...inputStyle, marginBottom: 0 }} />
+                            </div>
+                          </div>
+                          <div className="vendor-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+                            <div>
+                              <label style={{ ...labelStyle, fontSize: 9 }}>Skill Level</label>
+                              <select className="vendor-input" value={cls.skill_level || 'all_levels'} onChange={e => updateClass(i, 'skill_level', e.target.value)} style={{ ...inputStyle, marginBottom: 0, cursor: 'pointer' }}>
+                                <option value="all_levels">All Levels</option>
+                                <option value="beginner">Beginner</option>
+                                <option value="intermediate">Intermediate</option>
+                                <option value="advanced">Advanced</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label style={{ ...labelStyle, fontSize: 9 }}>Max Group Size</label>
+                              <input className="vendor-input" type="number" value={cls.group_size || ''} onChange={e => updateClass(i, 'group_size', e.target.value)} placeholder="e.g. 8" style={{ ...inputStyle, marginBottom: 0 }} />
+                            </div>
+                          </div>
+                          <div style={{ marginBottom: 12 }}>
+                            <label style={{ ...labelStyle, fontSize: 9 }}>Description</label>
+                            <textarea className="vendor-input" value={cls.description || ''} onChange={e => updateClass(i, 'description', e.target.value)} rows={2} placeholder="What participants will learn and create" style={{ ...inputStyle, marginBottom: 0, resize: 'vertical' }} />
+                          </div>
+                          <div style={{ marginBottom: 12 }}>
+                            <label style={{ ...labelStyle, fontSize: 9 }}>Booking URL</label>
+                            <input className="vendor-input" value={cls.booking_url || ''} onChange={e => updateClass(i, 'booking_url', e.target.value)} placeholder="https://..." style={{ ...inputStyle, marginBottom: 0 }} />
+                          </div>
+                          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                            {[
+                              { key: 'includes_materials', label: 'Materials included' },
+                              { key: 'includes_firing', label: 'Firing included' },
+                              { key: 'take_home', label: 'Take home your work' },
+                            ].map(opt => (
+                              <label key={opt.key} style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+                                <input type="checkbox" checked={cls[opt.key] || false} onChange={e => updateClass(i, opt.key, e.target.checked)} style={{ width: 16, height: 16, cursor: 'pointer', accentColor: 'var(--primary)' }} />
+                                <span style={{ fontSize: 12, color: 'var(--text-2)', fontFamily: 'var(--font-sans)' }}>{opt.label}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </Card>
+                      ))}
+                      <AddButton onClick={addClass} label="Add Class" />
+                    </>
+                  )}
+                </>
+              ) : <UpgradeHint feature="Classes & workshops listings" requiredTier="standard" />}
             </div>
           )}
 

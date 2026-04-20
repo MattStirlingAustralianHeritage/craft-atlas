@@ -115,7 +115,7 @@ async function keywordFallback(q) {
     .eq('published', true)
     .neq('address', '')
     .not('address', 'is', null)
-    .or(`name.ilike.%${q}%,category.ilike.%${q}%,description.ilike.%${q}%,suburb.ilike.%${q}%,state.ilike.%${q}%`)
+    .or(`name.ilike.%${q}%,category.ilike.%${q}%,description.ilike.%${q}%,suburb.ilike.%${q}%,state.ilike.%${q}%,classes::text.ilike.%${q}%`)
     .order('tier', { ascending: false, nullsFirst: false })
     .limit(50)
   if (error) throw error

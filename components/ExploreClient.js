@@ -8,7 +8,7 @@ import { TYPE_COLORS, TYPE_LABELS } from '@/lib/constants'
 
 const TYPES = ['All', 'Ceramics & Clay', 'Visual Art', 'Jewellery & Metalwork', 'Textile & Fibre', 'Wood & Furniture', 'Glass', 'Printmaking']
 const STATES = ['All States', 'NSW', 'VIC', 'QLD', 'SA', 'WA', 'TAS', 'NT', 'ACT']
-const FEATURES = ['Open Studio', 'Workshops', 'Gallery', 'Retail', 'Commissions', 'Experiences & Classes', 'Online Shop']
+const FEATURES = ['Open Studio', 'Workshops', 'Gallery', 'Retail', 'Commissions', 'Experiences & Classes', 'Offers Classes', 'Online Shop']
 
 const REGION_TO_STATE = {
   'blue-mountains': 'NSW',
@@ -114,7 +114,7 @@ export default function ExploreClient() {
       const matchState = stateFilter === 'All States' || v.state === stateFilter
       const matchRegion = !regionFilter || (v.suburb && v.suburb.toLowerCase() === REGION_TO_SUBREGION[regionFilter]?.toLowerCase())
       const matchSearch = !search || v.name.toLowerCase().includes(search.toLowerCase()) || (v.suburb && v.suburb.toLowerCase().includes(search.toLowerCase()))
-      const matchFeature = !featureFilter || (featureFilter === 'Experiences & Classes' ? v.experiences_and_classes === true : (v.features && v.features.includes(featureFilter)))
+      const matchFeature = !featureFilter || (featureFilter === 'Experiences & Classes' ? v.experiences_and_classes === true : featureFilter === 'Offers Classes' ? v.offers_classes === true : (v.features && v.features.includes(featureFilter)))
       return matchType && matchState && matchRegion && matchSearch && matchFeature
     })
     .sort((a, b) => {
@@ -271,14 +271,15 @@ function StudioCard({ studio }) {
       {studio.description && (
         <p style={{ fontSize: 13, color: 'var(--text-2)', lineHeight: 1.6, marginBottom: 16, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{studio.description}</p>
       )}
-      {studio.features && studio.features.length > 0 && (
-        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-          {studio.features.slice(0, 3).map(f => (
-            <span key={f} style={{ background: 'var(--bg)', padding: '2px 8px', borderRadius: 2, fontSize: 10, color: 'var(--text-3)', letterSpacing: '0.03em' }}>{f}</span>
-          ))}
-          {studio.features.length > 3 && <span style={{ fontSize: 10, color: 'var(--text-3)', padding: '2px 4px' }}>+{studio.features.length - 3}</span>}
-        </div>
-      )}
+      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+        {studio.offers_classes && (
+          <span style={{ background: 'rgba(74,111,165,0.1)', padding: '2px 8px', borderRadius: 2, fontSize: 10, color: '#4a6fa5', letterSpacing: '0.03em', fontWeight: 600 }}>Classes</span>
+        )}
+        {studio.features && studio.features.slice(0, studio.offers_classes ? 2 : 3).map(f => (
+          <span key={f} style={{ background: 'var(--bg)', padding: '2px 8px', borderRadius: 2, fontSize: 10, color: 'var(--text-3)', letterSpacing: '0.03em' }}>{f}</span>
+        ))}
+        {studio.features && studio.features.length > (studio.offers_classes ? 2 : 3) && <span style={{ fontSize: 10, color: 'var(--text-3)', padding: '2px 4px' }}>+{studio.features.length - (studio.offers_classes ? 2 : 3)}</span>}
+      </div>
     </Link>
   )
 }
