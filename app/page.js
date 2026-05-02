@@ -46,7 +46,7 @@ export default async function HomePage() {
   const { count: venueCount } = await supabase.from('venues').select('*', { count: 'exact', head: true }).eq('published', true).neq('address', '').not('address', 'is', null)
   const { data: venues } = await supabase.from('venues').select('category, longitude, latitude, suburb, state, address').eq('published', true).neq('address', '').not('address', 'is', null)
   const { data: latestArticles } = await supabase.from('articles').select('id, title, slug, deck, hero_image_url, category, reading_time').eq('status', 'published').order('published_at', { ascending: false }).limit(6)
-  const { data: featuredVenues } = await supabase.from('venues').select('id, name, slug, category, suburb, state, hero_image_url, description').eq('published', true).neq('address', '').not('address', 'is', null).in('tier', ['standard', 'premium']).not('name', 'ilike', '\\_%').order('tier', { ascending: false }).limit(8)
+  const { data: featuredVenues } = await supabase.from('venues').select('id, name, slug, category, suburb, sub_region, state, hero_image_url, description').eq('published', true).neq('address', '').not('address', 'is', null).in('tier', ['standard', 'premium']).not('name', 'ilike', '\\_%').order('tier', { ascending: false }).limit(8)
 
   // Count venues per region using geographic proximity
   const regionCounts = {}
@@ -131,11 +131,11 @@ export default async function HomePage() {
                 return (
                   <Link key={venue.id} href={`/venue/${venue.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
                     <div style={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 3, overflow: 'hidden' }}>
-                      <TypographicCard name={venue.name} vertical="craft" category={typeLabel} region={venue.suburb} state={venue.state} aspectRatio="3/2" imageUrl={venue.hero_image_url} />
+                      <TypographicCard name={venue.name} vertical="craft" category={typeLabel} region={venue.sub_region || venue.suburb} state={venue.state} aspectRatio="3/2" imageUrl={venue.hero_image_url} />
                       <div style={{ padding: '12px 14px' }}>
                         <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: typeColor, marginBottom: 4, fontFamily: 'var(--font-sans)' }}>{typeLabel}</div>
                         <div style={{ fontFamily: 'var(--font-serif)', fontSize: 15, color: 'var(--text)', marginBottom: 4, lineHeight: 1.3 }}>{venue.name}</div>
-                        <div style={{ fontSize: 11, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>{[venue.suburb, venue.state].filter(Boolean).join(', ')}</div>
+                        <div style={{ fontSize: 11, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>{[venue.sub_region || venue.suburb, venue.state].filter(Boolean).join(', ')}</div>
                       </div>
                     </div>
                   </Link>

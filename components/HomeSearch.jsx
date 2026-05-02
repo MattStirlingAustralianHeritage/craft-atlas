@@ -49,10 +49,10 @@ export default function HomeSearch() {
                   <div style={{ fontFamily: 'var(--font-serif)', fontSize: 14, color: 'var(--text)', lineHeight: 1.3, marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{venue.name}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontFamily: 'var(--font-sans)', fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: typeColor }}>{typeLabel}</span>
-                    {(venue.suburb || venue.state) && (
+                    {(venue.sub_region || venue.suburb || venue.state) && (
                       <>
                         <span style={{ color: 'var(--border)', fontSize: 6 }}>&#9679;</span>
-                        <span style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-3)' }}>{[venue.suburb, venue.state].filter(Boolean).join(', ')}</span>
+                        <span style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-3)' }}>{[venue.sub_region || venue.suburb, venue.state].filter(Boolean).join(', ')}</span>
                       </>
                     )}
                   </div>

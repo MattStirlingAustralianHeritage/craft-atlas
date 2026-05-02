@@ -111,7 +111,7 @@ async function queryVenues(filters, keyword) {
 async function keywordFallback(q) {
   const { data, error } = await getSupabase()
     .from('venues')
-    .select('id, name, slug, category, subcategories, state, suburb, address, latitude, longitude, website, phone, description, hero_image_url, opening_hours, tier, published')
+    .select('id, name, slug, category, subcategories, state, suburb, sub_region, address, latitude, longitude, website, phone, description, hero_image_url, opening_hours, tier, published')
     .eq('published', true)
     .neq('address', '')
     .not('address', 'is', null)

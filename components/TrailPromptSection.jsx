@@ -123,7 +123,7 @@ export default function TrailPromptSection() {
                           <span style={{ fontFamily: 'var(--font-serif)', fontSize: 15, color: 'var(--text)', lineHeight: 1.3 }}>{stop.venue_name}</span>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2, marginBottom: 4 }}>
                             <span style={{ fontFamily: 'var(--font-sans)', fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: typeColor }}>{typeLabel}</span>
-                            {stop.suburb && (<><span style={{ color: 'var(--border)', fontSize: 6 }}>&#9679;</span><span style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-3)' }}>{stop.suburb}</span></>)}
+                            {(stop.sub_region || stop.suburb) && (<><span style={{ color: 'var(--border)', fontSize: 6 }}>&#9679;</span><span style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--text-3)' }}>{stop.sub_region || stop.suburb}</span></>)}
                           </div>
                           {stop.note && <p style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--text-2)', lineHeight: 1.5, margin: 0 }}>{stop.note}</p>}
                           {stop.slug && <Link href={`/venue/${stop.slug}`} style={{ fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 600, color: 'var(--primary)', textDecoration: 'none', display: 'inline-block', marginTop: 6 }}>View venue &rarr;</Link>}

@@ -124,7 +124,7 @@ export async function GET(request) {
 
   const { data: candidates } = await supabase
     .from('venues')
-    .select('id, name, slug, category, suburb, state, latitude, longitude, description, claimed, listing_tier')
+    .select('id, name, slug, category, suburb, sub_region, state, latitude, longitude, description, claimed, listing_tier')
     .eq('published', true)
     .not('latitude', 'is', null)
     .not('longitude', 'is', null)
@@ -143,7 +143,7 @@ export async function GET(request) {
     return bScore - aScore
   })
 
-  const venueList = candidates.map(v => `${v.claimed ? '[FEATURED] ' : ''}[ID:${v.id}] ${v.name} (${v.category}) \u2014 ${v.suburb || v.state || ''}${v.description ? '. ' + v.description.slice(0, 120) : ''}`).join('\n')
+  const venueList = candidates.map(v => `${v.claimed ? '[FEATURED] ' : ''}[ID:${v.id}] ${v.name} (${v.category}) \u2014 ${v.sub_region || v.suburb || v.state || ''}${v.description ? '. ' + v.description.slice(0, 120) : ''}`).join('\n')
 
   try {
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
@@ -167,7 +167,7 @@ export async function GET(request) {
       const stops = (day.stops || []).reduce((acc, stop) => {
         const c = candidates.find(v => String(v.id) === String(stop.venue_id))
         if (!c) return acc
-        acc.push({ ...stop, slug: c.slug, category: c.category, suburb: c.suburb, state: c.state, lat: c.latitude, lng: c.longitude })
+        acc.push({ ...stop, slug: c.slug, category: c.category, suburb: c.suburb, sub_region: c.sub_region, state: c.state, lat: c.latitude, lng: c.longitude })
         return acc
       }, [])
       return { ...day, stops }

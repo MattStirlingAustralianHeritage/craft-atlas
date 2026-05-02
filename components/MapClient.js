@@ -125,7 +125,7 @@ export default function MapPageClient() {
     async function fetchData() {
       const supabase = getSupabase()
       const [{ data: studioData }, { data: eventData }, { data: { user: currentUser } }] = await Promise.all([
-        supabase.from('venues').select('id, name, slug, category, state, suburb, latitude, longitude, tier, description, address, visitable, presence_type').eq('published', true),
+        supabase.from('venues').select('id, name, slug, category, state, suburb, sub_region, latitude, longitude, tier, description, address, visitable, presence_type').eq('published', true),
         supabase.from('events').select('venue_id, title, event_date, event_type').gte('event_date', new Date().toISOString()).order('event_date', { ascending: true }),
         supabase.auth.getUser(),
       ])
@@ -697,7 +697,7 @@ function buildGeoJSON(studios, studiosWithEvents, eventByStudio = {}) {
       return {
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [parseFloat(v.longitude), parseFloat(v.latitude)] },
-        properties: { id: v.id, name: v.name, slug: v.slug, category: v.category, categoryLabel: TYPE_LABELS[v.category] || v.category, tier: isByAppointment ? 'appointment' : tier, color: tier === 'premium' ? PREMIUM_COLOR : color, hasEvent, eventTitle: nextEvent ? nextEvent.title : null, eventDate: nextEvent ? nextEvent.event_date : null, location: [v.suburb, v.state].filter(Boolean).join(', '), description: v.description || '', isByAppointment },
+        properties: { id: v.id, name: v.name, slug: v.slug, category: v.category, categoryLabel: TYPE_LABELS[v.category] || v.category, tier: isByAppointment ? 'appointment' : tier, color: tier === 'premium' ? PREMIUM_COLOR : color, hasEvent, eventTitle: nextEvent ? nextEvent.title : null, eventDate: nextEvent ? nextEvent.event_date : null, location: [v.sub_region || v.suburb, v.state].filter(Boolean).join(', '), description: v.description || '', isByAppointment },
       }
     }),
   }

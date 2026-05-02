@@ -267,7 +267,7 @@ function StudioCard({ studio }) {
         )}
       </div>
       <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 400, color: 'var(--text)', marginBottom: 4, letterSpacing: '-0.01em' }}>{studio.name}</h3>
-      <div style={{ fontSize: 12, color: 'var(--text-3)', marginBottom: 12 }}>{studio.suburb && `${studio.suburb}, `}{studio.state}</div>
+      <div style={{ fontSize: 12, color: 'var(--text-3)', marginBottom: 12 }}>{(studio.sub_region || studio.suburb) && `${studio.sub_region || studio.suburb}, `}{studio.state}</div>
       {studio.description && (
         <p style={{ fontSize: 13, color: 'var(--text-2)', lineHeight: 1.6, marginBottom: 16, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{studio.description}</p>
       )}
@@ -295,7 +295,7 @@ function StudioRow({ studio }) {
         <span style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 400, color: 'var(--text)' }}>{studio.name}</span>
       </div>
       <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color, width: 80, flexShrink: 0 }}>{TYPE_LABELS[studio.category] || studio.category}</div>
-      <div style={{ fontSize: 12, color: 'var(--text-3)', width: 180, flexShrink: 0 }}>{studio.suburb && `${studio.suburb}, `}{studio.state}</div>
+      <div style={{ fontSize: 12, color: 'var(--text-3)', width: 180, flexShrink: 0 }}>{(studio.sub_region || studio.suburb) && `${studio.sub_region || studio.suburb}, `}{studio.state}</div>
       {studio.features && (
         <div style={{ display: 'flex', gap: 4, width: 200, flexShrink: 0 }}>
           {studio.features.slice(0, 2).map(f => (

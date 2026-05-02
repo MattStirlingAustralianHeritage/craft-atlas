@@ -36,12 +36,12 @@ function cleanWebsite(url) {
 export async function generateMetadata({ params }) {
   const { slug } = await params
   const supabase = await createServerSupabase()
-  const { data: venue } = await supabase.from('venues').select('id, name, category, subcategories, suburb, state, description, hero_image_url, slug').eq('slug', slug).eq('published', true).maybeSingle()
+  const { data: venue } = await supabase.from('venues').select('id, name, category, subcategories, suburb, sub_region, state, description, hero_image_url, slug').eq('slug', slug).eq('published', true).maybeSingle()
   if (!venue) return { title: 'Venue not found' }
   const label = venue.subcategories || TYPE_LABELS[venue.category] || venue.category
   return {
-    title: `${venue.name} — ${label} in ${venue.suburb || venue.state}`,
-    description: venue.description || `Visit ${venue.name}, a ${label} in ${venue.suburb || venue.state}, Australia.`,
+    title: `${venue.name} — ${label} in ${venue.sub_region || venue.suburb || venue.state}`,
+    description: venue.description || `Visit ${venue.name}, a ${label} in ${venue.sub_region || venue.suburb || venue.state}, Australia.`,
     openGraph: { images: isApprovedImageSource(venue.hero_image_url) ? [venue.hero_image_url] : [] },
   }
 }
@@ -78,7 +78,7 @@ export default async function VenuePage({ params }) {
     const lngDelta = NEARBY_RADIUS / (111 * Math.cos(venue.latitude * Math.PI / 180))
 
     const { data: nearbyRaw } = await supabase.from('venues')
-      .select('name, slug, category, suburb, state, latitude, longitude, address')
+      .select('name, slug, category, suburb, sub_region, state, latitude, longitude, address')
       .eq('published', true).neq('slug', slug)
       .or('visitable.eq.true,visitable.is.null')
       .gte('latitude', venue.latitude - latDelta).lte('latitude', venue.latitude + latDelta)
@@ -100,7 +100,7 @@ export default async function VenuePage({ params }) {
     // State fallback if fewer than 3 results
     if (nearby.length < 3 && venue.state) {
       const { data: stateFallback } = await supabase.from('venues')
-        .select('name, slug, category, suburb, state, latitude, longitude, address')
+        .select('name, slug, category, suburb, sub_region, state, latitude, longitude, address')
         .eq('published', true).eq('state', venue.state).neq('slug', slug)
         .not('latitude', 'is', null).not('longitude', 'is', null).limit(50)
       const existing = new Set(nearby.map(v => v.slug))
@@ -146,7 +146,7 @@ export default async function VenuePage({ params }) {
 
       {/* HERO IMAGE — full width above header, capped at 320px */}
       <div style={{ width: '100%', overflow: 'hidden', marginBottom: 0, position: 'relative', maxHeight: 320 }}>
-        <TypographicCard name={venue.name} vertical="craft" category={TYPE_LABELS[venue.category] || venue.category} region={venue.suburb} state={venue.state} aspectRatio="21/7" imageUrl={venue.hero_image_url} />
+        <TypographicCard name={venue.name} vertical="craft" category={TYPE_LABELS[venue.category] || venue.category} region={venue.sub_region || venue.suburb} state={venue.state} aspectRatio="21/7" imageUrl={venue.hero_image_url} />
       </div>
 
       {/* BREADCRUMB */}
@@ -155,7 +155,7 @@ export default async function VenuePage({ params }) {
           <Link href="/map" style={{ color: 'var(--text-3)', textDecoration: 'none' }}>Map</Link>
           <span>›</span>
           {venue.state && <Link href={`/map?state=${venue.state}`} style={{ color: 'var(--text-3)', textDecoration: 'none' }}>{venue.state}</Link>}
-          {venue.suburb && <><span>›</span><span>{venue.suburb}</span></>}
+          {(venue.sub_region || venue.suburb) && <><span>›</span><span>{venue.sub_region || venue.suburb}</span></>}
         </div>
       </div>
 
@@ -173,9 +173,9 @@ export default async function VenuePage({ params }) {
           {venue.name}
         </h1>
 
-        {venue.suburb && (
+        {(venue.sub_region || venue.suburb) && (
           <div style={{ fontSize: 16, color: 'var(--text-2)', fontFamily: 'var(--font-serif)', fontStyle: 'italic', marginBottom: 16 }}>
-            {venue.suburb}, {venue.state}
+            {venue.sub_region || venue.suburb}, {venue.state}
           </div>
         )}
 
@@ -305,13 +305,13 @@ export default async function VenuePage({ params }) {
             {venue.presence_type === 'online' ? (
               <div style={{ marginBottom: 20 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-3)', marginBottom: 4, fontFamily: 'var(--font-sans)' }}>Location</div>
-                <div style={{ fontSize: 14, color: 'var(--text)', lineHeight: 1.5 }}>Based in {[venue.suburb || venue.region, venue.state].filter(Boolean).join(', ')}</div>
+                <div style={{ fontSize: 14, color: 'var(--text)', lineHeight: 1.5 }}>Based in {[venue.sub_region || venue.suburb, venue.state].filter(Boolean).join(', ')}</div>
                 <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 6, fontStyle: 'italic', fontFamily: 'var(--font-sans)' }}>Shop online — no public shopfront</div>
               </div>
             ) : venue.presence_type === 'markets' ? (
               <div style={{ marginBottom: 20 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-3)', marginBottom: 4, fontFamily: 'var(--font-sans)' }}>Location</div>
-                <div style={{ fontSize: 14, color: 'var(--text)', lineHeight: 1.5 }}>Based in {[venue.suburb || venue.region, venue.state].filter(Boolean).join(', ')}</div>
+                <div style={{ fontSize: 14, color: 'var(--text)', lineHeight: 1.5 }}>Based in {[venue.sub_region || venue.suburb, venue.state].filter(Boolean).join(', ')}</div>
                 <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 6, fontStyle: 'italic', fontFamily: 'var(--font-sans)' }}>Find them at markets</div>
                 {venue.market_appearances && venue.market_appearances.length > 0 && (
                   <div style={{ marginTop: 12 }}>
@@ -328,7 +328,7 @@ export default async function VenuePage({ params }) {
             ) : venue.presence_type === 'mobile' ? (
               <div style={{ marginBottom: 20 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-3)', marginBottom: 4, fontFamily: 'var(--font-sans)' }}>Location</div>
-                <div style={{ fontSize: 14, color: 'var(--text)', lineHeight: 1.5 }}>Based in {[venue.suburb || venue.region, venue.state].filter(Boolean).join(', ')}</div>
+                <div style={{ fontSize: 14, color: 'var(--text)', lineHeight: 1.5 }}>Based in {[venue.sub_region || venue.suburb, venue.state].filter(Boolean).join(', ')}</div>
                 <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 6, fontStyle: 'italic', fontFamily: 'var(--font-sans)' }}>Check their website or social media for current location</div>
               </div>
             ) : venue.address_on_request || venue.presence_type === 'by_appointment' ? (
@@ -673,14 +673,14 @@ export default async function VenuePage({ params }) {
           lng={venue.longitude}
           currentVertical="craft"
           listingName={venue.name}
-          subRegion={venue.suburb}
+          subRegion={venue.sub_region || venue.suburb}
         />
       )}
 
       {/* REGIONAL BACKLINK */}
       <RegionalBacklink
-        regionName={venue.suburb}
-        regionSlug={venue.suburb ? venue.suburb.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : null}
+        regionName={venue.sub_region || venue.suburb}
+        regionSlug={(venue.sub_region || venue.suburb) ? (venue.sub_region || venue.suburb).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : null}
         regionDescription={null}
         venueName={venue.name}
       />
