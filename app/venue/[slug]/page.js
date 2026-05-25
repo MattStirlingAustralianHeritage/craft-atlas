@@ -1,8 +1,8 @@
+import dynamic from 'next/dynamic'
 import { createServerSupabase } from '@/lib/supabase'
 import { isApprovedImageSource } from '@/lib/image-utils'
 import { venueJsonLd, classesJsonLd } from '@/lib/jsonLd'
 import { TYPE_COLORS, TYPE_LABELS } from '@/lib/constants'
-import VenueMap from '@/components/VenueMap'
 import FavouriteButton from '@/components/FavouriteButton'
 import CrossVerticalNearby from '@/components/CrossVerticalNearby'
 import RegionalBacklink from '@/components/RegionalBacklink'
@@ -12,6 +12,79 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { notFound } from 'next/navigation'
+
+// Lazy-load the embedded map; below the fold, not on critical render path.
+const NearbyVenuesMap = dynamic(() => import('@/components/NearbyVenuesMap'), {
+  ssr: false,
+  loading: () => (
+    <div style={{
+      width: '100%', height: '100%', background: 'var(--bg-2)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-3)',
+      letterSpacing: '0.08em', textTransform: 'uppercase',
+    }}>Loading map…</div>
+  ),
+})
+
+// Density-aware nearby radius tiers — match the portal and Found. Maker
+// density varies hugely (Mornington Peninsula vs the Kimberley), so the
+// adaptive tiers carry weight here.
+const RADII_KM = [2, 15, 30]
+const MIN_FOR_DENSITY = 3
+const MAX_RADIUS_KM = 30
+
+function radiusBounds(lat, lng, radiusKm) {
+  const latDelta = radiusKm / 111
+  const lngDelta = radiusKm / (111 * Math.cos(lat * Math.PI / 180))
+  return [[lng - lngDelta, lat - latDelta], [lng + lngDelta, lat + latDelta]]
+}
+
+/**
+ * Venues for the in-page map. Pins are drawn from Craft's `venues` table
+ * only — vertical maps stay within their vertical. Filters out venues that
+ * aren't a public destination (online, markets, mobile, by_appointment,
+ * address_on_request) so pins represent places a user can actually visit.
+ *
+ * Repurposes the previously-dead `nearby` fetch (which was being computed
+ * and passed to a single-pin VenueMap that ignored the prop) as the data
+ * source for the new multi-pin map.
+ */
+async function getNearbyVenuesForMap(supabase, venue) {
+  if (venue.latitude == null || venue.longitude == null) {
+    return { venues: [venue], radiusKm: MAX_RADIUS_KM }
+  }
+  const latDelta = MAX_RADIUS_KM / 111
+  const lngDelta = MAX_RADIUS_KM / (111 * Math.cos(venue.latitude * Math.PI / 180))
+
+  const { data } = await supabase.from('venues')
+    .select('id, slug, name, category, suburb, sub_region, state, latitude, longitude, address_on_request, presence_type, visitable')
+    .eq('published', true)
+    .neq('id', venue.id)
+    .gte('latitude', venue.latitude - latDelta).lte('latitude', venue.latitude + latDelta)
+    .gte('longitude', venue.longitude - lngDelta).lte('longitude', venue.longitude + lngDelta)
+    .not('latitude', 'is', null).not('longitude', 'is', null)
+    .limit(120)
+
+  const NON_PINNABLE = new Set(['online', 'markets', 'mobile'])
+  const withDist = (data || [])
+    .filter(v => v.visitable !== false)
+    .filter(v => !v.address_on_request)
+    .filter(v => !NON_PINNABLE.has(v.presence_type))
+    .map(v => ({ ...v, _dist: haversineKm(venue.latitude, venue.longitude, v.latitude, v.longitude) }))
+    .filter(v => v._dist <= MAX_RADIUS_KM)
+    .sort((a, b) => a._dist - b._dist)
+
+  let chosenRadius = MAX_RADIUS_KM
+  for (const r of RADII_KM) {
+    if (withDist.filter(v => v._dist <= r).length >= MIN_FOR_DENSITY) {
+      chosenRadius = r
+      break
+    }
+  }
+
+  const inBand = withDist.filter(v => v._dist <= chosenRadius)
+  return { venues: [venue, ...inBand], radiusKm: chosenRadius }
+}
 
 export const revalidate = 3600  // 1 hour — events are time-sensitive
 
@@ -70,47 +143,20 @@ export default async function VenuePage({ params }) {
     isAdmin = adminAuth?.value === 'admin_authenticated'
   } catch {}
 
-  // Nearby venues (only compute if current venue has coordinates)
-  let nearby = []
-  if (venue.latitude != null && venue.longitude != null) {
-    const NEARBY_RADIUS = 80
-    const latDelta = NEARBY_RADIUS / 111
-    const lngDelta = NEARBY_RADIUS / (111 * Math.cos(venue.latitude * Math.PI / 180))
+  // Pins for the embedded "Nearby on Craft Atlas" map. This replaces the
+  // earlier dead nearby fetch (which was computed but only handed to a
+  // single-pin VenueMap that ignored the prop).
+  const { venues: mapNearby, radiusKm: mapRadiusKm } = await getNearbyVenuesForMap(supabase, venue)
 
-    const { data: nearbyRaw } = await supabase.from('venues')
-      .select('name, slug, category, suburb, sub_region, state, latitude, longitude, address')
-      .eq('published', true).neq('slug', slug)
-      .or('visitable.eq.true,visitable.is.null')
-      .gte('latitude', venue.latitude - latDelta).lte('latitude', venue.latitude + latDelta)
-      .gte('longitude', venue.longitude - lngDelta).lte('longitude', venue.longitude + lngDelta)
-      .limit(50)
-
-    const allNearby = (nearbyRaw || [])
-      .map(v => ({ ...v, distance: haversineKm(venue.latitude, venue.longitude, v.latitude, v.longitude) }))
-      .filter(v => v.distance <= NEARBY_RADIUS)
-      // Cross-state guard: only allow different-state results within 30km (border towns)
-      .filter(v => v.state === venue.state || v.distance <= 30)
-      .sort((a, b) => a.distance - b.distance)
-
-    // Same-category first, then others
-    const sameCategory = allNearby.filter(v => v.category === venue.category)
-    const otherCategory = allNearby.filter(v => v.category !== venue.category)
-    nearby = [...sameCategory, ...otherCategory].slice(0, 6)
-
-    // State fallback if fewer than 3 results
-    if (nearby.length < 3 && venue.state) {
-      const { data: stateFallback } = await supabase.from('venues')
-        .select('name, slug, category, suburb, sub_region, state, latitude, longitude, address')
-        .eq('published', true).eq('state', venue.state).neq('slug', slug)
-        .not('latitude', 'is', null).not('longitude', 'is', null).limit(50)
-      const existing = new Set(nearby.map(v => v.slug))
-      const extras = (stateFallback || [])
-        .filter(v => !existing.has(v.slug))
-        .map(v => ({ ...v, distance: haversineKm(venue.latitude, venue.longitude, v.latitude, v.longitude) }))
-        .sort((a, b) => a.distance - b.distance)
-      nearby = [...nearby, ...extras].slice(0, 6)
-    }
-  }
+  // Whether the embedded map renders — same gate as the previous single-pin
+  // map. Online / markets / mobile / by_appointment makers don't have a
+  // public destination, so the map (which is about "what's near here as a
+  // visitable place") doesn't apply.
+  const showMap = !venue.address_on_request
+    && venue.visitable !== false
+    && !['markets', 'online', 'mobile'].includes(venue.presence_type)
+    && venue.latitude != null
+    && venue.longitude != null
 
   // Upcoming events — future only, ordered by date
   const now = new Date().toISOString()
@@ -130,15 +176,14 @@ export default async function VenuePage({ params }) {
       {classesJsonLd(venue) && (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(classesJsonLd(venue)) }} />
       )}
+      {/* .venue-map-container + .venue-nearby-grid (orphaned by the dead
+          single-pin map and a never-rendered carousel) removed. The new
+          .atlas-nearby-map class lives in app/globals.css. */}
       <style>{`
         .venue-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 32px; max-width: 900px; margin: 0 auto; padding: 0 24px 48px; }
-        .venue-map-container { height: 360px; }
-        .venue-nearby-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
         .venue-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 40; }
         @media (max-width: 720px) {
           .venue-grid { grid-template-columns: 1fr !important; padding: 0 16px 32px; gap: 24px; }
-          .venue-map-container { height: 240px !important; }
-          .venue-nearby-grid { grid-template-columns: 1fr !important; }
           .venue-actions { flex-direction: column; }
           .venue-actions a { text-align: center; }
         }
@@ -229,13 +274,10 @@ export default async function VenuePage({ params }) {
           <FavouriteButton venueId={venue.id} venueName={venue.name} />
         </div>
 
-        {!isClaimed && (
-          <div style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 4, padding: '20px 24px', marginTop: 24 }}>
-            <div style={{ fontFamily: 'var(--font-serif)', fontSize: 18, color: 'var(--text)', marginBottom: 6 }}>Is this your studio?</div>
-            <p style={{ fontSize: 13, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', marginBottom: 14, lineHeight: 1.5 }}>Claim this listing to update details, add photos, and connect with customers.</p>
-            <a href={`https://australianatlas.com.au/claim/${venue.slug}`} style={{ display: 'inline-block', padding: '10px 24px', background: 'var(--amber, #B8862B)', color: '#fff', borderRadius: 3, fontSize: 12, fontWeight: 600, textDecoration: 'none', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)' }}>Claim Listing</a>
-          </div>
-        )}
+        {/* "Is this your studio?" claim CTA used to sit here, mid-page,
+            between the listing's primary content and the rest. Moved to the
+            bottom of the page (after the discovery sections) so it doesn't
+            interrupt the traveller flow. */}
       </header>
 
       {/* Custom Tags */}
@@ -262,15 +304,12 @@ export default async function VenuePage({ params }) {
         </div>
       )}
 
-      {/* TWO COLUMN: MAP + DETAILS */}
+      {/* TWO COLUMN: DETAILS SIDEBAR (left col now content-only; the
+          map has been promoted out of the column to a full-width section
+          below, where it can pin nearby Craft studios at scale rather
+          than sit as a single-pin sidebar map.) */}
       <div className="venue-grid">
         <div>
-          {!venue.address_on_request && venue.visitable !== false && !['markets', 'online', 'mobile'].includes(venue.presence_type) && (
-          <div className="venue-map-container" style={{ marginBottom: 32 }}>
-            <VenueMap venue={venue} nearby={nearby} />
-          </div>
-          )}
-
           {venue.materials && venue.materials.length > 0 && (
             <div style={{ marginBottom: 28 }}>
               <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 10, fontFamily: 'var(--font-sans)' }}>
@@ -396,6 +435,39 @@ export default async function VenuePage({ params }) {
           </div>
         </div>
       </div>
+
+      {/* NEARBY ON CRAFT ATLAS — full-width interactive map. Pins from the
+          venues table only (vertical map stays within its vertical). The
+          editorial job: surface the geographic clustering of makers
+          (Mornington Peninsula ceramicists, Castlemaine printmakers) so
+          the user can see whether this studio fits into a day. */}
+      {showMap && (
+        <section style={{ maxWidth: 900, margin: '0 auto 40px', padding: '0 24px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
+            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 24, fontWeight: 400, color: 'var(--text)', margin: 0 }}>
+              Nearby on Craft Atlas
+            </h2>
+            <Link
+              href={`https://australianatlas.com.au/map?lng=${venue.longitude}&lat=${venue.latitude}&zoom=12`}
+              style={{ fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 500, color: 'var(--primary)', textDecoration: 'none' }}
+            >
+              View on full map &rarr;
+            </Link>
+          </div>
+          <div
+            className="atlas-nearby-map"
+            style={{ borderRadius: 4, overflow: 'hidden', border: '1px solid var(--border)' }}
+            role="region"
+            aria-label={`Interactive map of ${venue.name} and nearby Craft Atlas studios within ${mapRadiusKm} km`}
+          >
+            <NearbyVenuesMap
+              venues={mapNearby}
+              currentVenueId={venue.id}
+              initialBounds={radiusBounds(venue.latitude, venue.longitude, mapRadiusKm)}
+            />
+          </div>
+        </section>
+      )}
 
       {/* GALLERY */}
       {venue.gallery_images && venue.gallery_images.length > 0 && (
@@ -684,6 +756,27 @@ export default async function VenuePage({ params }) {
         regionDescription={null}
         venueName={venue.name}
       />
+
+      {/* CLAIM CTA — moved here from mid-page. Operator-facing content sits
+          at the end of the page so it doesn't interrupt the traveller flow. */}
+      {!isClaimed && (
+        <section style={{ maxWidth: 900, margin: '0 auto', padding: '40px 24px 48px' }}>
+          <div style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 4, padding: '24px 28px', textAlign: 'center' }}>
+            <div style={{ fontFamily: 'var(--font-serif)', fontSize: 20, color: 'var(--text)', marginBottom: 6 }}>
+              Is this your studio?
+            </div>
+            <p style={{ fontSize: 13, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', marginBottom: 16, lineHeight: 1.5, maxWidth: 480, marginLeft: 'auto', marginRight: 'auto' }}>
+              Claim this listing to update details, add photos, and connect with customers.
+            </p>
+            <a
+              href={`https://australianatlas.com.au/claim/${venue.slug}`}
+              style={{ display: 'inline-block', padding: '10px 24px', background: 'var(--amber, #B8862B)', color: '#fff', borderRadius: 3, fontSize: 12, fontWeight: 600, textDecoration: 'none', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)' }}
+            >
+              Claim Listing
+            </a>
+          </div>
+        </section>
+      )}
 
       {isAdmin && (
         <VerificationBadge

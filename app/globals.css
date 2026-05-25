@@ -295,3 +295,11 @@ a { color: inherit; }
   .home-journal-card { width: 75vw; min-width: 75vw; height: 400px; }
   .home-journal-carousel { margin: 0 -24px; padding-left: 24px; }
 }
+
+/* ── Embedded "Nearby on Craft Atlas" map ──
+   Height tiers match the portal and other vertical maps for visual
+   consistency across the network. */
+.atlas-nearby-map { height: 360px; }
+@media (min-width: 640px)  { .atlas-nearby-map { height: 400px; } }
+@media (min-width: 1024px) { .atlas-nearby-map { height: 480px; } }
+@media (min-width: 1280px) { .atlas-nearby-map { height: 540px; } }
