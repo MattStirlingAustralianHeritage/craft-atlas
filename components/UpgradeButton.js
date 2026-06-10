@@ -10,29 +10,12 @@ export default function UpgradeButton({ venueId, userId, currentTier, className 
   if (currentTier === 'standard') return null
 
   const label = 'Upgrade to Standard'
-  const price = '$99/year'
+  const price = '$295/year'
   const priceId = process.env.NEXT_PUBLIC_STRIPE_STANDARD_PRICE_ID
 
-  const handleUpgrade = async () => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const response = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ priceId, venueId, userId, tier: 'standard' }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) throw new Error(data.error || 'Failed to create checkout session')
-
-      if (data.url) window.location.href = data.url
-    } catch (err) {
-      setError(err.message || 'Something went wrong')
-      setLoading(false)
-    }
+  const handleUpgrade = () => {
+    // Billing is centralised on the Portal — upgrades go through the $295 claim flow.
+    window.location.href = 'https://www.australianatlas.com.au/claim'
   }
 
   return (

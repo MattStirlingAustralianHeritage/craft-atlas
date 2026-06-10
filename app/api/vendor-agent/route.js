@@ -14,7 +14,7 @@ KEY FACTS:
 
 PRICING:
 - Free: Claim and verify listing, update all core details, verified badge
-- Standard ($99/year): Everything in Free, plus unlimited photos, opening hours, venue features, events calendar, seasonal highlights, special offers, analytics, priority placement, and featured in regional guides and maker trails
+- Standard ($295/year): Everything in Free, plus unlimited photos, opening hours, venue features, events calendar, seasonal highlights, special offers, analytics, priority placement, and featured in regional guides and maker trails
 - Premium ($499/year): Everything in Standard, plus events and specials system, newsletter eligibility, first priority in maker trails
 
 HONEST OBJECTION HANDLING:

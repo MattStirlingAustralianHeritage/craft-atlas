@@ -77,7 +77,7 @@ export default function ClaimVenuePage({ venue }) {
           </a>
           <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', fontWeight: 400, color: '#f5f0e8', marginTop: 20, marginBottom: 8, lineHeight: 1.2 }}>Claim {venue.name}</h1>
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: '#b0a090' }}>{typeLabel}{location ? ` · ${location}` : ''}</p>
-          {isStandard && <div style={{ marginTop: 16, display: 'inline-block', background: 'rgba(95,138,126,0.2)', border: '1px solid rgba(95,138,126,0.4)', borderRadius: 3, padding: '6px 14px' }}><span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#5F8A7E', fontFamily: 'var(--font-sans)' }}>Standard — $99/yr</span></div>}
+          {isStandard && <div style={{ marginTop: 16, display: 'inline-block', background: 'rgba(95,138,126,0.2)', border: '1px solid rgba(95,138,126,0.4)', borderRadius: 3, padding: '6px 14px' }}><span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#5F8A7E', fontFamily: 'var(--font-sans)' }}>Standard — $295/yr</span></div>}
         </div>
       </section>
       <section style={{ padding: '48px 24px', maxWidth: 560, margin: '0 auto' }}>
@@ -97,7 +97,7 @@ export default function ClaimVenuePage({ venue }) {
             </div>
             {error && <p style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: '#c0392b', background: '#fdf2f2', border: '1px solid #f5c6cb', borderRadius: 2, padding: '10px 14px', marginBottom: 16 }}>{error}</p>}
             <button onClick={isStandard ? handleExistingStandard : handleExistingFree} disabled={loading} style={btn(loading)}>
-              {loading ? (isStandard ? 'Redirecting to payment…' : 'Submitting…') : (isStandard ? 'Continue to payment — $99/yr →' : `Claim ${venue.name} — it\'s free`)}
+              {loading ? (isStandard ? 'Redirecting to payment…' : 'Submitting…') : (isStandard ? 'Continue to payment — $295/yr →' : `Claim ${venue.name} — it\'s free`)}
             </button>
             {isStandard && <p style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-3)', marginTop: 12 }}>You'll be taken to Stripe to complete payment. Billed annually, cancel any time.</p>}
           </div>
@@ -114,7 +114,7 @@ export default function ClaimVenuePage({ venue }) {
               <div><label style={{ display: 'block', fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-2)', marginBottom: 6 }}>Password</label><input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="At least 8 characters" style={inp} /></div>
               {error && <p style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: '#c0392b', background: '#fdf2f2', border: '1px solid #f5c6cb', borderRadius: 2, padding: '10px 14px' }}>{error}</p>}
               <button onClick={isStandard ? handleStandardClaim : handleFreeClaim} disabled={loading || !name || !email || !password} style={btn(loading || !name || !email || !password)}>
-                {loading ? (isStandard ? 'Redirecting to payment…' : 'Setting up your account…') : (isStandard ? 'Continue to payment — $99/yr →' : "List this institution — it\'s free")}
+                {loading ? (isStandard ? 'Redirecting to payment…' : 'Setting up your account…') : (isStandard ? 'Continue to payment — $295/yr →' : "List this institution — it\'s free")}
               </button>
             </div>
             {isStandard && <p style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-3)', marginTop: 12, lineHeight: 1.6 }}>You'll be taken to Stripe to complete payment. Billed annually, cancel any time.</p>}

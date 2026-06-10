@@ -93,7 +93,7 @@ function UpgradeHint({ feature, requiredTier }) {
         {feature}
       </div>
       <div style={{ fontSize: 13, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', marginBottom: 20, lineHeight: 1.6 }}>
-        Available on the Standard ($99/yr) plan.
+        Available on the Standard ($295/yr) plan.
       </div>
       <Link href="/vendor/dashboard" style={{
         display: 'inline-block',

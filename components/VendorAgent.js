@@ -15,7 +15,7 @@ KEY FACTS ABOUT CRAFT ATLAS:
 
 PRICING:
 - Free ($0): Claim and verify listing, update all core details, verified badge
-- Standard ($99/year): Everything in Free, plus unlimited photos, opening hours, studio features, events calendar, seasonal highlights, special offers, analytics, priority placement, featured in regional guides and maker trails
+- Standard ($295/year): Everything in Free, plus unlimited photos, opening hours, studio features, events calendar, seasonal highlights, special offers, analytics, priority placement, featured in regional guides and maker trails
 
 HONEST ANSWERS TO COMMON OBJECTIONS:
 - "We are already on Google" — Google shows everything. Craft Atlas is curated, so being listed here signals quality to a specific audience actively looking for Australian makers and studio experiences.

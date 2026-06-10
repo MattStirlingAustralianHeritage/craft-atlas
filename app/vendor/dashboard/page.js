@@ -8,7 +8,7 @@ import { useAuth } from '../layout'
 const TIER_INFO = {
   free:     { name: 'Free',     price: 'Free',     color: '#9a8a78' },
   basic:    { name: 'Free',     price: 'Free',     color: '#9a8a78' },
-  standard: { name: 'Standard', price: '$99/yr',  color: '#4a7c59' },
+  standard: { name: 'Standard', price: '$295/yr',  color: '#4a7c59' },
 }
 
 const STATUS_COLORS = {
@@ -300,16 +300,11 @@ export default function VendorDashboardPage() {
     setBillingLoading(false)
   }
 
-  async function handleUpgrade(tier) {
-    if (!venue || !user) return
-    try {
-      const response = await fetch('/api/stripe/checkout', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ venueId: venue.id, tier, userId: user.id, email: user.email }),
-      })
-      const { url } = await response.json()
-      if (url) window.location.href = url
-    } catch (err) { console.error(err) }
+  function handleUpgrade() {
+    // Billing is centralised on the Portal — all upgrades go through the $295 claim flow.
+    window.location.href = venue?.slug
+      ? `https://www.australianatlas.com.au/claim/${venue.slug}`
+      : 'https://www.australianatlas.com.au/claim'
   }
 
   if (authLoading || loading) return (
@@ -538,7 +533,7 @@ export default function VendorDashboardPage() {
                   cursor: 'pointer', fontFamily: 'var(--font-sans)', textAlign: 'left', width: '100%',
                 }}>
                   <div style={{ fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#7ab87a', fontWeight: 600 }}>Standard</div>
-                  <div style={{ fontFamily: 'var(--font-serif)', fontSize: 26, fontWeight: 400 }}>$99<span style={{ fontSize: 14, opacity: 0.6 }}>/yr</span></div>
+                  <div style={{ fontFamily: 'var(--font-serif)', fontSize: 26, fontWeight: 400 }}>$295<span style={{ fontSize: 14, opacity: 0.6 }}>/yr</span></div>
                   <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.6 }}>10 photos · verified badge · practice description · social links · materials</div>
                 </button>
               </div>
