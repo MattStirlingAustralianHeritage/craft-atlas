@@ -20,6 +20,19 @@ const REGION_DEFS = [
   { name: 'Sunshine Coast Hinterland', slug: 'sunshine-coast-hinterland', state: 'QLD', lat: -26.70, lng: 152.90, radius: 30 },
 ]
 
+// Grounded one-line descriptors for the "Browse by craft" decoder grid. Each
+// line is derived from the real SUBCATEGORIES in lib/constants.js — definitional,
+// not invented (no venue claims). Mirrors the portal's dual-label comprehension fix.
+const TYPE_DESCRIPTORS = {
+  ceramics_clay: 'Potters and clay artists — functional ware, porcelain, and sculpture.',
+  visual_art: 'Painters, sculptors, and mixed-media artists working from the studio.',
+  jewellery_metalwork: 'Fine jewellers, silversmiths, and blacksmiths working in metal.',
+  textile_fibre: 'Weavers, dyers, and fibre artists — tapestry, basketry, and embroidery.',
+  wood_furniture: 'Furniture makers, woodturners, and carvers working in timber.',
+  glass: 'Glassblowers and cast, kiln-formed, and stained-glass artists.',
+  printmaking: 'Printmakers — relief, screen print, etching, and lithography.',
+}
+
 const REGION_DESCRIPTORS = {
   'blue-mountains': { badge: 'Craft Region', desc: 'Mountain studios, open-air galleries, and a deep tradition of making.' },
   'byron-hinterland': { badge: 'Craft Region', desc: 'A creative heartland of ceramics, textiles and handmade design.' },
@@ -95,21 +108,46 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* STATS BAR */}
-      <section style={{ borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', padding: '28px 24px', background: 'var(--bg-2)' }}>
-        <div className="home-stats-bar">
-          {types.map(([type, count]) => (
-            <div key={type} style={{ textAlign: 'center', alignItems: 'center' }}>
-              <Link href={`/map?type=${type}`} style={{ fontSize: 26, fontFamily: 'var(--font-serif)', color: TYPE_COLORS[type] || 'var(--text)', fontWeight: 400, lineHeight: 1, marginBottom: 4, textDecoration: 'none', display: 'block', transition: 'opacity 0.15s' }} className="stat-number-link">
-                {count}
-              </Link>
-              <div style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>
-                {TYPE_LABELS_PLURAL[type] || type}
-              </div>
+      {/* WHAT YOU'LL FIND — browse by craft (dual-label decoder grid) */}
+      {types.length > 0 && (
+        <section style={{ borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', padding: '64px 24px', background: 'var(--bg-2)' }}>
+          <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: 36 }}>
+              <div style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 12, fontFamily: 'var(--font-sans)', fontWeight: 600 }}>What You&apos;ll Find</div>
+              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: 400, color: 'var(--text)', lineHeight: 1.2, marginBottom: 12 }}>
+                Browse by craft
+              </h2>
+              <p style={{ fontSize: 15, color: 'var(--text-2)', lineHeight: 1.6, fontFamily: 'var(--font-sans)', maxWidth: 520, margin: '0 auto' }}>
+                From the wheel to the forge — find makers by what they make, then plan a visit.
+              </p>
             </div>
-          ))}
-        </div>
-      </section>
+            <div className="type-grid">
+              {types.map(([type, count]) => {
+                const color = TYPE_COLORS[type] || 'var(--primary)'
+                return (
+                  <Link key={type} href={`/map?type=${type}`} className="type-card" style={{ '--tc': color }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
+                        <span aria-hidden="true" style={{ width: 10, height: 10, borderRadius: 3, background: color, flexShrink: 0 }} />
+                        <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color, fontFamily: 'var(--font-sans)' }}>
+                          {count} {count === 1 ? 'maker' : 'makers'}
+                        </span>
+                      </span>
+                      <span className="type-card-arrow" aria-hidden="true" style={{ fontSize: 15, fontWeight: 500, lineHeight: 1 }}>&rarr;</span>
+                    </div>
+                    <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 20, fontWeight: 400, color: 'var(--text)', lineHeight: 1.25, marginBottom: 7 }}>
+                      {TYPE_LABELS_PLURAL[type] || type}
+                    </h3>
+                    <p style={{ fontSize: 13.5, color: 'var(--text-2)', lineHeight: 1.55, fontFamily: 'var(--font-sans)', margin: 0 }}>
+                      {TYPE_DESCRIPTORS[type] || ''}
+                    </p>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       <TrailPromptSection />
 
