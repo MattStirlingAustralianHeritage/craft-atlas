@@ -16,7 +16,7 @@ The database uses these column names: "category" (not "type"), "suburb" (not "su
 RULES:
 - Return ONLY a valid JSON object — no preamble, no markdown fences, no explanation
 - Only include fields you can confidently infer — set everything else to null
-- Craft categories (stored in "category" column): ceramics_clay, visual_art, jewellery_metalwork, textile_fibre, wood_furniture, glass, printmaking
+- Craft categories (stored in "category" column): ceramics_clay, visual_art, jewellery_metalwork, textile_fibre, wood_furniture, glass, printmaking, leathermaker, shoemaker
 - "ceramics" or "pottery" or "clay" → craft_types: ["ceramics_clay"]
 - "painting" or "painter" or "visual art" → craft_types: ["visual_art"]
 - "jewellery" or "jewelry" or "metalwork" or "silversmith" → craft_types: ["jewellery_metalwork"]

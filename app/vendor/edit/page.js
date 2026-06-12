@@ -17,6 +17,8 @@ const TYPE_COLORS = {
   wood_furniture:       '#d4a843',
   glass:                '#5a8a9a',
   printmaking:          '#7a6a5a',
+  leathermaker:         '#8A5A3C',
+  shoemaker:            '#5F4339',
 }
 
 const FEATURE_OPTIONS = [

@@ -50,6 +50,8 @@ export function HeroMap({ venues }) {
                 'wood_furniture', '#8A7055',
                 'glass', '#5A8A9A',
                 'printmaking', '#6B7A5A',
+                'leathermaker', '#8A5A3C',
+                'shoemaker', '#5F4339',
                 '#C1603A',
               ],
               'circle-opacity': 0.6,

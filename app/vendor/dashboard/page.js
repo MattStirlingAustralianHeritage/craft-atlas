@@ -25,6 +25,8 @@ const TYPE_EMOJI = {
   wood_furniture:       '🪵',
   glass:                '🔮',
   printmaking:          '🖨',
+  leathermaker:         '👜',
+  shoemaker:            '👞',
   default:              '🎨',
 }
 

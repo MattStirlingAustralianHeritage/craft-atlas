@@ -41,6 +41,8 @@ const CATEGORY_LABEL_MAP = {
   wood_furniture: 'Wood & Furniture',
   glass: 'Glass',
   printmaking: 'Printmaking',
+  leathermaker: 'Leatherwork',
+  shoemaker: 'Shoemaking',
 }
 
 const PAGE_SIZE = 500

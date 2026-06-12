@@ -31,6 +31,8 @@ const TYPE_DESCRIPTORS = {
   wood_furniture: 'Furniture makers, woodturners, and carvers working in timber.',
   glass: 'Glassblowers and cast, kiln-formed, and stained-glass artists.',
   printmaking: 'Printmakers — relief, screen print, etching, and lithography.',
+  leathermaker: 'Leatherworkers and makers — bags, belts, saddlery, and hand-stitched goods.',
+  shoemaker: 'Shoemakers and cobblers — bespoke footwear and boots, made and repaired by hand.',
 }
 
 const REGION_DESCRIPTORS = {
