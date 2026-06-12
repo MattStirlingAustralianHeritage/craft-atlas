@@ -44,7 +44,7 @@ export default function VerificationBadge({ listingId, listingName, initialVerif
       backdropFilter: 'blur(12px)',
       border: `1px solid ${verified ? 'rgba(45, 122, 58, 0.25)' : 'rgba(0, 0, 0, 0.08)'}`,
       borderRadius: '10px', padding: '0.5rem 0.75rem',
-      fontFamily: 'var(--font-body, var(--font-sans, "DM Sans", system-ui, sans-serif))',
+      fontFamily: 'var(--font-body, var(--font-sans, system-ui, sans-serif))',
       boxShadow: '0 2px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04)',
       transition: 'all 0.3s ease',
       transform: justVerified ? 'scale(1.04)' : 'scale(1)',

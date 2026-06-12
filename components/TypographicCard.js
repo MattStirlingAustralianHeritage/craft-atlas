@@ -47,13 +47,13 @@ export default function TypographicCard({ name, vertical = 'craft', category, re
       <div style={{ position: 'absolute', inset: 0, backgroundImage: `radial-gradient(circle, ${tokens.text} 1px, transparent 1px)`, backgroundSize: '16px 16px', opacity: 0.1, pointerEvents: 'none' }} />
       {isField && <TopoLines color={tokens.text} />}
       <div style={{ position: 'relative', zIndex: 1, width: '100%' }}>
-        {topLine && <p style={{ fontFamily: 'var(--font-body, var(--font-sans, "DM Sans", system-ui))', fontSize: 8, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', opacity: 0.55, margin: '0 0 1rem', lineHeight: 1.4 }}>{topLine}</p>}
+        {topLine && <p style={{ fontFamily: 'var(--font-body, var(--font-sans, system-ui))', fontSize: 8, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', opacity: 0.55, margin: '0 0 1rem', lineHeight: 1.4 }}>{topLine}</p>}
         {!topLine && <div style={{ height: '0.5rem' }} />}
         <div style={{ width: 20, height: 1, background: tokens.text, opacity: 0.35, margin: '0 auto 0.75rem' }} />
-        <p style={{ fontFamily: 'var(--font-display, var(--font-serif, "Playfair Display", Georgia))', fontSize: 17, fontWeight: 400, margin: 0, lineHeight: 1.3, letterSpacing: '0.01em' }}>{line1}</p>
-        {line2 && <p style={{ fontFamily: 'var(--font-display, var(--font-serif, "Playfair Display", Georgia))', fontSize: 17, fontWeight: 400, fontStyle: 'italic', margin: '0.15rem 0 0', lineHeight: 1.3, letterSpacing: '0.01em' }}>{line2}</p>}
+        <p style={{ fontFamily: 'var(--font-display, var(--font-serif, Georgia))', fontSize: 17, fontWeight: 400, margin: 0, lineHeight: 1.3, letterSpacing: '0.01em' }}>{line1}</p>
+        {line2 && <p style={{ fontFamily: 'var(--font-display, var(--font-serif, Georgia))', fontSize: 17, fontWeight: 400, fontStyle: 'italic', margin: '0.15rem 0 0', lineHeight: 1.3, letterSpacing: '0.01em' }}>{line2}</p>}
         <div style={{ height: '1rem' }} />
-        {bottomLine && <p style={{ fontFamily: 'var(--font-body, var(--font-sans, "DM Sans", system-ui))', fontSize: 9, fontWeight: 400, letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.45, margin: 0, lineHeight: 1.4 }}>{bottomLine}</p>}
+        {bottomLine && <p style={{ fontFamily: 'var(--font-body, var(--font-sans, system-ui))', fontSize: 9, fontWeight: 400, letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.45, margin: 0, lineHeight: 1.4 }}>{bottomLine}</p>}
       </div>
     </div>
   )
