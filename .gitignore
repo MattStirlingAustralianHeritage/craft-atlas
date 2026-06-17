@@ -4,3 +4,6 @@ node_modules
 .env*.local
 .vercel
 .DS_Store
+
+# Vercel CLI OIDC token dump — never commit
+.env.vercel.check

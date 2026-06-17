@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { getSupabase } from '@/lib/supabase'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 const GEO_ANCHORS = {
   'Barossa':              { lat: -34.56, lng: 138.95, r: 0.35 },
@@ -104,6 +105,9 @@ function parseDuration(query) {
 }
 
 export async function GET(request) {
+  const rl = checkRateLimit(request, { keyPrefix: 'itinerary', maxRequests: 15, windowMs: 60_000 })
+  if (rl) return rl
+
   const { searchParams } = new URL(request.url)
   const q = searchParams.get('q') || ''
   if (!q.trim()) return NextResponse.json({ error: 'Query is required' }, { status: 400 })

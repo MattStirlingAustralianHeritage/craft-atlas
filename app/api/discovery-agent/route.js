@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { checkRateLimit } from '../../../lib/rate-limit';
 
 const REGION_MAP = {
   'victoria': 'VIC', 'vic': 'VIC',
@@ -68,6 +69,9 @@ function buildVenueContext(venues) {
 }
 
 export async function POST(req) {
+  const rl = checkRateLimit(req, { keyPrefix: 'discovery', maxRequests: 10, windowMs: 60_000 })
+  if (rl) return rl
+
   try {
     const { messages } = await req.json();
     const lastMessage = messages[messages.length - 1]?.content || '';

@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk'
+import { checkRateLimit } from '../../../lib/rate-limit'
 
 const SYSTEM_PROMPT = `You are a knowledgeable, honest assistant for Craft Atlas - an Australian directory of craft makers and studios.
 
@@ -33,6 +34,9 @@ TONE AND FORMAT:
 - Never be pushy. If it is not right for them, say so honestly.`
 
 export async function POST(request) {
+  const rl = checkRateLimit(request, { keyPrefix: 'vendor', maxRequests: 10, windowMs: 60_000 })
+  if (rl) return rl
+
   try {
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
     const { messages } = await request.json()
