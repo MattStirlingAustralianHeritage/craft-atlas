@@ -1,6 +1,7 @@
 import Link from 'next/link'
 export const revalidate = 60
 import { getSupabase } from '@/lib/supabase'
+import { listPortalListings, listPortalFeatured, getPortalVerticalEvents } from '@/lib/portal-data'
 import RegionCarousel from '@/components/RegionCarousel'
 import { HeroMap, NewsletterForm, NewsletterToast } from '@/components/HomeClient'
 import HomeSearch from '@/components/HomeSearch'
@@ -57,11 +58,16 @@ function distKm(lat1, lng1, lat2, lng2) {
 
 export default async function HomePage() {
   const supabase = getSupabase()
-  // Only count venues with a physical address (visitability filter)
-  const { count: venueCount } = await supabase.from('venues').select('*', { count: 'exact', head: true }).eq('published', true).neq('address', '').not('address', 'is', null)
-  const { data: venues } = await supabase.from('venues').select('category, longitude, latitude, suburb, state, address').eq('published', true).neq('address', '').not('address', 'is', null)
-  const { data: latestArticles } = await supabase.from('articles').select('id, title, slug, deck, hero_image_url, category, reading_time').eq('status', 'published').order('published_at', { ascending: false }).limit(6)
-  const { data: featuredVenues } = await supabase.from('venues').select('id, name, slug, category, suburb, sub_region, state, hero_image_url, description').eq('published', true).neq('address', '').not('address', 'is', null).in('tier', ['standard', 'premium']).not('name', 'ilike', '\\_%').order('tier', { ascending: false }).limit(8)
+  // Venues, map stats and featured makers now come LIVE from the Australian
+  // Atlas master portal (single source of truth) — matching the detail pages,
+  // search, explore and map. Articles (the Journal) stay on local Supabase.
+  const [venues, { data: latestArticles }, featuredVenues, upcomingEvents] = await Promise.all([
+    listPortalListings(),
+    supabase.from('articles').select('id, title, slug, deck, hero_image_url, category, reading_time').eq('status', 'published').order('published_at', { ascending: false }).limit(6),
+    listPortalFeatured(8),
+    getPortalVerticalEvents(4),
+  ])
+  const venueCount = (venues || []).length
 
   // Count venues per region using geographic proximity
   const regionCounts = {}
@@ -250,6 +256,50 @@ export default async function HomePage() {
         </div>
       </section>
 
+
+      {/* WHAT'S ON — live event feed from the portal (vertical-tagged) */}
+      {upcomingEvents && upcomingEvents.length > 0 && (
+        <section style={{ padding: '80px 24px', borderTop: '1px solid var(--border)' }}>
+          <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 40, flexWrap: 'wrap', gap: 12 }}>
+              <div>
+                <p style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 8, fontFamily: 'var(--font-sans)', fontWeight: 600 }}>What&apos;s On</p>
+                <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: 400, color: 'var(--text)', lineHeight: 1.2, margin: 0 }}>
+                  Markets, open studios <span style={{ fontStyle: 'italic', color: 'var(--primary)' }}>&</span> maker events
+                </h2>
+              </div>
+              <Link href="/events" style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--primary)', textDecoration: 'none', fontFamily: 'var(--font-sans)', whiteSpace: 'nowrap' }}>
+                All events →
+              </Link>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}>
+              {upcomingEvents.map(ev => {
+                const start = new Date(ev.start_date + 'T00:00:00')
+                const dateLabel = ev.end_date
+                  ? `${start.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })} – ${new Date(ev.end_date + 'T00:00:00').toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}`
+                  : start.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+                const place = [ev.suburb, ev.state].filter(Boolean).join(', ')
+                return (
+                  <Link key={ev.id} href="/events" style={{
+                    display: 'block', padding: '24px 26px', textDecoration: 'none',
+                    background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 6,
+                  }}>
+                    <div style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--primary)', fontFamily: 'var(--font-sans)', fontWeight: 600, marginBottom: 10 }}>
+                      {dateLabel}
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-serif)', fontSize: 19, color: 'var(--text)', lineHeight: 1.25, marginBottom: 8 }}>
+                      {ev.title}
+                    </div>
+                    <div style={{ fontSize: 13, color: 'var(--text-2)', fontFamily: 'var(--font-sans)' }}>
+                      {[ev.category_label, place].filter(Boolean).join(' · ')}
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* JOURNAL */}
       {latestArticles && latestArticles.length > 0 && <section style={{ padding: '80px 24px', borderTop: '1px solid var(--border)' }}>

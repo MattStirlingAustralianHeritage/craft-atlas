@@ -23,6 +23,7 @@ export default function Nav() {
     { href: '/map', label: 'Map' },
     { href: '/explore', label: 'Explore' },
     { href: '/trails', label: 'Trails' },
+    { href: '/events', label: 'Events' },
     { href: '/journal', label: 'Journal' },
     { href: '/about', label: 'About' },
     { href: '/partners', label: 'Partners' },
