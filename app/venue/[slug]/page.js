@@ -484,11 +484,14 @@ export default async function VenuePage({ params }) {
 
       {/* ── FROM THE STUDIO — operator-authored "right now" (live from portal) ── */}
       {(textFields.length + urlFields.length > 0) && (
-        <div style={{ maxWidth: 900, margin: '0 auto 40px', padding: '0 24px' }}>
-          <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 12, fontFamily: 'var(--font-sans)' }}>
-            {highlightDef.heading || 'From the studio'}
-          </div>
-          <div style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 4, padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+        <section aria-labelledby="from-the-maker-heading" style={{ maxWidth: 900, margin: '0 auto 40px', padding: '0 24px' }}>
+          <div style={{ background: 'rgba(196, 151, 59, 0.12)', border: '1px solid var(--border)', borderRadius: 4, padding: '24px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+            <div>
+              <div id="from-the-maker-heading" style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>
+                {highlightDef.heading || 'From the studio'}
+              </div>
+              <div style={{ fontSize: 15, fontStyle: 'italic', color: 'var(--text-3)', fontFamily: 'var(--font-sans)', marginTop: 5 }}>In their own words</div>
+            </div>
             {textFields.map(f => {
               const value = storedFields[f.key]
               if (f.type === 'list') {
@@ -526,8 +529,11 @@ export default async function VenuePage({ params }) {
                 ))}
               </div>
             )}
+            <div style={{ fontSize: 12, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', borderTop: '1px solid var(--border)', paddingTop: 12, lineHeight: 1.5 }}>
+              {venue.name && <span style={{ fontWeight: 600, color: 'var(--text)' }}>{venue.name}</span>}{venue.name ? ' · ' : ''}Words supplied by the operator.
+            </div>
           </div>
-        </div>
+        </section>
       )}
 
       {/* NOW HIRING */}
