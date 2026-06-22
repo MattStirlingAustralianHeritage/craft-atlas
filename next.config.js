@@ -22,6 +22,13 @@ const nextConfig = {
         pathname: '/storage/v1/object/public/**',
       },
       {
+        // Australian Atlas master portal storage — gallery/hero images now
+        // served live from the portal (single source of truth).
+        protocol: 'https',
+        hostname: 'nyhkcmvhwbydsqsyvizs.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
+      {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
       },
