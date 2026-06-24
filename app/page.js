@@ -4,10 +4,12 @@ import { getSupabase } from '@/lib/supabase'
 import { listPortalListings, listPortalFeatured, getPortalVerticalEvents } from '@/lib/portal-data'
 import RegionCarousel from '@/components/RegionCarousel'
 import { HeroMap, NewsletterForm, NewsletterToast } from '@/components/HomeClient'
-import HomeSearch from '@/components/HomeSearch'
+import SemanticSearchBar from '@/components/SemanticSearchBar'
 import TrailPromptSection from '@/components/TrailPromptSection'
 import { TYPE_COLORS, TYPE_LABELS_PLURAL } from '@/lib/constants'
 import TypographicCard from '@/components/TypographicCard'
+
+const HERO_SEARCHES = ['ceramic studio in the Blue Mountains', 'woodworker near Byron Bay', 'jeweller in Hobart', 'textile studio in Melbourne']
 
 // Region definitions with center coordinates and radius (km) for geo-matching
 const REGION_DEFS = [
@@ -106,7 +108,8 @@ export default async function HomePage() {
             From the Blue Mountains to the Tamar — every studio, workshop and gallery on one beautiful map.
           </p>
           <div style={{ width: '100%', maxWidth: 560, margin: '0 auto' }}>
-            <HomeSearch />
+            <SemanticSearchBar accent="var(--primary)" examples={HERO_SEARCHES} searchPath="/search" />
+            <p style={{ fontSize: 13, color: 'var(--text-2)', fontFamily: 'var(--font-sans)', lineHeight: 1.5, margin: '14px auto 0', maxWidth: 460 }}>Ask in plain English — name a craft, a maker, or a place, and we&apos;ll search every studio and gallery.</p>
           </div>
           <div style={{ marginTop: 16 }}>
             <Link href="/map" style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', textDecoration: 'none', fontFamily: 'var(--font-sans)', letterSpacing: '0.05em' }}>
