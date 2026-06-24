@@ -3,7 +3,6 @@ import { getDefaultImage } from '@/lib/defaultImages'
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { getSupabase } from '@/lib/supabase'
 import { TYPE_COLORS, TYPE_LABELS } from '@/lib/constants'
 
 const TYPES = ['All', 'Ceramics & Clay', 'Visual Art', 'Jewellery & Metalwork', 'Textile & Fibre', 'Wood & Furniture', 'Glass', 'Printmaking']
@@ -45,8 +44,6 @@ const CATEGORY_LABEL_MAP = {
   shoemaker: 'Shoemaking',
 }
 
-const PAGE_SIZE = 500
-
 function groupByCategory(items, key) {
   const groups = {}
   items.forEach(item => {
@@ -82,26 +79,27 @@ export default function ExploreClient() {
 
   useEffect(() => {
     async function fetchStudios() {
-      const supabase = getSupabase()
-      const { data, error } = await supabase.from('venues').select('*').eq('published', true).neq('address', '').not('address', 'is', null).range(0, PAGE_SIZE - 1)
-      if (!error && data) {
-        setStudios(data)
-        setHasMore(data.length === PAGE_SIZE)
+      // Browse data now comes LIVE from the master portal (single source of
+      // truth), via /api/listings — the same set the map and detail pages use.
+      try {
+        const res = await fetch('/api/listings')
+        const data = await res.json()
+        setStudios(data.venues || [])
+      } catch {
+        setStudios([])
       }
+      // The portal route returns the full paginated set in one response, so
+      // there is no incremental "load more".
+      setHasMore(false)
       setLoading(false)
     }
     fetchStudios()
   }, [])
 
   async function loadMore() {
-    setLoadingMore(true)
-    const supabase = getSupabase()
-    const { data, error } = await supabase.from('venues').select('*').eq('published', true).neq('address', '').not('address', 'is', null).range(studios.length, studios.length + PAGE_SIZE - 1)
-    if (!error && data) {
-      setStudios(prev => [...prev, ...data])
-      setHasMore(data.length === PAGE_SIZE)
-    }
+    // No-op: /api/listings returns the full set on first load.
     setLoadingMore(false)
+    setHasMore(false)
   }
 
   // Clear region filter when user manually changes state filter

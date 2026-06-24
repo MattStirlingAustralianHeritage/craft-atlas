@@ -124,11 +124,14 @@ export default function MapPageClient() {
   useEffect(() => {
     async function fetchData() {
       const supabase = getSupabase()
-      const [{ data: studioData }, { data: eventData }, { data: { user: currentUser } }] = await Promise.all([
-        supabase.from('venues').select('id, name, slug, category, state, suburb, sub_region, latitude, longitude, tier, description, address, visitable, presence_type').eq('published', true),
-        supabase.from('events').select('venue_id, title, event_date, event_type').gte('event_date', new Date().toISOString()).order('event_date', { ascending: true }),
+      // Studios + events now come LIVE from the master portal (single source of
+      // truth) via /api/listings. Auth stays local to this vertical's Supabase.
+      const [listingsRes, { data: { user: currentUser } }] = await Promise.all([
+        fetch('/api/listings?events=1').then(r => r.json()).catch(() => ({ venues: [], events: [] })),
         supabase.auth.getUser(),
       ])
+      const studioData = listingsRes.venues || []
+      const eventData = listingsRes.events || []
       if (studioData) {
         setAllStudios(studioData)
         setStudios(studioData)

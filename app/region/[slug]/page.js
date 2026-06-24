@@ -1,4 +1,4 @@
-import { createServerSupabase } from '@/lib/supabase'
+import { getPortalRegionListings } from '@/lib/portal-data'
 import { venueListJsonLd } from '@/lib/jsonLd'
 import { TYPE_COLORS, TYPE_LABELS, REGION_INFO } from '@/lib/constants'
 import RegionMap from '@/components/RegionMap'
@@ -6,30 +6,6 @@ import RegionFilters from '@/components/RegionFilters'
 import Link from 'next/link'
 
 export const revalidate = 86400
-
-// Region centers for geographic matching
-const REGION_GEO = {
-  'blue-mountains': { lat: -33.72, lng: 150.31, radius: 35 },
-  'byron-bay-hinterland': { lat: -28.64, lng: 153.44, radius: 35 },
-  'byron-hinterland': { lat: -28.64, lng: 153.44, radius: 35 },
-  'yarra-valley': { lat: -37.75, lng: 145.50, radius: 30 },
-  'central-victoria': { lat: -37.05, lng: 144.28, radius: 40 },
-  'daylesford': { lat: -37.34, lng: 144.15, radius: 25 },
-  'tamar-valley': { lat: -41.20, lng: 146.95, radius: 30 },
-  'adelaide-hills': { lat: -35.02, lng: 138.72, radius: 30 },
-  'huon-valley': { lat: -43.10, lng: 147.05, radius: 30 },
-  'mornington-peninsula': { lat: -38.35, lng: 145.05, radius: 25 },
-  'margaret-river': { lat: -33.95, lng: 115.07, radius: 30 },
-  'sunshine-coast-hinterland': { lat: -26.70, lng: 152.90, radius: 30 },
-}
-
-function distKm(lat1, lng1, lat2, lng2) {
-  const R = 6371
-  const dLat = (lat2 - lat1) * Math.PI / 180
-  const dLng = (lng2 - lng1) * Math.PI / 180
-  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
-}
 
 export async function generateMetadata({ params }) {
   const { slug } = await params
@@ -45,19 +21,11 @@ export default async function RegionPage({ params }) {
   const { slug } = await params
   const region = REGION_INFO[slug]
   const regionName = region ? region.name : slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
-  const supabase = await createServerSupabase()
-  const geo = REGION_GEO[slug]
 
-  let allRegionVenues = []
-  if (geo) {
-    const { data: allVenues } = await supabase.from('venues').select('*').eq('published', true)
-    allRegionVenues = (allVenues || []).filter(v =>
-      v.latitude && v.longitude && distKm(v.latitude, v.longitude, geo.lat, geo.lng) <= geo.radius
-    )
-  } else {
-    const { data } = await supabase.from('venues').select('*').eq('published', true).ilike('address', `%${regionName}%`)
-    allRegionVenues = data || []
-  }
+  // Region listings now come LIVE from the master portal (single source of
+  // truth), matched on the portal `region` text column — the same set the
+  // detail pages, search, explore and map use.
+  const allRegionVenues = await getPortalRegionListings(regionName)
 
   const venues = allRegionVenues.filter(v => v.visitable !== false)
   const nonVisitableVenues = allRegionVenues.filter(v => v.visitable === false)
