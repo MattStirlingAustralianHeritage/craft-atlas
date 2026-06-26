@@ -380,6 +380,18 @@ export default async function VenuePage({ params }) {
             </div>
           )}
 
+          {galleryUrls.length > 0 && (
+            <div style={{ marginBottom: 28 }}>
+              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 12, fontFamily: 'var(--font-sans)' }}>Gallery</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 8 }}>
+                {galleryUrls.map((url, i) => (
+                  <Image key={i} src={url} alt={`${venue.name} ${i + 1}`}
+                    width={400} height={400} loading="lazy"
+                    style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: 4, display: 'block' }} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* DETAILS SIDEBAR */}
@@ -582,20 +594,6 @@ export default async function VenuePage({ params }) {
             />
           </div>
         </section>
-      )}
-
-      {/* GALLERY — portal-primary, local fallback */}
-      {galleryUrls.length > 0 && (
-        <div style={{ maxWidth: 900, margin: '0 auto 40px', padding: '0 24px' }}>
-          <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 12, fontFamily: 'var(--font-sans)' }}>Gallery</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 8 }}>
-            {galleryUrls.map((url, i) => (
-              <Image key={i} src={url} alt={`${venue.name} ${i + 1}`}
-                width={400} height={400} loading="lazy"
-                style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: 4, display: 'block' }} />
-            ))}
-          </div>
-        </div>
       )}
 
       {/* CLASSES & WORKSHOPS */}
