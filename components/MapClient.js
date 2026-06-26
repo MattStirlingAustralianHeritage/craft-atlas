@@ -393,6 +393,9 @@ export default function MapPageClient() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 2, padding: '8px 16px', borderBottom: '1px solid var(--border)', background: 'var(--bg-2)', flexShrink: 0, zIndex: 10 }}>
         <button style={tabBtnStyle('map')} onClick={() => setActiveTab('map')}>Map</button>
         <button style={tabBtnStyle('builder')} onClick={() => {
+          // On phones the iframed builder has its OWN Builder/Map tab bar, which would
+          // stack a second tab bar under this one. Go full-page instead (it has a "← Map" link).
+          if (typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches) { window.location.href = '/trails/builder'; return }
           if (user) { setActiveTab('builder') } else { setShowTrailModal(true) }
         }}>Build a Maker Trail</button>
       </div>
