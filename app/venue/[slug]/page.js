@@ -5,10 +5,11 @@ import { isApprovedImageSource } from '@/lib/image-utils'
 import { venueJsonLd, classesJsonLd } from '@/lib/jsonLd'
 import { TYPE_COLORS, TYPE_LABELS } from '@/lib/constants'
 import {
-  getVenue as getPortalVenueWithFallback, getPortalGallery, getPortalEvents, getPortalPicks,
+  getVenue as getPortalVenueWithFallback, getPortalGallery, getPortalEvents, getPortalPicks, getPortalListingTrail,
 } from '@/lib/portal-data'
 import { getHighlightDef, fieldHasValue, hiringIsActive } from '@/lib/operator-highlights/config'
 import FavouriteButton from '@/components/FavouriteButton'
+import OperatorTrailSection from '@/components/OperatorTrailSection'
 import CrossVerticalNearby from '@/components/CrossVerticalNearby'
 import RegionalBacklink from '@/components/RegionalBacklink'
 import TypographicCard from '@/components/TypographicCard'
@@ -179,10 +180,11 @@ export default async function VenuePage({ params }) {
 
   // All portal-side reads are independent — run in parallel. Guarded so
   // local-fallback venues (portal_id null) simply skip the rich blocks.
-  const [gallery, portalEvents, picks] = await Promise.all([
+  const [gallery, portalEvents, picks, operatorTrail] = await Promise.all([
     getPortalGallery(venue.portal_id),
     getPortalEvents(venue.portal_id),
     getPortalPicks(venue.portal_id),
+    getPortalListingTrail(venue.portal_id),
   ])
 
   const picksGiven = picks.given || []
@@ -921,6 +923,9 @@ export default async function VenuePage({ params }) {
           )}
         </div>
       )}
+
+      {/* OPERATOR-SUGGESTED TRAIL — the operator's published day-trip (live from portal) */}
+      <OperatorTrailSection trail={operatorTrail} operatorName={venue.name} color={color} />
 
       {/* CROSS-VERTICAL NEARBY */}
       {venue.latitude != null && venue.longitude != null && (
