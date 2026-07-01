@@ -13,17 +13,17 @@
 // This is the same search technology deployed on the portal — every vertical
 // now shares it.
 
-const PORTAL_API = process.env.NEXT_PUBLIC_ATLAS_API_URL
+export const PORTAL_API = process.env.NEXT_PUBLIC_ATLAS_API_URL
   || process.env.NEXT_PUBLIC_ATLAS_AUTH_URL
   || 'https://www.australianatlas.com.au'
 
-const VERTICAL = 'craft'
+export const VERTICAL = 'craft'
 
 // The Craft search-results UI cards key colour/label off `venue.type` and show
 // `sub_region`, `state`, `hero_image_url`, `slug`. Map the portal listing's
 // `sub_type` (the Craft discipline) onto `type`/`category`, and `region` onto
 // `sub_region`.
-function mapListing(l) {
+export function mapListing(l) {
   return {
     id: l.id,
     name: l.name,
