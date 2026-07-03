@@ -1,8 +1,13 @@
+import { cache } from 'react'
 import dynamic from 'next/dynamic'
-import { createServerSupabase } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
 import { isApprovedImageSource } from '@/lib/image-utils'
 import { venueJsonLd, classesJsonLd } from '@/lib/jsonLd'
 import { TYPE_COLORS, TYPE_LABELS } from '@/lib/constants'
+import {
+  getVenue as getPortalVenueWithFallback, getPortalGallery, getPortalEvents, getPortalPicks,
+} from '@/lib/portal-data'
+import { getHighlightDef, fieldHasValue, hiringIsActive } from '@/lib/operator-highlights/config'
 import FavouriteButton from '@/components/FavouriteButton'
 import CrossVerticalNearby from '@/components/CrossVerticalNearby'
 import RegionalBacklink from '@/components/RegionalBacklink'
@@ -10,7 +15,6 @@ import TypographicCard from '@/components/TypographicCard'
 import VerificationBadge from '@/components/VerificationBadge'
 import Image from 'next/image'
 import Link from 'next/link'
-import { cookies } from 'next/headers'
 import { notFound } from 'next/navigation'
 
 // Lazy-load the embedded map; below the fold, not on critical render path.
@@ -40,17 +44,18 @@ function radiusBounds(lat, lng, radiusKm) {
 }
 
 /**
- * Venues for the in-page map. Pins are drawn from Craft's `venues` table
- * only — vertical maps stay within their vertical. Filters out venues that
- * aren't a public destination (online, markets, mobile, by_appointment,
+ * Venues for the in-page map. Pins are drawn from Craft's local `venues`
+ * table only — vertical maps stay within their vertical. Filters out venues
+ * that aren't a public destination (online, markets, mobile, by_appointment,
  * address_on_request) so pins represent places a user can actually visit.
  *
- * Repurposes the previously-dead `nearby` fetch (which was being computed
- * and passed to a single-pin VenueMap that ignored the prop) as the data
- * source for the new multi-pin map.
+ * This stays a LOCAL read: the map is a within-vertical geographic context
+ * layer, not part of the portal-primary listing read path. `venue.id` is the
+ * local integer id (preserved by the portal mapper via source_id), so the
+ * self-exclusion still works.
  */
 async function getNearbyVenuesForMap(supabase, venue) {
-  if (venue.latitude == null || venue.longitude == null) {
+  if (!supabase || venue.latitude == null || venue.longitude == null) {
     return { venues: [venue], radiusKm: MAX_RADIUS_KM }
   }
   const latDelta = MAX_RADIUS_KM / 111
@@ -86,7 +91,38 @@ async function getNearbyVenuesForMap(supabase, venue) {
   return { venues: [venue, ...inBand], radiusKm: chosenRadius }
 }
 
-export const revalidate = 3600  // 1 hour — events are time-sensitive
+// Listings are read LIVE from the Australian Atlas master portal (single
+// source of truth). See lib/portal-data.js. 5-minute ISR keeps operator edits,
+// gallery, events and picks fresh without hammering the portal.
+export const revalidate = 300
+
+// supabase-js reads carry auth headers Next would otherwise treat as no-store,
+// silently forcing this route dynamic. Opt back into ISR data caching.
+export const fetchCache = 'default-cache'
+
+// Prerender + register this route for ISR. Without generateStaticParams the
+// route is never prerendered and stays fully dynamic.
+export async function generateStaticParams() {
+  return [{ slug: 'ccl-label-barossa-valley' }]
+}
+
+// Cookie-free anon client for this vertical's own DB. Public reads only —
+// never createServerSupabase() here (it calls cookies(), which opts an ISR
+// page out of caching and 500s an ISR render).
+let _localAnon = null
+function getLocalAnon() {
+  if (_localAnon) return _localAnon
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!url || !key) return null
+  _localAnon = createClient(url, key, { auth: { persistSession: false } })
+  return _localAnon
+}
+
+const getVenue = cache(async (slug) => {
+  const venue = await getPortalVenueWithFallback(slug)
+  return { venue }
+})
 
 function haversineKm(lat1, lon1, lat2, lon2) {
   const R = 6371
@@ -106,10 +142,11 @@ function cleanWebsite(url) {
   }
 }
 
+const PORTAL_BASE = 'https://www.australianatlas.com.au'
+
 export async function generateMetadata({ params }) {
   const { slug } = await params
-  const supabase = await createServerSupabase()
-  const { data: venue } = await supabase.from('venues').select('id, name, category, subcategories, suburb, sub_region, state, description, hero_image_url, slug').eq('slug', slug).eq('published', true).maybeSingle()
+  const { venue } = await getVenue(slug)
   if (!venue) return { title: 'Venue not found' }
   const label = venue.subcategories || TYPE_LABELS[venue.category] || venue.category
   return {
@@ -121,54 +158,74 @@ export async function generateMetadata({ params }) {
 
 export default async function VenuePage({ params }) {
   const { slug } = await params
-  const supabase = await createServerSupabase()
+  const { venue } = await getVenue(slug)
+  if (!venue) notFound()
 
-  const { data: venue, error } = await supabase.from('venues').select('*').eq('slug', slug).eq('published', true).maybeSingle()
-  if (error || !venue) notFound()
+  const supabase = getLocalAnon()
 
-  // Check if venue is already claimed
-  const { data: claimProfile } = await supabase
-    .from('vendor_profiles')
-    .select('id')
-    .eq('venue_id', venue.id)
-    .eq('status', 'approved')
-    .maybeSingle()
-  const isClaimed = !!claimProfile
+  const isClaimed = venue.is_claimed
 
-  // Admin check for verification badge
-  let isAdmin = false
-  try {
-    const cookieStore = await cookies()
-    const adminAuth = cookieStore.get('admin_auth')
-    isAdmin = adminAuth?.value === 'admin_authenticated'
-  } catch {}
-
-  // Pins for the embedded "Nearby on Craft Atlas" map. This replaces the
-  // earlier dead nearby fetch (which was computed but only handed to a
-  // single-pin VenueMap that ignored the prop).
+  // Pins for the embedded "Nearby on Craft Atlas" map — local read.
   const { venues: mapNearby, radiusKm: mapRadiusKm } = await getNearbyVenuesForMap(supabase, venue)
 
-  // Whether the embedded map renders — same gate as the previous single-pin
-  // map. Online / markets / mobile / by_appointment makers don't have a
-  // public destination, so the map (which is about "what's near here as a
-  // visitable place") doesn't apply.
+  // Whether the embedded map renders — same gate as before. Online / markets /
+  // mobile / by_appointment makers don't have a public destination.
   const showMap = !venue.address_on_request
     && venue.visitable !== false
     && !['markets', 'online', 'mobile'].includes(venue.presence_type)
     && venue.latitude != null
     && venue.longitude != null
 
-  // Upcoming events — future only, ordered by date
-  const now = new Date().toISOString()
-  const { data: events } = await supabase
-    .from('events')
-    .select('*')
-    .eq('venue_id', venue.id)
-    .gte('event_date', now)
-    .order('event_date', { ascending: true })
-    .limit(6)
+  // Local upcoming events (vertical-native `events` table). Portal events are
+  // fetched separately below and rendered as a distinct block.
+  let localEvents = []
+  try {
+    const now = new Date().toISOString()
+    const { data } = await supabase
+      .from('events')
+      .select('*')
+      .eq('venue_id', venue.id)
+      .gte('event_date', now)
+      .order('event_date', { ascending: true })
+      .limit(6)
+    localEvents = data || []
+  } catch {}
+
+  // All portal-side reads are independent — run in parallel. Guarded so
+  // local-fallback venues (portal_id null) simply skip the rich blocks.
+  const [gallery, portalEvents, picks] = await Promise.all([
+    getPortalGallery(venue.portal_id),
+    getPortalEvents(venue.portal_id),
+    getPortalPicks(venue.portal_id),
+  ])
+
+  const picksGiven = picks.given || []
+  const picksReceived = picks.received || []
 
   const color = TYPE_COLORS[venue.category] || '#5F8A7E'
+
+  // ── Operator highlights ("From the studio") ──
+  const highlights = venue.operator_highlights
+  const highlightDef = getHighlightDef('craft', venue.category)
+  const storedFields = (highlights && highlights.fields) || {}
+  const filledFields = highlightDef.fields.filter(f => fieldHasValue(f, storedFields[f.key]))
+  const textFields = filledFields.filter(f => f.type !== 'url')
+  const urlFields = filledFields.filter(f => f.type === 'url')
+  const hiring = hiringIsActive(highlights) ? highlights.hiring : null
+
+  // Portal gallery first (live, moderated); fall back to the local frozen
+  // gallery only when the portal has none.
+  const portalGalleryUrls = (gallery || []).filter(isApprovedImageSource)
+  const localGalleryUrls = (venue.gallery_images || []).filter(url => isApprovedImageSource(url))
+  const galleryUrls = portalGalleryUrls.length > 0 ? portalGalleryUrls : localGalleryUrls
+
+  function eventDateLabel(ev) {
+    const start = new Date(ev.start_date + 'T00:00:00')
+    const opts = { day: 'numeric', month: 'short', year: 'numeric' }
+    if (!ev.end_date) return start.toLocaleDateString('en-AU', opts)
+    const end = new Date(ev.end_date + 'T00:00:00')
+    return `${start.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })} – ${end.toLocaleDateString('en-AU', opts)}`
+  }
 
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
@@ -176,9 +233,6 @@ export default async function VenuePage({ params }) {
       {classesJsonLd(venue) && (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(classesJsonLd(venue)) }} />
       )}
-      {/* .venue-map-container + .venue-nearby-grid (orphaned by the dead
-          single-pin map and a never-rendered carousel) removed. The new
-          .atlas-nearby-map class lives in app/globals.css. */}
       <style>{`
         .venue-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 32px; max-width: 900px; margin: 0 auto; padding: 0 24px 48px; }
         .venue-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 40; }
@@ -224,15 +278,25 @@ export default async function VenuePage({ params }) {
           </div>
         )}
 
-        {isClaimed && (
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 16,
-            padding: '4px 10px', borderRadius: 2,
-            background: 'rgba(193,96,58,0.08)', border: '1px solid rgba(193,96,58,0.25)' }}>
-            <span style={{ color: '#5F8A7E', fontSize: 12 }}>✓</span>
-            <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em',
-              textTransform: 'uppercase', color: '#5F8A7E', fontFamily: 'var(--font-sans)' }}>Verified Listing</span>
-          </div>
-        )}
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+          {isClaimed && (
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6,
+              padding: '4px 10px', borderRadius: 2,
+              background: 'rgba(193,96,58,0.08)', border: '1px solid rgba(193,96,58,0.25)' }}>
+              <span style={{ color: '#5F8A7E', fontSize: 12 }}>✓</span>
+              <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em',
+                textTransform: 'uppercase', color: '#5F8A7E', fontFamily: 'var(--font-sans)' }}>Verified Listing</span>
+            </div>
+          )}
+          {picksReceived.length > 0 && (
+            <Link href="#producer-picks" style={{ display: 'inline-flex', alignItems: 'center', gap: 6,
+              padding: '4px 10px', borderRadius: 2, textDecoration: 'none',
+              background: 'rgba(95,138,126,0.08)', border: '1px solid rgba(95,138,126,0.25)' }}>
+              <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em',
+                textTransform: 'uppercase', color: '#5F8A7E', fontFamily: 'var(--font-sans)' }}>Maker’s Pick</span>
+            </Link>
+          )}
+        </div>
 
 
         {venue.description && (
@@ -274,10 +338,9 @@ export default async function VenuePage({ params }) {
           <FavouriteButton venueId={venue.id} venueName={venue.name} />
         </div>
 
-        {/* "Is this your studio?" claim CTA used to sit here, mid-page,
-            between the listing's primary content and the rest. Moved to the
-            bottom of the page (after the discovery sections) so it doesn't
-            interrupt the traveller flow. */}
+        {/* "Is this your studio?" claim CTA sits at the bottom of the page
+            (after the discovery sections) so it doesn't interrupt the
+            traveller flow. */}
       </header>
 
       {/* Custom Tags */}
@@ -304,10 +367,7 @@ export default async function VenuePage({ params }) {
         </div>
       )}
 
-      {/* TWO COLUMN: DETAILS SIDEBAR (left col now content-only; the
-          map has been promoted out of the column to a full-width section
-          below, where it can pin nearby Craft studios at scale rather
-          than sit as a single-pin sidebar map.) */}
+      {/* TWO COLUMN: CONTENT + DETAILS SIDEBAR */}
       <div className="venue-grid">
         <div>
           {venue.materials && venue.materials.length > 0 && (
@@ -436,11 +496,74 @@ export default async function VenuePage({ params }) {
         </div>
       </div>
 
-      {/* NEARBY ON CRAFT ATLAS — full-width interactive map. Pins from the
-          venues table only (vertical map stays within its vertical). The
-          editorial job: surface the geographic clustering of makers
-          (Mornington Peninsula ceramicists, Castlemaine printmakers) so
-          the user can see whether this studio fits into a day. */}
+      {/* ── FROM THE STUDIO — operator-authored "right now" (live from portal) ── */}
+      {(textFields.length + urlFields.length > 0) && (
+        <div style={{ maxWidth: 900, margin: '0 auto 40px', padding: '0 24px' }}>
+          <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 12, fontFamily: 'var(--font-sans)' }}>
+            {highlightDef.heading || 'From the studio'}
+          </div>
+          <div style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 4, padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+            {textFields.map(f => {
+              const value = storedFields[f.key]
+              if (f.type === 'list') {
+                const items = (value || []).filter(Boolean)
+                return (
+                  <div key={f.key}>
+                    <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 8, fontFamily: 'var(--font-sans)' }}>{f.label}</div>
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                      {items.map((it, i) => (
+                        <span key={i} style={{ background: `${color}10`, border: `1px solid ${color}28`, padding: '5px 12px', borderRadius: 999, fontSize: 13, color: 'var(--text-2)', fontFamily: 'var(--font-sans)' }}>{it}</span>
+                      ))}
+                    </div>
+                  </div>
+                )
+              }
+              return (
+                <div key={f.key}>
+                  <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 6, fontFamily: 'var(--font-sans)' }}>{f.label}</div>
+                  <div style={{ fontSize: 14, color: 'var(--text-2)', lineHeight: 1.65, fontFamily: 'var(--font-sans)' }}>
+                    {String(value).split('\n').filter(p => p.trim()).map((p, i) => (
+                      <p key={i} style={{ margin: i > 0 ? '8px 0 0' : 0 }}>{p}</p>
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+            {urlFields.length > 0 && (
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                {urlFields.map(f => (
+                  <a key={f.key} href={storedFields[f.key]} target="_blank" rel="noopener noreferrer" style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 6, background: color, color: '#fff',
+                    padding: '10px 18px', borderRadius: 2, fontSize: 11, fontWeight: 700, textDecoration: 'none',
+                    letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)',
+                  }}>{f.label} →</a>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* NOW HIRING */}
+      {hiring && (
+        <div style={{ maxWidth: 900, margin: '0 auto 40px', padding: '0 24px' }}>
+          <div style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', borderLeft: `3px solid ${color}`, borderRadius: 4, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', fontFamily: 'var(--font-sans)' }}>Now hiring</div>
+              {hiring.note && <div style={{ fontSize: 13, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', marginTop: 2 }}>{hiring.note}</div>}
+            </div>
+            {hiring.url && (
+              <a href={hiring.url} target="_blank" rel="noopener noreferrer" style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6, background: color, color: '#fff',
+                padding: '9px 16px', borderRadius: 2, fontSize: 11, fontWeight: 700, textDecoration: 'none',
+                letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)',
+              }}>View open roles →</a>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* NEARBY ON CRAFT ATLAS — full-width interactive map (local pins). */}
       {showMap && (
         <section style={{ maxWidth: 900, margin: '0 auto 40px', padding: '0 24px' }}>
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
@@ -469,14 +592,14 @@ export default async function VenuePage({ params }) {
         </section>
       )}
 
-      {/* GALLERY */}
-      {venue.gallery_images && venue.gallery_images.length > 0 && (
+      {/* GALLERY — portal-primary, local fallback */}
+      {galleryUrls.length > 0 && (
         <div style={{ maxWidth: 900, margin: '0 auto 40px', padding: '0 24px' }}>
           <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 12, fontFamily: 'var(--font-sans)' }}>Gallery</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 8 }}>
-            {venue.gallery_images.filter(url => isApprovedImageSource(url)).map((url, i) => (
+            {galleryUrls.map((url, i) => (
               <Image key={i} src={url} alt={`${venue.name} ${i + 1}`}
-                width={400} height={400}
+                width={400} height={400} loading="lazy"
                 style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: 4, display: 'block' }} />
             ))}
           </div>
@@ -591,20 +714,52 @@ export default async function VenuePage({ params }) {
         </div>
       )}
 
-      {/* EVENTS */}
-      {events && events.length > 0 && (
+      {/* UPCOMING EVENTS — live from portal */}
+      {portalEvents.length > 0 && (
+        <div style={{ maxWidth: 900, margin: '0 auto 48px', padding: '0 24px' }}>
+          <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 12, fontFamily: 'var(--font-sans)' }}>Upcoming events</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {portalEvents.map(ev => (
+              <a key={ev.id} href={ev.ticket_url || `${PORTAL_BASE}/events/${ev.slug}`} target="_blank" rel="noopener noreferrer" style={{
+                display: 'flex', overflow: 'hidden', textDecoration: 'none',
+                background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 4,
+              }}>
+                {ev.image_url && isApprovedImageSource(ev.image_url) && (
+                  <div style={{ width: 120, flexShrink: 0, position: 'relative' }}>
+                    <img src={ev.image_url} alt={ev.title} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                )}
+                <div style={{ flex: 1, padding: '16px 20px' }}>
+                  <div style={{ fontSize: 12, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', marginBottom: 4 }}>{eventDateLabel(ev)}</div>
+                  <div style={{ fontFamily: 'var(--font-serif)', fontSize: 18, color: 'var(--text)', lineHeight: 1.25, marginBottom: 8 }}>{ev.title}</div>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                    <span style={{ fontSize: 11, padding: '2px 10px', borderRadius: 999, background: `${color}15`, color: color, border: `1px solid ${color}30`, fontFamily: 'var(--font-sans)' }}>{ev.category_label}</span>
+                    {ev.is_free && <span style={{ fontSize: 11, padding: '2px 10px', borderRadius: 999, background: 'rgba(74,124,89,0.1)', color: '#4a7c59', fontFamily: 'var(--font-sans)' }}>Free</span>}
+                  </div>
+                  {ev.description && (
+                    <div style={{ fontSize: 13, color: 'var(--text-2)', fontFamily: 'var(--font-sans)', lineHeight: 1.6, marginTop: 8 }}>{ev.description}</div>
+                  )}
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* LOCAL EVENTS (vertical-native events table) */}
+      {localEvents && localEvents.length > 0 && (
         <div style={{ maxWidth: 900, margin: '0 auto 56px', padding: '0 24px' }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 20 }}>
             <div>
               <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 4, fontFamily: 'var(--font-sans)' }}>Upcoming Workshops & Events</div>
               <div style={{ fontSize: 13, color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>
-                {events.length} event{events.length !== 1 ? 's' : ''} coming up
+                {localEvents.length} event{localEvents.length !== 1 ? 's' : ''} coming up
               </div>
             </div>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            {events.map((event, idx) => {
+            {localEvents.map((event, idx) => {
               const date = new Date(event.event_date)
               const endDate = event.end_date ? new Date(event.end_date) : null
               const now2 = new Date()
@@ -616,7 +771,7 @@ export default async function VenuePage({ params }) {
               const typeLabels = { release: 'Release', workshop: 'Workshop', tour: 'Tour', open_day: 'Open Day', collaboration: 'Collab', exhibition: 'Exhibition', other: 'Event' }
               const typeLabel = typeLabels[event.event_type] || 'Event'
               const isFirst = idx === 0
-              const isLast = idx === events.length - 1
+              const isLast = idx === localEvents.length - 1
 
               const gcalStart = date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
               const gcalEnd = endDate
@@ -738,6 +893,45 @@ export default async function VenuePage({ params }) {
         </div>
       )}
 
+      {/* MAKER'S PICKS — cross-venue endorsements (live from portal) */}
+      {(picksReceived.length > 0 || picksGiven.length > 0) && (
+        <div id="producer-picks" style={{ maxWidth: 900, margin: '0 auto 40px', padding: '0 24px' }}>
+          {picksReceived.length > 0 && (
+            <div style={{ marginBottom: picksGiven.length ? 32 : 0 }}>
+              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 12, fontFamily: 'var(--font-sans)' }}>Picked by</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {picksReceived.map(p => (
+                  <a key={p.id} href={p.href} style={{ display: 'block', padding: '16px 20px', background: 'var(--bg-2)', border: '1px solid var(--border)', borderLeft: `3px solid ${color}`, borderRadius: 3, textDecoration: 'none' }}>
+                    <div style={{ fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--primary)', fontFamily: 'var(--font-sans)', marginBottom: 6 }}>
+                      Picked by {p.name}
+                    </div>
+                    {p.note && <p style={{ fontFamily: 'var(--font-serif)', fontSize: 16, color: 'var(--text)', lineHeight: 1.4, margin: 0 }}>“{p.note}”</p>}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {picksGiven.length > 0 && (
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 4, fontFamily: 'var(--font-sans)' }}>Maker’s Picks</div>
+              <div style={{ fontSize: 13, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', marginBottom: 14 }}>Places {venue.name} personally vouches for.</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {picksGiven.map(p => (
+                  <a key={p.id} href={p.href} style={{ display: 'block', padding: '14px 18px', background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 3, textDecoration: 'none' }}>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
+                      <span style={{ fontFamily: 'var(--font-serif)', fontSize: 16, color: 'var(--text)' }}>{p.name}</span>
+                      <span style={{ fontSize: 11, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', letterSpacing: '0.04em' }}>{[p.region, p.state].filter(Boolean).join(' · ')}</span>
+                    </div>
+                    {p.note && <p style={{ fontSize: 13, color: 'var(--text-2)', fontFamily: 'var(--font-sans)', margin: '6px 0 0', lineHeight: 1.5 }}>“{p.note}”</p>}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* CROSS-VERTICAL NEARBY */}
       {venue.latitude != null && venue.longitude != null && (
         <CrossVerticalNearby
@@ -757,8 +951,7 @@ export default async function VenuePage({ params }) {
         venueName={venue.name}
       />
 
-      {/* CLAIM CTA — moved here from mid-page. Operator-facing content sits
-          at the end of the page so it doesn't interrupt the traveller flow. */}
+      {/* CLAIM CTA — operator-facing content sits at the end of the page. */}
       {!isClaimed && (
         <section style={{ maxWidth: 900, margin: '0 auto', padding: '40px 24px 48px' }}>
           <div style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 4, padding: '24px 28px', textAlign: 'center' }}>
@@ -778,13 +971,11 @@ export default async function VenuePage({ params }) {
         </section>
       )}
 
-      {isAdmin && (
-        <VerificationBadge
-          listingId={venue.id}
-          listingName={venue.name}
-          initialVerified={venue.verified || false}
-        />
-      )}
+      <VerificationBadge
+        listingId={venue.portal_id}
+        listingName={venue.name}
+        initialVerified={venue.verified || false}
+      />
     </div>
   )
 }

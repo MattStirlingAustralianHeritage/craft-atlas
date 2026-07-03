@@ -7,10 +7,17 @@ export default function VerificationBadge({ listingId, listingName, initialVerif
   const [saving, setSaving] = useState(false)
   const [stats, setStats] = useState(null)
   const [justVerified, setJustVerified] = useState(false)
+  // Self-gate on the admin cookie. The page renders this badge
+  // unconditionally (so the detail route can be ISR-cached); the admin-only
+  // stats endpoint 401s for anon visitors, so res.ok proves admin.
+  const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
     fetch('/api/admin/verify/stats')
-      .then(r => r.ok ? r.json() : null)
+      .then(r => {
+        if (r.ok) { setIsAdmin(true); return r.json() }
+        return null
+      })
       .then(data => { if (data) setStats(data) })
       .catch(() => {})
   }, [])
@@ -35,6 +42,8 @@ export default function VerificationBadge({ listingId, listingName, initialVerif
 
   const verifiedColor = '#2D7A3A'
   const unverifiedColor = '#9CA3AF'
+
+  if (!isAdmin) return null
 
   return (
     <div style={{

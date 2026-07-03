@@ -311,6 +311,244 @@ a { color: inherit; }
 @media (min-width: 1024px) { .atlas-nearby-map { height: 480px; } }
 @media (min-width: 1280px) { .atlas-nearby-map { height: 540px; } }
 
+/* ============================================================
+   Atlas 2026 design pass — shared publication primitives, translated
+   to Craft Atlas tokens (--text/--text-2/--bg/--border/--primary).
+   One masthead pattern for every index page, one ten-colour hairline
+   that threads the network identity through the chrome, and quiet
+   form-control refinements. All additive; nothing existing overridden.
+   ============================================================ */
+
+/* Display serif refinements — Fraunces carries the brand; at masthead sizes
+   it wants slightly negative tracking and balanced ragging, ligatures on. */
+h1, h2 { text-wrap: balance; }
+h1 { letter-spacing: -0.015em; font-feature-settings: 'liga' 1, 'kern' 1; }
+
+/* Dateline kicker — small caps with a short accent rule. */
+.section-dateline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+.section-dateline::before { content: ''; width: 28px; height: 1px; background: var(--primary); opacity: 0.8; }
+
+/* Page masthead — the standard opening block for index surfaces
+   (/explore, /events, /journal, /about, /region/[slug]). Dateline kicker
+   above a large serif title above a muted body-sans standfirst.
+   Left-anchored, generous air, no card chrome. */
+.page-masthead { padding-top: clamp(40px, 7vh, 76px); padding-bottom: clamp(22px, 4vh, 40px); }
+.masthead-title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(2.15rem, 4.6vw, 3.6rem);
+  line-height: 1.06;
+  letter-spacing: -0.015em;
+  color: var(--text);
+  margin: 14px 0 0;
+  text-wrap: balance;
+}
+.masthead-sub {
+  font-family: var(--font-sans);
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--text-2);
+  max-width: 56ch;
+  margin: 14px 0 0;
+}
+@media (max-width: 640px) {
+  .masthead-sub { font-size: 14.5px; }
+}
+
+/* Spectrum hairline — the ten saturated grounds as a slim woven band, in the
+   same journey order as the portal homepage spine (coffee → drink → eat →
+   stay → roam → guide → make → see → shop → find). The shared network
+   signature — do not re-brand. Pure CSS. */
+.spectrum-hairline {
+  height: 3px;
+  background: linear-gradient(90deg,
+    #103F3C 0 10%, #4E3613 10% 20%, #5E2A1E 20% 30%, #143452 30% 40%,
+    #18472D 40% 50%, #3B3E1A 50% 60%, #6A3A1C 60% 70%, #312B43 70% 80%,
+    #3A514A 80% 90%, #46392B 90% 100%);
+}
+
+/* Refined native select — used wherever a raw <select> appears in the chrome
+   (map state filter, sort controls). Replaces the UA chrome with an ink chevron. */
+.atlas-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B6560' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px !important;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+/* Primary nav links — quiet by default, ink on hover with an accent rule that
+   draws in from the left; the active page holds the rule. */
+.nav-link {
+  position: relative;
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 13px;
+  letter-spacing: 0.01em;
+  color: var(--text-2);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 100%;
+  bottom: -7px;
+  height: 2px;
+  background: var(--primary);
+  transition: right 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.nav-link:hover { color: var(--text); }
+.nav-link:hover::after { right: 0; }
+.nav-link[aria-current="page"] { color: var(--text); font-weight: 500; }
+.nav-link[aria-current="page"]::after { right: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .nav-link::after { transition: none; }
+}
+
+/* Dropdown group label — small-caps section heading inside nav dropdowns. */
+.nav-dropdown-label {
+  display: block;
+  padding: 0.55rem 1rem 0.3rem;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  opacity: 0.75;
+}
+
+/* Quiet inline link — underline that draws on hover. For "Browse all →"
+   style links that should feel typeset rather than button-like. */
+.link-quiet {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  padding-bottom: 2px;
+}
+.link-quiet:hover { background-size: 100% 1px; }
+@media (prefers-reduced-motion: reduce) {
+  .link-quiet { transition: none; }
+}
+
+/* Hero emphasis — the italic word carries a hand-set accent rule, slightly
+   skewed so it reads as a pen stroke rather than a text-decoration. Sized in
+   em so it scales with the display clamp. */
+.hero-em {
+  font-style: italic;
+  position: relative;
+}
+.hero-em::after {
+  content: '';
+  position: absolute;
+  left: 0.03em;
+  right: 0.06em;
+  bottom: 0.015em;
+  height: 0.055em;
+  background: var(--primary);
+  opacity: 0.6;
+  border-radius: 999px;
+  transform: skewY(-0.5deg);
+  pointer-events: none;
+}
+
+/* The living index ticker — the newest makers drifting past in one slow,
+   pausable line. The track holds two copies of the row; animating to -50%
+   loops seamlessly. Hover (or focus inside) pauses; reduced motion turns the
+   band into a plain scrollable row. */
+.atlas-ticker {
+  display: flex;
+  align-items: stretch;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+.atlas-ticker-label {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 10px;
+  padding: 14px 22px;
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--primary);
+  border-right: 1px solid var(--border);
+  white-space: nowrap;
+}
+.atlas-ticker-viewport {
+  overflow: hidden;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  /* soft fades at both ends so names enter and leave gracefully */
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 40px, #000 calc(100% - 40px), transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 40px, #000 calc(100% - 40px), transparent 100%);
+}
+.atlas-ticker-track {
+  display: inline-flex;
+  width: max-content;
+  animation: atlas-ticker-scroll 75s linear infinite;
+}
+.atlas-ticker:hover .atlas-ticker-track,
+.atlas-ticker:focus-within .atlas-ticker-track {
+  animation-play-state: paused;
+}
+@keyframes atlas-ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.atlas-ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px;
+  min-height: unset;
+  font-family: var(--font-serif);
+  font-size: 15px;
+  color: var(--text);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+.atlas-ticker-item:hover { color: var(--primary); }
+.atlas-ticker-meta {
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  margin-left: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .atlas-ticker-track { animation: none; }
+  .atlas-ticker-viewport { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
+}
+@media (max-width: 640px) {
+  .atlas-ticker-label { display: none; }
+}
+
 /* ── Accessibility baseline (network-wide pass, 2026-06) ── */
 
 /* Keyboard focus — visible ring on every interactive element; mouse stays clean. */

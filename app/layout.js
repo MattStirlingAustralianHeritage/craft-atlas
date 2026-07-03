@@ -1,4 +1,4 @@
-import { Playfair_Display, DM_Sans } from 'next/font/google'
+import { Fraunces, DM_Sans } from 'next/font/google'
 import './globals.css'
 import DiscoveryAgent from '@/components/DiscoveryAgent'
 import Nav from '@/components/Nav'
@@ -9,10 +9,15 @@ import AtlasHandoffBar from '@/components/AtlasHandoffBar'
 
 // Self-hosted via next/font — replaces the render-blocking Google Fonts
 // @import that used to sit at the top of globals.css.
-const playfair = Playfair_Display({
+// Fraunces — a contemporary editorial serif with true optical sizing (opsz
+// 9–144): masthead sizes render with high-contrast display cuts, small sizes
+// stay readable. Replaces Playfair Display as the network's display voice —
+// same serif sensibility, far more distinctive at hero scale. Keeps the
+// existing `--font-playfair` variable so every :root alias keeps resolving.
+const playfair = Fraunces({
   subsets: ['latin'],
-  weight: ['400', '700'],
   style: ['normal', 'italic'],
+  axes: ['opsz', 'SOFT', 'WONK'],
   display: 'swap',
   variable: '--font-playfair',
 })

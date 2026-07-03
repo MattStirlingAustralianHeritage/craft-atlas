@@ -1,13 +1,15 @@
 import Link from 'next/link'
 export const revalidate = 60
 import { getSupabase } from '@/lib/supabase'
-import { listPortalListings, listPortalFeatured, getPortalVerticalEvents } from '@/lib/portal-data'
+import { listPortalListings, listPortalFeatured, getPortalVerticalEvents, listPortalRecent } from '@/lib/portal-data'
 import RegionCarousel from '@/components/RegionCarousel'
 import { HeroMap, NewsletterForm, NewsletterToast } from '@/components/HomeClient'
-import HomeSearch from '@/components/HomeSearch'
+import SemanticSearchBar from '@/components/SemanticSearchBar'
 import TrailPromptSection from '@/components/TrailPromptSection'
 import { TYPE_COLORS, TYPE_LABELS_PLURAL } from '@/lib/constants'
 import TypographicCard from '@/components/TypographicCard'
+
+const HERO_SEARCHES = ['ceramic studio in the Blue Mountains', 'woodworker near Byron Bay', 'jeweller in Hobart', 'textile studio in Melbourne']
 
 // Region definitions with center coordinates and radius (km) for geo-matching
 const REGION_DEFS = [
@@ -61,11 +63,12 @@ export default async function HomePage() {
   // Venues, map stats and featured makers now come LIVE from the Australian
   // Atlas master portal (single source of truth) — matching the detail pages,
   // search, explore and map. Articles (the Journal) stay on local Supabase.
-  const [venues, { data: latestArticles }, featuredVenues, upcomingEvents] = await Promise.all([
+  const [venues, { data: latestArticles }, featuredVenues, upcomingEvents, recentListings] = await Promise.all([
     listPortalListings(),
     supabase.from('articles').select('id, title, slug, deck, hero_image_url, category, reading_time').eq('status', 'published').order('published_at', { ascending: false }).limit(6),
     listPortalFeatured(8),
     getPortalVerticalEvents(4),
+    listPortalRecent(20),
   ])
   const venueCount = (venues || []).length
 
@@ -84,7 +87,7 @@ export default async function HomePage() {
   const regions = REGION_DEFS.map(r => ({ ...r, count: regionCounts[r.slug] || 0 }))
 
   const tc = (venues||[]).reduce((a,v) => { if(v.category) a[v.category]=(a[v.category]||0)+1; return a }, {})
-  const types = Object.entries(tc).sort(([,a],[,b]) => b-a).slice(0,7)
+  const types = Object.entries(tc).filter(([type]) => TYPE_LABELS_PLURAL[type]).sort(([,a],[,b]) => b-a).slice(0,7)
   const total = (venues||[]).length
   return (
 
@@ -94,19 +97,23 @@ export default async function HomePage() {
         <div style={{ position: 'absolute', inset: 0, zIndex: 0, overflow: 'hidden' }}>
           <HeroMap venues={venues || []} />
         </div>
-        <div style={{ position: 'absolute', top: '52%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 2, width: '100%', maxWidth: 620, padding: '0 48px', textAlign: 'center' }}>
+        <div style={{ position: 'absolute', top: '52%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 2, width: '100%', maxWidth: 640, padding: '0 48px', textAlign: 'center' }}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--primary)" aria-hidden="true" style={{ margin: '0 auto 16px', display: 'block', opacity: 0.92 }}>
+            <path d="M12 0l2.6 9.4L24 12l-9.4 2.6L12 24l-2.6-9.4L0 12l9.4-2.6L12 0z" />
+          </svg>
           <div style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 12, fontFamily: 'var(--font-sans)' }}>
             Australian Makers &amp; Studios
           </div>
-          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(30px, 5vw, 58px)', fontWeight: 400, color: 'var(--text)', lineHeight: 1.1, marginBottom: 20 }}>
+          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(32px, 6.4vw, 68px)', fontWeight: 380, letterSpacing: '-0.02em', color: 'var(--text)', lineHeight: 1.06, marginBottom: 20, textWrap: 'balance' }}>
             Discover {(venueCount || (venues || []).length).toLocaleString()} makers,<br />
-            artists <span style={{ fontStyle: 'italic', color: 'var(--primary)' }}>&</span> studios
+            artists <span className="hero-em">&amp; studios</span>
           </h1>
           <p style={{ fontSize: 16, color: 'var(--text-2)', lineHeight: 1.6, marginBottom: 32, fontFamily: 'var(--font-sans)' }}>
             From the Blue Mountains to the Tamar — every studio, workshop and gallery on one beautiful map.
           </p>
           <div style={{ width: '100%', maxWidth: 560, margin: '0 auto' }}>
-            <HomeSearch />
+            <SemanticSearchBar accent="var(--primary)" examples={HERO_SEARCHES} searchPath="/search" />
+            <p style={{ fontSize: 13, color: 'var(--text-2)', fontFamily: 'var(--font-sans)', lineHeight: 1.5, margin: '14px auto 0', maxWidth: 460 }}>Ask in plain English — name a craft, a maker, or a place, and we&apos;ll search every studio and gallery.</p>
           </div>
           <div style={{ marginTop: 16 }}>
             <Link href="/map" style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', textDecoration: 'none', fontFamily: 'var(--font-sans)', letterSpacing: '0.05em' }}>
@@ -116,13 +123,48 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* THE LIVING INDEX TICKER — newest makers drifting past, proof the atlas
+          is alive. Real names, newest first; every item links to its listing.
+          Star bullet coloured by craft category. Duplicated track = seamless
+          loop; the copy row is aria-hidden + untabbable. Pauses on hover;
+          reduced-motion collapses to a static scrollable row. */}
+      {recentListings.length >= 8 && (
+        <section className="atlas-ticker" aria-label="Recently added to Craft Atlas">
+          <span className="atlas-ticker-label">Recently added</span>
+          <div className="atlas-ticker-viewport">
+            <div className="atlas-ticker-track">
+              {[0, 1].map(copy => (
+                <span key={copy} aria-hidden={copy === 1 ? 'true' : undefined} style={{ display: 'inline-flex' }}>
+                  {recentListings.map(l => (
+                    <Link
+                      key={`${copy}-${l.id}`}
+                      href={`/venue/${l.slug}`}
+                      className="atlas-ticker-item"
+                      tabIndex={copy === 1 ? -1 : undefined}
+                    >
+                      <svg width="9" height="9" viewBox="0 0 24 24" aria-hidden="true" fill={TYPE_COLORS[l.category] || 'var(--primary)'}>
+                        <path d="M12 0l2.6 9.4L24 12l-9.4 2.6L12 24l-2.6-9.4L0 12l9.4-2.6L12 0z" />
+                      </svg>
+                      {l.name}
+                      {(l.region || l.state) && (
+                        <span className="atlas-ticker-meta">{l.region || l.state}</span>
+                      )}
+                    </Link>
+                  ))}
+                </span>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* WHAT YOU'LL FIND — browse by craft (dual-label decoder grid) */}
       {types.length > 0 && (
         <section style={{ borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', padding: '64px 24px', background: 'var(--bg-2)' }}>
           <div style={{ maxWidth: 1100, margin: '0 auto' }}>
             <div style={{ textAlign: 'center', marginBottom: 36 }}>
               <div style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 12, fontFamily: 'var(--font-sans)', fontWeight: 600 }}>What You&apos;ll Find</div>
-              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: 400, color: 'var(--text)', lineHeight: 1.2, marginBottom: 12 }}>
+              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(30px, 4vw, 50px)', fontWeight: 400, color: 'var(--text)', lineHeight: 1.2, marginBottom: 12 }}>
                 Browse by craft
               </h2>
               <p style={{ fontSize: 15, color: 'var(--text-2)', lineHeight: 1.6, fontFamily: 'var(--font-sans)', maxWidth: 520, margin: '0 auto' }}>
@@ -237,7 +279,7 @@ export default async function HomePage() {
           <div style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 12, fontFamily: 'var(--font-sans)' }}>
             Plan Your Visit
           </div>
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: 400, color: 'var(--text)', lineHeight: 1.2, marginBottom: 48 }}>
+          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(30px, 4vw, 50px)', fontWeight: 400, color: 'var(--text)', lineHeight: 1.2, marginBottom: 48 }}>
             Every studio, workshop <span style={{ fontStyle: 'italic', color: 'var(--primary)' }}>&</span> gallery
           </h2>
           <div className="home-steps-grid">
@@ -264,15 +306,21 @@ export default async function HomePage() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 40, flexWrap: 'wrap', gap: 12 }}>
               <div>
                 <p style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 8, fontFamily: 'var(--font-sans)', fontWeight: 600 }}>What&apos;s On</p>
-                <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: 400, color: 'var(--text)', lineHeight: 1.2, margin: 0 }}>
-                  Markets, open studios <span style={{ fontStyle: 'italic', color: 'var(--primary)' }}>&</span> maker events
+                <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(30px, 4vw, 50px)', fontWeight: 400, color: 'var(--text)', lineHeight: 1.2, margin: 0 }}>
+                  Markets, open studios <span className="hero-em">&amp; maker events</span>
                 </h2>
               </div>
-              <Link href="/events" style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--primary)', textDecoration: 'none', fontFamily: 'var(--font-sans)', whiteSpace: 'nowrap' }}>
+              <Link href="/events" className="link-quiet" style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--primary)', textDecoration: 'none', fontFamily: 'var(--font-sans)', whiteSpace: 'nowrap' }}>
                 All events →
               </Link>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}>
+            {/* With a thin calendar (1–2 events) a multi-col grid strands cards
+                on the left; a centred flex row keeps the section composed. */}
+            <div
+              style={upcomingEvents.length < 3
+                ? { display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 16 }
+                : { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}
+            >
               {upcomingEvents.map(ev => {
                 const start = new Date(ev.start_date + 'T00:00:00')
                 const dateLabel = ev.end_date
@@ -283,6 +331,7 @@ export default async function HomePage() {
                   <Link key={ev.id} href="/events" style={{
                     display: 'block', padding: '24px 26px', textDecoration: 'none',
                     background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 6,
+                    ...(upcomingEvents.length < 3 ? { width: 'min(100%, 340px)' } : {}),
                   }}>
                     <div style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--primary)', fontFamily: 'var(--font-sans)', fontWeight: 600, marginBottom: 10 }}>
                       {dateLabel}
@@ -309,7 +358,7 @@ export default async function HomePage() {
               <div style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 12, fontFamily: 'var(--font-sans)' }}>
                 From the Journal
               </div>
-              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: 400, color: 'var(--text)', lineHeight: 1.2, margin: 0 }}>
+              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(30px, 4vw, 50px)', fontWeight: 400, color: 'var(--text)', lineHeight: 1.2, margin: 0 }}>
                 Guides, stories <span style={{ fontStyle: 'italic', color: 'var(--primary)' }}>&</span> itineraries
               </h2>
             </div>

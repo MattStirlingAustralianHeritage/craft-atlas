@@ -46,24 +46,32 @@ export default function Nav() {
         boxSizing: 'border-box',
       }}>
         {/* Logo */}
-        <Link href="/" onClick={() => setMenuOpen(false)} style={{ textDecoration: 'none', display: 'flex', alignItems: 'baseline', gap: 6, flexShrink: 0 }}>
-          <span style={{ fontFamily: 'var(--font-sans)', fontSize: 16, fontWeight: 600, color: 'var(--text)', letterSpacing: '0.02em', whiteSpace: 'nowrap' }}>
-            Craft
-          </span>
-          <span style={{ fontFamily: 'var(--font-serif)', fontSize: 18, fontStyle: 'italic', color: 'var(--text)', letterSpacing: '0.01em' }}>
-            Atlas
+        <Link href="/" onClick={() => setMenuOpen(false)} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+          {/* Compass-star mark — the wordmark's quiet emblem, in the brand accent. */}
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="var(--primary)" aria-hidden="true" style={{ flexShrink: 0, marginTop: 1 }}>
+            <path d="M12 0l2.6 9.4L24 12l-9.4 2.6L12 24l-2.6-9.4L0 12l9.4-2.6L12 0z" />
+          </svg>
+          <span style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+            <span style={{ fontFamily: 'var(--font-sans)', fontSize: 16, fontWeight: 600, color: 'var(--text)', letterSpacing: '0.02em', whiteSpace: 'nowrap' }}>
+              Craft
+            </span>
+            <span style={{ fontFamily: 'var(--font-serif)', fontSize: 18, fontStyle: 'italic', color: 'var(--text)', letterSpacing: '0.01em' }}>
+              Atlas
+            </span>
           </span>
         </Link>
 
-        {/* Desktop nav links */}
+        {/* Desktop nav links — typeset chrome: quiet by default, ink on hover
+            with the accent rule drawing in; the active page holds the rule. */}
         <div className="nav-desktop" style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
           {links.map(link => (
-            <Link key={link.href} href={link.href} style={{
-              fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase',
-              color: pathname === link.href ? 'var(--primary)' : 'var(--text-2)',
-              textDecoration: 'none', fontFamily: 'var(--font-sans)', transition: 'color 0.15s ease',
-            }}>
-              {link.label.toUpperCase()}
+            <Link
+              key={link.href}
+              href={link.href}
+              className="nav-link"
+              aria-current={pathname === link.href ? 'page' : undefined}
+            >
+              {link.label}
             </Link>
           ))}
           <a href="https://www.australianatlas.com.au/for-venues?vertical=craft" style={{

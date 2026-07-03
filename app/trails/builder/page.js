@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { getSupabase } from '@/lib/supabase'
 import { TYPE_COLORS } from '@/lib/constants'
+import { ATLAS_PAPER_STYLE } from '@/lib/map/atlasPaperStyle'
 
 const AMBER = '#C1603A'
 const TYPES = ['All', 'Maker', 'Maker', 'Studio', 'Maker', 'Maker']
@@ -224,7 +225,7 @@ function TrailBuilderInner() {
       mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
       const map = new mapboxgl.Map({
         container: mapRef.current,
-        style: 'mapbox://styles/mattstirlingaustralianheritage/cmn32b0iz003401swccb7d21k',
+        style: ATLAS_PAPER_STYLE,
         center: [134, -27], zoom: 3.8, attributionControl: false,
       })
       mapInstance.current = map

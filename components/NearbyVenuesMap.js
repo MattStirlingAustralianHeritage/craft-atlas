@@ -14,6 +14,7 @@
 
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { useEffect, useRef } from 'react'
+import { ATLAS_PAPER_STYLE } from '@/lib/map/atlasPaperStyle'
 
 const CRAFT_BRAND = '#C1603A'
 const PRIMARY = '#5f8a7e'
@@ -57,7 +58,7 @@ export default function NearbyVenuesMap({
 
         mapRef.current = new mapboxgl.Map({
           container: container.current,
-          style: 'mapbox://styles/mattstirlingaustralianheritage/cmn32b0iz003401swccb7d21k',
+          style: ATLAS_PAPER_STYLE,
           center: [134, -27],
           zoom: 4,
           attributionControl: false,

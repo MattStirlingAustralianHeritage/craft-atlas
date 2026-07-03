@@ -1,6 +1,6 @@
 # Craft Atlas
 
-Part of the 9-vertical Australian Atlas Network. Craft Atlas is the craft beer and breweries vertical.
+Part of the 9-vertical Australian Atlas Network. Craft Atlas is the makers, artists and studios vertical — Australian craftspeople across ceramics, jewellery & metalwork, textile & fibre, glass, wood & furniture, printmaking, and visual art.
 
 ## Tech Stack
 

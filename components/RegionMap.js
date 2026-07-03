@@ -1,5 +1,6 @@
 'use client'
 import { useRef, useEffect } from 'react'
+import { ATLAS_PAPER_STYLE } from '@/lib/map/atlasPaperStyle'
 
 export default function RegionMap({ venues }) {
   const mapContainer = useRef(null)
@@ -17,7 +18,7 @@ export default function RegionMap({ venues }) {
 
       map.current = new mapboxgl.default.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mattstirlingaustralianheritage/cmn32b0iz003401swccb7d21k',
+        style: ATLAS_PAPER_STYLE,
         bounds, fitBoundsOptions: { padding: 40, maxZoom: 13 },
         interactive: true, attributionControl: false,
       })

@@ -3,7 +3,6 @@ import { getDefaultImage } from '@/lib/defaultImages'
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { getSupabase } from '@/lib/supabase'
 import { TYPE_COLORS, TYPE_LABELS } from '@/lib/constants'
 
 const TYPES = ['All', 'Ceramics & Clay', 'Visual Art', 'Jewellery & Metalwork', 'Textile & Fibre', 'Wood & Furniture', 'Glass', 'Printmaking']
@@ -45,8 +44,6 @@ const CATEGORY_LABEL_MAP = {
   shoemaker: 'Shoemaking',
 }
 
-const PAGE_SIZE = 500
-
 function groupByCategory(items, key) {
   const groups = {}
   items.forEach(item => {
@@ -82,26 +79,27 @@ export default function ExploreClient() {
 
   useEffect(() => {
     async function fetchStudios() {
-      const supabase = getSupabase()
-      const { data, error } = await supabase.from('venues').select('*').eq('published', true).neq('address', '').not('address', 'is', null).range(0, PAGE_SIZE - 1)
-      if (!error && data) {
-        setStudios(data)
-        setHasMore(data.length === PAGE_SIZE)
+      // Browse data now comes LIVE from the master portal (single source of
+      // truth), via /api/listings — the same set the map and detail pages use.
+      try {
+        const res = await fetch('/api/listings')
+        const data = await res.json()
+        setStudios(data.venues || [])
+      } catch {
+        setStudios([])
       }
+      // The portal route returns the full paginated set in one response, so
+      // there is no incremental "load more".
+      setHasMore(false)
       setLoading(false)
     }
     fetchStudios()
   }, [])
 
   async function loadMore() {
-    setLoadingMore(true)
-    const supabase = getSupabase()
-    const { data, error } = await supabase.from('venues').select('*').eq('published', true).neq('address', '').not('address', 'is', null).range(studios.length, studios.length + PAGE_SIZE - 1)
-    if (!error && data) {
-      setStudios(prev => [...prev, ...data])
-      setHasMore(data.length === PAGE_SIZE)
-    }
+    // No-op: /api/listings returns the full set on first load.
     setLoadingMore(false)
+    setHasMore(false)
   }
 
   // Clear region filter when user manually changes state filter
@@ -128,11 +126,13 @@ export default function ExploreClient() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
-      {/* Page header */}
-      <div style={{ padding: '64px 48px 48px', borderBottom: '1px solid var(--border)', background: 'linear-gradient(to bottom, rgba(193,96,58,0.04) 0%, transparent 100%)' }}>
-        <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 12 }}>Directory</div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 24 }}>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 52, fontWeight: 400, letterSpacing: '-0.03em', color: 'var(--text)', lineHeight: 1 }}>Explore Makers</h1>
+      {/* Page masthead */}
+      <div style={{ padding: '0 48px', borderBottom: '1px solid var(--border)', background: 'linear-gradient(to bottom, rgba(193,96,58,0.04) 0%, transparent 100%)' }}>
+        <div className="page-masthead" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 24 }}>
+          <div>
+            <p className="section-dateline">Directory</p>
+            <h1 className="masthead-title">Explore Makers</h1>
+          </div>
           <Link href="/map" style={{
             display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(240,235,227,0.06)', border: '1px solid var(--border-2)',
             color: 'var(--text-2)', padding: '9px 18px', borderRadius: 2, fontSize: 12, fontWeight: 500, textDecoration: 'none', letterSpacing: '0.04em', textTransform: 'uppercase',

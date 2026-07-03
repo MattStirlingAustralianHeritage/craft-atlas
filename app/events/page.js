@@ -33,16 +33,14 @@ export default async function EventsPage() {
   const events = await getPortalVerticalEvents(48)
 
   return (
-    <div style={{ maxWidth: 900, margin: '0 auto', padding: '56px 24px 96px' }}>
-      {/* HEADER */}
-      <div style={{ textAlign: 'center', marginBottom: 48 }}>
-        <div style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: ACCENT, marginBottom: 14, fontFamily: 'var(--font-sans)', fontWeight: 600 }}>
-          What&apos;s On
-        </div>
-        <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(28px, 5vw, 46px)', fontWeight: 400, color: 'var(--text)', lineHeight: 1.1, marginBottom: 16 }}>
-          Markets, open studios <span style={{ fontStyle: 'italic', color: ACCENT }}>&</span> maker events
+    <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 24px 96px' }}>
+      {/* MASTHEAD */}
+      <div className="page-masthead" style={{ textAlign: 'center' }}>
+        <p className="section-dateline" style={{ justifyContent: 'center' }}>What&apos;s On</p>
+        <h1 className="masthead-title" style={{ margin: '14px auto 0' }}>
+          Markets, open studios <span className="hero-em">&amp; maker events</span>
         </h1>
-        <p style={{ fontSize: 16, color: 'var(--text-2)', lineHeight: 1.6, fontFamily: 'var(--font-sans)', maxWidth: 540, margin: '0 auto' }}>
+        <p className="masthead-sub" style={{ margin: '14px auto 0' }}>
           Upcoming markets, open studios, workshops and exhibitions from independent makers and studios across the network.
         </p>
       </div>

@@ -2,6 +2,7 @@
 import { useRef, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { getSupabase } from '@/lib/supabase'
+import { ATLAS_PAPER_STYLE } from '@/lib/map/atlasPaperStyle'
 
 export function HeroMap({ venues }) {
   const heroMapContainer = useRef(null)
@@ -13,7 +14,7 @@ export function HeroMap({ venues }) {
       mapboxgl.default.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
       heroMap.current = new mapboxgl.default.Map({
         container: heroMapContainer.current,
-        style: 'mapbox://styles/mattstirlingaustralianheritage/cmn32b0iz003401swccb7d21k',
+        style: ATLAS_PAPER_STYLE,
         center: [134, -28],
         zoom: 3.8,
         interactive: false,

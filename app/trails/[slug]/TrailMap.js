@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useRef } from 'react'
+import { ATLAS_PAPER_STYLE } from '@/lib/map/atlasPaperStyle'
 
 async function fetchRouteGeometry(coordinates, token) {
   // Mapbox Directions API supports up to 25 waypoints
@@ -32,7 +33,7 @@ export default function TrailMap({ coordinates, stops }) {
 
       const map = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mattstirlingaustralianheritage/cmn32b0iz003401swccb7d21k',
+        style: ATLAS_PAPER_STYLE,
         bounds: bounds,
         fitBoundsOptions: { padding: 80 },
         scrollZoom: false,

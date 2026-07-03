@@ -34,16 +34,14 @@ export default async function JournalPage() {
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
 
-      {/* Header */}
-      <section style={{ padding: '90px 24px 80px', textAlign: 'center', borderBottom: '1px solid var(--border)', background: 'var(--bg-2)' }}>
-        <div style={{ maxWidth: 600, margin: '0 auto' }}>
-          <div style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 16, fontFamily: 'var(--font-sans)' }}>
-            Journal
-          </div>
-          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 400, color: 'var(--text)', lineHeight: 1.2, marginBottom: 24 }}>
+      {/* Masthead */}
+      <section style={{ padding: '0 24px', textAlign: 'center', borderBottom: '1px solid var(--border)', background: 'var(--bg-2)' }}>
+        <div className="page-masthead" style={{ maxWidth: 600, margin: '0 auto' }}>
+          <p className="section-dateline" style={{ justifyContent: 'center' }}>Journal</p>
+          <h1 className="masthead-title" style={{ margin: '14px auto 0' }}>
             Stories from the studio
           </h1>
-          <p style={{ fontSize: 16, color: 'var(--text-2)', lineHeight: 1.7, marginBottom: 0, fontFamily: 'var(--font-sans)' }}>
+          <p className="masthead-sub" style={{ margin: '14px auto 0' }}>
             Region guides, maker trails, and stories from Australia&apos;s makers and studios.
           </p>
         </div>

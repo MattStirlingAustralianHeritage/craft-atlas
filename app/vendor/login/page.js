@@ -114,6 +114,9 @@ export default function VendorLoginPage() {
     <div style={{ padding: '80px 24px', maxWidth: 420, margin: '0 auto' }}>
       {/* Header */}
       <div style={{ marginBottom: 40 }}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--primary)" aria-hidden="true" style={{ marginBottom: 16, display: 'block', opacity: 0.92 }}>
+          <path d="M12 0l2.6 9.4L24 12l-9.4 2.6L12 24l-2.6-9.4L0 12l9.4-2.6L12 0z" />
+        </svg>
         <div style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 12, fontFamily: 'var(--font-sans)', fontWeight: 600 }}>
           For Makers
         </div>

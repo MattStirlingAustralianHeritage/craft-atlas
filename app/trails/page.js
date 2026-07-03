@@ -39,12 +39,12 @@ export default async function TrailsPage() {
 
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
-      {/* Hero */}
+      {/* Masthead */}
       <div style={{ background: 'var(--bg-2)', borderBottom: '1px solid var(--border)' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '64px 24px' }}>
-          <p style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--primary)', marginBottom: 12, fontFamily: 'var(--font-sans)', fontWeight: 600 }}>Maker Trails</p>
-          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 400, color: 'var(--text)', marginBottom: 12, lineHeight: 1.2 }}>Curated routes worth following</h1>
-          <p style={{ color: 'var(--text-2)', fontSize: 15, lineHeight: 1.6, maxWidth: 480, fontFamily: 'var(--font-sans)' }}>Editorially curated trails connecting Australia's best craft makers.</p>
+        <div className="page-masthead" style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px' }}>
+          <p className="section-dateline">Maker Trails</p>
+          <h1 className="masthead-title" style={{ fontSize: 'clamp(28px, 4vw, 42px)' }}>Curated routes worth following</h1>
+          <p className="masthead-sub" style={{ maxWidth: 480 }}>Editorially curated trails connecting Australia's best craft makers.</p>
         </div>
       </div>
 
