@@ -42,6 +42,7 @@ const CATEGORY_LABEL_MAP = {
   printmaking: 'Printmaking',
   leathermaker: 'Leatherwork',
   shoemaker: 'Shoemaking',
+  clothing: 'Clothing',
 }
 
 function groupByCategory(items, key) {

@@ -52,6 +52,7 @@ export function HeroMap({ venues }) {
                 'printmaking', '#6B7A5A',
                 'leathermaker', '#8A5A3C',
                 'shoemaker', '#5F4339',
+                'clothing', '#B0736E',
                 '#C1603A',
               ],
               'circle-opacity': 0.6,

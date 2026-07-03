@@ -19,6 +19,7 @@ const TYPE_COLORS = {
   printmaking:          '#7a6a5a',
   leathermaker:         '#8A5A3C',
   shoemaker:            '#5F4339',
+  clothing:             '#B0736E',
 }
 
 const FEATURE_OPTIONS = [
