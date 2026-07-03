@@ -3,16 +3,22 @@ import { useRef, useEffect, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { getSupabase } from '@/lib/supabase'
-import { TYPE_COLORS, TYPE_LABELS, STATES } from '@/lib/constants'
+import { TYPE_COLORS, TYPE_LABELS, TYPE_LABELS_PLURAL, STATES } from '@/lib/constants'
 import { ATLAS_PAPER_STYLE, ATLAS_LABEL_ROOF } from '@/lib/map/atlasPaperStyle'
 import { attachDonutClusters } from '@/lib/map/donutClusters'
 import DiscoveryPanel from '@/components/map/DiscoveryPanel'
 import MapPreviewCard from '@/components/map/MapPreviewCard'
 import SemanticSearchBar from './SemanticSearchBar'
+import SmartMapFilter from './SmartMapFilter'
+import { useSmartPinFilter, buildHaystack, inSemanticSet } from '@/lib/map/smartPinFilter'
 
 const PRIMARY = '#C1603A'
 const PREMIUM_COLOR = '#c8943a'
 const PAPER = '#FBF9F4'
+
+// Discipline-key → label lookup for the smart-filter haystack + category
+// constraint. Plural labels double as singular for craft disciplines.
+const DISCIPLINE_HAYSTACK_LABELS = TYPE_LABELS_PLURAL
 
 // Dev-only: headless / hidden-tab preview environments never fire
 // requestAnimationFrame, which stalls mapbox-gl completely (its style parse
@@ -84,6 +90,26 @@ const PANEL_W = 384
 // database dump; past this the answer is "zoom in".
 const PANEL_CAP = 60
 
+// Base (unfiltered) standard-pin radius by zoom, as [zoom, r] stop pairs. The
+// smart-filter emphasis scaler multiplies the OUTPUT stops (not the whole
+// expression) so `zoom` stays the top-level interpolate input. Mirrors the
+// standard `pins` layer's base radius (3→4.5, 6→6, 10→7, 14→9).
+const PIN_RADIUS_STOPS = [3, 4.5, 6, 6, 10, 7, 14, 9]
+function pinRadius(mult = 1) {
+  const out = ['interpolate', ['linear'], ['zoom']]
+  for (let i = 0; i < PIN_RADIUS_STOPS.length; i += 2) out.push(PIN_RADIUS_STOPS[i], PIN_RADIUS_STOPS[i + 1] * mult)
+  return out
+}
+
+// As a filter narrows the field, the survivors grow and pop off the greyed-out
+// rest. Maps the live match COUNT to 0..1 — near 1 when only a handful survive,
+// a gentle floor when a broad filter is active, 0 when no filter is on.
+function matchEmphasis(count, active) {
+  if (!active || count <= 0) return 0
+  const e = 1 - Math.min(1, Math.max(0, (count - 6) / (250 - 6)))
+  return Math.max(0.14, e)
+}
+
 // Shared network-wide key — pins the reader has opened on ANY Atlas map dim.
 const VISITED_KEY = 'aa_map_visited_v1'
 const VISITED_CAP = 500
@@ -110,7 +136,7 @@ function approxMeters(aLat, aLng, bLat, bLng) {
  *    at two different anchors — stacked twin labels.
  */
 function annotateDisplayGeometry(studios) {
-  const out = studios.map(s => ({ ...s }))
+  const out = studios.map(s => ({ ...s, _hay: buildHaystack(s, DISCIPLINE_HAYSTACK_LABELS) }))
 
   const cells = new Map()
   for (const s of out) {
@@ -258,6 +284,25 @@ export default function MapPageClient() {
   const [legendCollapsed, setLegendCollapsed] = useState(true)
   const [mobileListOpen, setMobileListOpen] = useState(false)
 
+  // ── Smart pin filter ── (portal port). Owns pinQuery/appliedPinQuery/the
+  // debounced semantic /api/search pass. `?q=` restores it on load. Returns
+  // matchedIds (Set<id>|null): matched pins keep colour + clustering; the rest
+  // grey out as a quiet underlay. Runs over the CURRENT display set (`studios`)
+  // so it composes with the SemanticSearchBar result set already in play.
+  const {
+    pinQuery, setPinQuery, appliedPinQuery,
+    matchedIds, semantic, semanticRank,
+    filterActive, filterBusy,
+  } = useSmartPinFilter({
+    listings: studios,
+    labels: DISCIPLINE_HAYSTACK_LABELS,
+    initialQuery: searchParams.get('q') || '',
+  })
+  const semanticRankRef = useRef(null)
+  useEffect(() => { semanticRankRef.current = semanticRank }, [semanticRank])
+  // Fly the camera to a place-scoped semantic result once, per resolved query.
+  const flownForQuery = useRef(null)
+
   // Discovery panel (desktop) — open by default: split view is the difference
   // between a map people use and a map people bounce off.
   const [panelOpen, setPanelOpen] = useState(true)
@@ -381,17 +426,22 @@ export default function MapPageClient() {
       if (eventData) setEvents(eventData || [])
       setUser(currentUser ?? null)
       setLoading(false)
-      // Auto-fire semantic search + fit bounds if ?q= param present
+      // `?q=` now drives the smart pin filter (see useSmartPinFilter above),
+      // matching the portal: the full dataset stays loaded, matches keep colour
+      // and the rest grey out. We still fetch the results once to frame the
+      // camera on them (the filter effect's place-detection fly covers the
+      // geographic case; this handles the general one). The dataset is NOT
+      // replaced, so the greyed-out context underlay survives.
       const qParam = new URLSearchParams(window.location.search).get('q')
       if (qParam) {
         try {
           const res = await fetch(`/api/search?q=${encodeURIComponent(qParam)}`)
           if (res.ok) {
             const { venues: results } = await res.json()
-            setStudios(results)
-            setSemanticActive(true)
-            pendingFitRef.current = results
-            setFitRequest(n => n + 1)
+            if (results?.length) {
+              pendingFitRef.current = annotateDisplayGeometry(results)
+              setFitRequest(n => n + 1)
+            }
           }
         } catch {}
       }
@@ -434,7 +484,24 @@ export default function MapPageClient() {
       const lng = parseFloat(s.longitude), lat = parseFloat(s.latitude)
       if (lng >= west && lng <= east && lat >= south && lat <= north) within.push(s)
     }
-    within.sort((a, b2) => String(a.name).localeCompare(String(b2.name)))
+    // With an active smart-filter semantic result, relevance order leads;
+    // otherwise A–Z (stable ordering keeps the list calm while the user pans).
+    // The rank Map is keyed by the PORTAL id, so resolve via portal_id first
+    // (Craft's local id space differs — see inSemanticSet / lib/portal-data).
+    const rank = semanticRankRef.current
+    const rankOf = (s) => {
+      if (!rank) return Infinity
+      if (s.portal_id != null && rank.has(s.portal_id)) return rank.get(s.portal_id)
+      if (s.id != null && rank.has(s.id)) return rank.get(s.id)
+      return Infinity
+    }
+    within.sort((a, b2) => {
+      if (rank) {
+        const ra = rankOf(a), rb = rankOf(b2)
+        if (ra !== rb) return ra - rb
+      }
+      return String(a.name).localeCompare(String(b2.name))
+    })
     setInView({ items: within.slice(0, PANEL_CAP), total: within.length })
   }, [])
 
@@ -579,6 +646,28 @@ export default function MapPageClient() {
 
         const roof = m.getLayer(ATLAS_LABEL_ROOF) ? ATLAS_LABEL_ROOF : undefined
 
+        // Grey underlay for the smart filter: studios that DON'T match the
+        // active query stay visible as quiet grey dots (context, not noise),
+        // while matches keep colour, clustering, labels and counts.
+        m.addSource('studios-dimmed', {
+          type: 'geojson',
+          cluster: false,
+          promoteId: 'id',
+          data: { type: 'FeatureCollection', features: [] },
+        })
+        m.addLayer({
+          id: 'pins-dimmed', type: 'circle', source: 'studios-dimmed',
+          paint: {
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 3, 3, 6, 4, 10, 5, 14, 6.5],
+            'circle-color': '#BAB2A2',
+            'circle-opacity': 0.45,
+            'circle-opacity-transition': { duration: 420 },
+            'circle-stroke-width': 1,
+            'circle-stroke-color': PAPER,
+            'circle-stroke-opacity': 0.5,
+          },
+        }, roof)
+
         // Hover / selected halo — invisible until feature-state flips.
         m.addLayer({
           id: 'pins-halo', type: 'circle', source: 'studios-clustered',
@@ -590,6 +679,22 @@ export default function MapPageClient() {
               ['boolean', ['feature-state', 'selected'], false], 0.28,
               ['boolean', ['feature-state', 'hover'], false], 0.20,
               0],
+          },
+        }, roof)
+
+        // Filter-emphasis glow — a soft colour halo behind matched pins that
+        // swells as the filter narrows (driven by setPaintProperty from the
+        // filter effect). Invisible when no filter is active.
+        m.addLayer({
+          id: 'pins-match-glow', type: 'circle', source: 'studios-clustered',
+          filter: ['!', ['has', 'point_count']],
+          paint: {
+            'circle-radius': pinRadius(1),
+            'circle-color': ['get', 'color'],
+            'circle-opacity': 0,
+            'circle-blur': 0.35,
+            'circle-radius-transition': { duration: 420 },
+            'circle-opacity-transition': { duration: 420 },
           },
         }, roof)
 
@@ -608,7 +713,9 @@ export default function MapPageClient() {
           id: 'pins', type: 'circle', source: 'studios-clustered',
           filter: ['all', ['!', ['has', 'point_count']], ['!=', ['get', 'tier'], 'appointment'], ['!=', ['get', 'tier'], 'premium']],
           paint: {
-            'circle-radius': ['interpolate', ['linear'], ['zoom'], 3, 4.5, 6, 6, 10, 7, 14, 9],
+            'circle-radius': pinRadius(1),
+            'circle-radius-transition': { duration: 420 },
+            'circle-stroke-width-transition': { duration: 420 },
             'circle-color': ['get', 'color'],
             'circle-stroke-width': 1.75,
             'circle-stroke-color': PAPER,
@@ -760,24 +867,94 @@ export default function MapPageClient() {
     pendingFitRef.current = null
   }, [mapReady, fitRequest, fitToStudios])
 
-  // Update map source whenever studios (semantic results) OR filters change
+  // Update map source whenever studios (semantic results), filters, OR the
+  // smart pin query change.
   useEffect(() => {
     if (!mapReady || !map.current) return
     const studiosWithEvents = new Set((events || []).map(e => e.venue_id))
     const eventByStudio = {}
     ;(events || []).forEach(e => { if (!eventByStudio[e.venue_id]) eventByStudio[e.venue_id] = e })
-    const filtered = getFiltered(studios, typeFilter, stateFilter, search, experiencesFilter)
-    filteredRef.current = filtered
-    setStudioCount(filtered.length)
+    // Base set — the existing type/state/name/experiences filters over the
+    // current display set (which may already be a SemanticSearchBar result).
+    const base = getFiltered(studios, typeFilter, stateFilter, search, experiencesFilter)
+    // The smart query (matchedIds from the hook) splits the base set: matches
+    // keep colour, clustering, labels and counts; the rest grey out underneath
+    // as context. matchedIds === null means no smart query is active.
+    const matches = matchedIds ? base.filter(s => matchedIds.has(s.id)) : base
+    const rest = matchedIds ? base.filter(s => !matchedIds.has(s.id)) : []
+    filteredRef.current = matches
+    setStudioCount(matches.length)
     const source = map.current.getSource('studios-clustered')
     if (source) {
-      source.setData(buildGeoJSON(filtered, studiosWithEvents, eventByStudio))
+      source.setData(buildGeoJSON(matches, studiosWithEvents, eventByStudio))
       // Cluster ids and mixes change with the data — stale donuts must go.
       donuts.current?.invalidate()
     }
-    if (selectedRef.current && !filtered.some(s => s.id === selectedRef.current.id)) clearSelected()
+    const dimmedSource = map.current.getSource('studios-dimmed')
+    if (dimmedSource) dimmedSource.setData(buildGeoJSON(rest, studiosWithEvents, eventByStudio))
+
+    // Prominence scales with how far the filter narrowed the field: survivors
+    // grow, gain a swelling colour glow and a bolder rim; the greyed-out rest
+    // fades further back so the matches pop.
+    const m = map.current
+    const e = matchEmphasis(matches.length, !!matchedIds)
+    if (m.getLayer('pins')) {
+      m.setPaintProperty('pins', 'circle-radius', pinRadius(1 + 0.95 * e))
+      m.setPaintProperty('pins', 'circle-stroke-width', 1.75 + 1.35 * e)
+    }
+    if (m.getLayer('pins-match-glow')) {
+      m.setPaintProperty('pins-match-glow', 'circle-radius', pinRadius(1 + 2.4 * e))
+      m.setPaintProperty('pins-match-glow', 'circle-opacity', 0.34 * e)
+    }
+    if (m.getLayer('pins-dimmed')) {
+      m.setPaintProperty('pins-dimmed', 'circle-opacity', 0.45 - 0.24 * e)
+    }
+
+    // Drop a selection that filtering (any of the filters or the smart query)
+    // has removed from the visible matched set.
+    if (selectedRef.current && !matches.some(s => s.id === selectedRef.current.id)) clearSelected()
+
+    // When a geographic smart query resolves, fly the camera to it — otherwise
+    // the accurate, place-scoped results sit off-screen. A specific place/
+    // region/suburb frames the matched studios; a bare state frames the state.
+    // Fires once per resolved query (flownForQuery guard), never on pan.
+    const sem = semantic
+    if (sem && (sem.placeDetected || sem.stateCode) && flownForQuery.current !== sem.query) {
+      flownForQuery.current = sem.query
+      if (sem.placeDetected) {
+        let pts = matches.filter(s => inSemanticSet(s, sem.ids)).map(displayCoords)
+        if (!pts.length) pts = matches.map(displayCoords)
+        pts = pts.filter(([lng, lat]) => Number.isFinite(lng) && Number.isFinite(lat))
+        if (pts.length) {
+          let minLng = Infinity, minLat = Infinity, maxLng = -Infinity, maxLat = -Infinity
+          for (const [lng, lat] of pts) {
+            if (lng < minLng) minLng = lng
+            if (lat < minLat) minLat = lat
+            if (lng > maxLng) maxLng = lng
+            if (lat > maxLat) maxLat = lat
+          }
+          m.fitBounds([[minLng, minLat], [maxLng, maxLat]], { padding: cameraPadding(), maxZoom: 12.5, duration: 900 })
+        }
+      } else if (sem.stateCode && STATE_BOUNDS[sem.stateCode]) {
+        const b = STATE_BOUNDS[sem.stateCode]
+        m.fitBounds([[b[0], b[1]], [b[2], b[3]]], { padding: cameraPadding(), duration: 900 })
+      }
+    }
+    if (!appliedPinQuery) flownForQuery.current = null
+
     updateInView()
-  }, [studios, typeFilter, stateFilter, search, experiencesFilter, events, mapReady, clearSelected, updateInView])
+  }, [studios, typeFilter, stateFilter, search, experiencesFilter, events, mapReady, matchedIds, semantic, appliedPinQuery, clearSelected, updateInView, cameraPadding])
+
+  // Keep the shareable `?q=` in sync with the smart pin filter — matching the
+  // portal. Only owns the param when the SemanticSearchBar isn't (that flow
+  // writes its own `?q=` via handleSemanticResults / clearSemanticSearch).
+  useEffect(() => {
+    if (typeof window === 'undefined' || semanticActive) return
+    const url = new URL(window.location.href)
+    if (appliedPinQuery) url.searchParams.set('q', appliedPinQuery)
+    else url.searchParams.delete('q')
+    window.history.replaceState(null, '', url.pathname + (url.searchParams.toString() ? `?${url.searchParams.toString()}` : ''))
+  }, [appliedPinQuery, semanticActive])
 
   // ── Anchored selection card (desktop): one marker as a React portal, so
   // the map engine keeps the card glued to its pin through pan/zoom. ──
@@ -840,13 +1017,14 @@ export default function MapPageClient() {
     transition: 'all 0.15s',
   })
 
-  const activeFilterCount = (typeFilter !== 'All' ? 1 : 0) + (stateFilter !== 'All States' ? 1 : 0) + (experiencesFilter ? 1 : 0) + (search ? 1 : 0)
+  const activeFilterCount = (typeFilter !== 'All' ? 1 : 0) + (stateFilter !== 'All States' ? 1 : 0) + (experiencesFilter ? 1 : 0) + (search ? 1 : 0) + (appliedPinQuery ? 1 : 0)
 
   function clearAllFilters() {
     setTypeFilter('All')
     setStateFilter('All States')
     setExperiencesFilter(false)
     setSearch('')
+    setPinQuery('')
     clearSemanticSearch()
   }
 
@@ -931,7 +1109,7 @@ export default function MapPageClient() {
               {STATES.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
             <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10, fontSize: 11, color: 'var(--text-3)' }}>
-              <span>{loading ? 'Loading...' : placesLabel(studioCount)}</span>
+              <span>{loading ? 'Loading...' : filterBusy ? 'Searching…' : placesLabel(studioCount)}</span>
               {activeFilterCount > 0 && (
                 <button onClick={clearAllFilters} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: 11, fontWeight: 600, color: 'var(--primary)', fontFamily: 'var(--font-sans)' }}>
                   Clear filters
@@ -967,6 +1145,9 @@ export default function MapPageClient() {
                   loading={loading}
                   selectedId={selected?.id || null}
                   visitedIds={visitedRef.current}
+                  filterQuery={pinQuery}
+                  onFilterQuery={setPinQuery}
+                  filterBusy={filterBusy}
                   onHover={setHoverState}
                   onSelect={(s) => selectStudio(s, { fly: map.current ? map.current.getZoom() < 11 : false })}
                 />
@@ -1053,6 +1234,40 @@ export default function MapPageClient() {
               </div>
             </div>
           )}
+
+          {/* Empty state — every pin filtered away. Suppressed while the smart
+              filter is still resolving (filterBusy): count===0 then means "not
+              answered yet", not "nothing matches", so the card must not flash. */}
+          {!loading && mapReady && studioCount === 0 && !filterBusy && (
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 6, pointerEvents: 'none' }}>
+              <div style={{ pointerEvents: 'auto', textAlign: 'center', background: 'rgba(250,247,242,0.97)', border: '1px solid var(--border)', borderRadius: 6, padding: '20px 26px', boxShadow: '0 4px 20px rgba(0,0,0,0.10)', maxWidth: 320 }}>
+                <div style={{ fontFamily: 'var(--font-serif)', fontSize: 16, color: 'var(--text)', marginBottom: 6 }}>
+                  {filterActive ? `Nothing matches “${appliedPinQuery}”` : 'No studios match these filters'}
+                </div>
+                <div style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-2)', lineHeight: 1.5, marginBottom: 14 }}>
+                  {filterActive ? 'Try fewer words, a different phrasing, or clear the filter.' : 'Try widening the state filter or the craft type.'}
+                </div>
+                <button onClick={clearAllFilters} style={{ padding: '8px 18px', background: PRIMARY, color: '#fff', border: 'none', borderRadius: 2, cursor: 'pointer', fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: 'var(--font-sans)' }}>
+                  Clear all filters
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ── FLOATING SMART FILTER (desktop) — the hero filter, centred over
+              the map at the portal's exact placement (bottom: 30, left tracks
+              the panel, `min(520px)` pill). Hidden on mobile via
+              map-desktop-toolbar; the mobile sheet's DiscoveryPanel filter
+              field carries it there. */}
+          <SmartMapFilter
+            pinQuery={pinQuery}
+            setPinQuery={setPinQuery}
+            filterActive={filterActive}
+            filterBusy={filterBusy}
+            count={studioCount}
+            panelOpen={panelOpen}
+            panelW={PANEL_W}
+          />
 
           {/* ── MOBILE FABs ── */}
           {/* Search / filter FAB */}
@@ -1148,6 +1363,9 @@ export default function MapPageClient() {
                 loading={loading}
                 selectedId={selected?.id || null}
                 visitedIds={visitedRef.current}
+                filterQuery={pinQuery}
+                onFilterQuery={setPinQuery}
+                filterBusy={filterBusy}
                 onHover={() => {}}
                 onSelect={(s) => { setMobileListOpen(false); selectStudio(s, { fly: true }) }}
                 onClose={() => setMobileListOpen(false)}

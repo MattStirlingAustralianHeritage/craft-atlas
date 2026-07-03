@@ -97,12 +97,23 @@ export async function GET(request) {
       source: 'portal-hybrid',
     }
 
-    return Response.json({ venues, meta })
+    // Pass the portal's map-scoped ranked `pins` pool + NL place-detection
+    // through untouched, so the /map smart filter runs the exact-same tech as
+    // the portal. The existing search UI keeps consuming `{ venues, meta }`.
+    return Response.json({
+      venues, meta,
+      pins: Array.isArray(data.pins) ? data.pins : [],
+      detectedState: data.detectedState ?? null,
+      detectedRegion: data.detectedRegion ?? null,
+      detectedSuburb: data.detectedSuburb ?? null,
+      detectedPlace: data.detectedPlace ?? null,
+    })
   } catch (err) {
     console.error('[search proxy]', err?.message || err)
     return Response.json({
       venues: [],
       meta: { total: 0, query: q, parsed: null, parseConfidence: 0, usedFallback: false, majorityInBounds: false, inBoundsCount: 0, source: 'portal-hybrid', error: true },
+      pins: [], detectedState: null, detectedRegion: null, detectedSuburb: null, detectedPlace: null,
     })
   }
 }

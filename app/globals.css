@@ -56,6 +56,11 @@ a { color: inherit; }
   to { opacity: 1; transform: translateX(0); }
 }
 
+/* Smart map filter spinner — the floating SmartMapFilter pill references this
+   global keyframe (the map's inline <style> also defines it, but the pill can
+   render before that block mounts). */
+@keyframes map-spin { to { transform: rotate(360deg); } }
+
 /* ── Region Carousel ── */
 .regions-carousel-outer {
   position: relative;
