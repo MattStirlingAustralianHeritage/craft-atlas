@@ -466,26 +466,75 @@ export default async function VenuePage({ params }) {
               </div>
             )}
 
-            {!['online', 'markets', 'mobile', 'seasonal'].includes(venue.presence_type) && venue.presence_type !== 'by_appointment' && venue.opening_hours && typeof venue.opening_hours === 'object' && ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'].some(d => venue.opening_hours[d] && venue.opening_hours[d] !== '') && (
-              <div style={{ marginBottom: 20 }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-3)', marginBottom: 8, fontFamily: 'var(--font-sans)' }}>Opening Hours</div>
-                <div style={{ fontSize: 13, lineHeight: 1.8 }}>
-                  {['monday','tuesday','wednesday','thursday','friday','saturday','sunday'].map(day => {
-                    const hours = venue.opening_hours[day]
-                    const hasHours = hours && hours !== ''
-                    const isClosed = hours === 'Closed' || hours === 'closed'
-                    return (
-                      <div key={day} style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
-                        <span style={{ textTransform: 'capitalize', color: 'var(--text-2)' }}>{day}</span>
-                        <span style={{ color: hasHours && !isClosed ? 'var(--text-2)' : 'var(--text-3)', opacity: !hasHours ? 0.5 : 1 }}>
-                          {isClosed ? 'Closed' : (hasHours ? hours : '—')}
-                        </span>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
+            {(() => {
+              // Portal Google/operator/website opening hours (listings.opening_hours,
+              // shape { weekday_text: ["Monday: 9:00 AM – 5:00 PM", ...] }).
+              const gh = venue.opening_hours_status === 'published' && venue.google_opening_hours && Array.isArray(venue.google_opening_hours.weekday_text) && venue.google_opening_hours.weekday_text.length
+                ? venue.google_opening_hours.weekday_text
+                : null
+              // Whether the existing derived {day:value} block has anything to show.
+              const hasLocalHours = !['online', 'markets', 'mobile', 'seasonal'].includes(venue.presence_type) && venue.presence_type !== 'by_appointment' && venue.opening_hours && typeof venue.opening_hours === 'object' && ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'].some(d => venue.opening_hours[d] && venue.opening_hours[d] !== '')
+              const byAppt = !gh && !hasLocalHours && venue.opening_hours_status === 'by_appointment'
+
+              // Priority: published Google hours → existing derived block → by-appointment → nothing.
+              if (gh) {
+                return (
+                  <div style={{ marginBottom: 20 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-3)', marginBottom: 8, fontFamily: 'var(--font-sans)' }}>Opening Hours</div>
+                    <div style={{ fontSize: 13, lineHeight: 1.8 }}>
+                      {gh.map((line, i) => {
+                        const idx = line.indexOf(': ')
+                        const day = idx > -1 ? line.slice(0, idx) : line
+                        const value = idx > -1 ? line.slice(idx + 2) : ''
+                        const isClosed = /closed/i.test(value)
+                        return (
+                          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
+                            <span style={{ textTransform: 'capitalize', color: 'var(--text-2)' }}>{day}</span>
+                            <span style={{ color: value && !isClosed ? 'var(--text-2)' : 'var(--text-3)', opacity: !value ? 0.5 : 1 }}>
+                              {value || '—'}
+                            </span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              }
+
+              if (hasLocalHours) {
+                return (
+                  <div style={{ marginBottom: 20 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-3)', marginBottom: 8, fontFamily: 'var(--font-sans)' }}>Opening Hours</div>
+                    <div style={{ fontSize: 13, lineHeight: 1.8 }}>
+                      {['monday','tuesday','wednesday','thursday','friday','saturday','sunday'].map(day => {
+                        const hours = venue.opening_hours[day]
+                        const hasHours = hours && hours !== ''
+                        const isClosed = hours === 'Closed' || hours === 'closed'
+                        return (
+                          <div key={day} style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
+                            <span style={{ textTransform: 'capitalize', color: 'var(--text-2)' }}>{day}</span>
+                            <span style={{ color: hasHours && !isClosed ? 'var(--text-2)' : 'var(--text-3)', opacity: !hasHours ? 0.5 : 1 }}>
+                              {isClosed ? 'Closed' : (hasHours ? hours : '—')}
+                            </span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              }
+
+              if (byAppt) {
+                return (
+                  <div style={{ marginBottom: 20 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-3)', marginBottom: 8, fontFamily: 'var(--font-sans)' }}>Opening Hours</div>
+                    <div style={{ fontSize: 13, color: 'var(--text-2)', fontStyle: 'italic' }}>By appointment — check ahead</div>
+                  </div>
+                )
+              }
+
+              return null
+            })()}
 
             {venue.google_maps_url && (
               <a href={venue.google_maps_url} target="_blank" rel="noopener noreferrer" style={{ display: 'block', fontSize: 13, color: 'var(--primary)', textDecoration: 'none', fontFamily: 'var(--font-sans)' }}>
