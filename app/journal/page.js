@@ -60,7 +60,7 @@ export default async function JournalPage() {
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 32 }}>
             {articles.map((article, i) => (
-              <Link key={article.id} href={`/journal/${article.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
+              <Link key={article.id} href={`https://www.australianatlas.com.au/journal/${article.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
                 <article style={{
                   border: '1px solid var(--border)',
                   borderRadius: 3,
