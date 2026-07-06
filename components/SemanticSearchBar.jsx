@@ -22,6 +22,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { isInquiryQuery } from '@/lib/search/inquiryIntent'
 
 const ROLL_MS = 3200
 const FADE_MS = 320
@@ -93,6 +94,12 @@ export default function SemanticSearchBar({
 
   const roller = useRoller(examples, !query && !focused)
 
+  // The moment the typed text reads as a plain-language request (a gift, an
+  // occasion, "somewhere to take mum") the bar offers to ANSWER it rather than
+  // match names — the concierge lives on the results page, so an inquiry always
+  // navigates there (even in inline/onResults mode).
+  const inquiry = query.trim().length >= 8 && isInquiryQuery(query.trim())
+
   const executeSearch = useCallback(async (q) => {
     const term = q.trim()
     if (!term) return
@@ -100,7 +107,7 @@ export default function SemanticSearchBar({
     setError(null)
     onLoading?.(true)
     try {
-      if (onResults) {
+      if (onResults && !isInquiryQuery(term)) {
         const res = await fetch(`/api/search?q=${encodeURIComponent(term)}`)
         if (!res.ok) throw new Error('Search failed')
         const data = await res.json()
@@ -240,6 +247,39 @@ export default function SemanticSearchBar({
 
       {error && (
         <p style={{ margin: '6px 0 0', fontSize: 13, color: 'var(--error, #c0392b)', paddingLeft: 4 }}>{error}</p>
+      )}
+
+      {/* Inquiry mode — offer to answer the request instead of name-matching. */}
+      {showSuggestions && inquiry && (
+        <div style={{
+          position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0,
+          background: 'var(--bg, #fff)', border: '1px solid var(--border, #e3ddd1)',
+          borderRadius: 12, boxShadow: '0 8px 28px rgba(0,0,0,0.10)', overflow: 'hidden', zIndex: 100,
+        }}>
+          <button
+            type="button"
+            onMouseDown={(e) => { e.preventDefault(); setShowSuggestions(false); executeSearch(query) }}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 12, width: '100%', textAlign: 'left',
+              padding: '13px 16px', background: 'none', border: 'none', cursor: 'pointer',
+            }}
+          >
+            <span style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32,
+              borderRadius: 9, flexShrink: 0, background: 'var(--bg-2, #f5f0e8)', color: accent,
+            }}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z" /></svg>
+            </span>
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <span style={{ display: 'block', fontFamily: 'var(--font-sans, inherit)', fontWeight: 700, fontSize: 14, color: 'var(--text, #2a2218)' }}>Ask the Atlas</span>
+              <span style={{ display: 'block', fontFamily: 'var(--font-sans, inherit)', fontWeight: 300, fontSize: 12.5, color: 'var(--text-2, #8a7d6b)', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Get recommendations for “{query.trim()}”</span>
+            </span>
+            <span style={{ color: accent, fontSize: 18, flexShrink: 0 }} aria-hidden="true">&rarr;</span>
+          </button>
+          <div style={{ padding: '9px 16px', borderTop: '1px solid var(--border, #e3ddd1)', background: 'var(--bg-2, #f5f0e8)', fontFamily: 'var(--font-sans, inherit)', fontWeight: 300, fontSize: 11.5, color: 'var(--text-2, #8a7d6b)' }}>
+            Reads like a question, so we&apos;ll answer it — not just match names.
+          </div>
+        </div>
       )}
 
       {/* Example-query suggestions (focus, empty field) */}

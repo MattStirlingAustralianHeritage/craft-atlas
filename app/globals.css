@@ -30,6 +30,10 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Mobile: never let a stray wide element scroll the whole page sideways.
+   `clip` (not `hidden`) so position:sticky descendants keep working. */
+html, body { overflow-x: clip; }
+
 a { color: inherit; }
 
 ::selection {

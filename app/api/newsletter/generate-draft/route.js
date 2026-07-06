@@ -1,3 +1,5 @@
+import { verifyAdminToken } from '@/lib/admin-token'
+import { cookies } from 'next/headers'
 import { createClient } from '@supabase/supabase-js'
 import Anthropic from '@anthropic-ai/sdk'
 
@@ -9,12 +11,12 @@ export async function POST(request) {
   try {
     // Check admin auth — supports both query param (admin UI) and Vercel cron header
     const { searchParams } = new URL(request.url)
-    const password = searchParams.get('key')
     const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
     const cronSecret = request.headers.get('authorization')?.replace('Bearer ', '')
-    const isAuthed = password === process.env.ADMIN_PASSWORD || cronSecret === process.env.CRON_SECRET
+    const adminAuth = (await cookies()).get('admin_auth')
+    const isAuthed = (await verifyAdminToken(adminAuth?.value)) || cronSecret === process.env.CRON_SECRET
     if (!isAuthed) {
       return Response.json({ error: 'Unauthorised' }, { status: 401 })
     }

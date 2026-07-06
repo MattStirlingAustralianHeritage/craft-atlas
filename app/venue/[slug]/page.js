@@ -5,10 +5,11 @@ import { isApprovedImageSource } from '@/lib/image-utils'
 import { venueJsonLd, classesJsonLd, breadcrumbJsonLd } from '@/lib/jsonLd'
 import { TYPE_COLORS, TYPE_LABELS } from '@/lib/constants'
 import {
-  getVenue as getPortalVenueWithFallback, getPortalGallery, getPortalEvents, getPortalPicks,
+  getVenue as getPortalVenueWithFallback, getPortalGallery, getPortalEvents, getPortalPicks, getPortalListingTrail,
 } from '@/lib/portal-data'
 import { getHighlightDef, fieldHasValue, hiringIsActive } from '@/lib/operator-highlights/config'
 import FavouriteButton from '@/components/FavouriteButton'
+import OperatorTrailSection from '@/components/OperatorTrailSection'
 import CrossVerticalNearby from '@/components/CrossVerticalNearby'
 import RegionalBacklink from '@/components/RegionalBacklink'
 import TypographicCard from '@/components/TypographicCard'
@@ -204,10 +205,11 @@ export default async function VenuePage({ params }) {
 
   // All portal-side reads are independent — run in parallel. Guarded so
   // local-fallback venues (portal_id null) simply skip the rich blocks.
-  const [gallery, portalEvents, picks] = await Promise.all([
+  const [gallery, portalEvents, picks, operatorTrail] = await Promise.all([
     getPortalGallery(venue.portal_id),
     getPortalEvents(venue.portal_id),
     getPortalPicks(venue.portal_id),
+    getPortalListingTrail(venue.portal_id),
   ])
 
   const picksGiven = picks.given || []
@@ -410,6 +412,18 @@ export default async function VenuePage({ params }) {
             </div>
           )}
 
+          {galleryUrls.length > 0 && (
+            <div style={{ marginBottom: 28 }}>
+              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 12, fontFamily: 'var(--font-sans)' }}>Gallery</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 8 }}>
+                {galleryUrls.map((url, i) => (
+                  <Image key={i} src={url} alt={`${venue.name} ${i + 1}`}
+                    width={400} height={400} loading="lazy"
+                    style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: 4, display: 'block' }} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* DETAILS SIDEBAR */}
@@ -514,11 +528,14 @@ export default async function VenuePage({ params }) {
 
       {/* ── FROM THE STUDIO — operator-authored "right now" (live from portal) ── */}
       {(textFields.length + urlFields.length > 0) && (
-        <div style={{ maxWidth: 900, margin: '0 auto 40px', padding: '0 24px' }}>
-          <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 12, fontFamily: 'var(--font-sans)' }}>
-            {highlightDef.heading || 'From the studio'}
-          </div>
-          <div style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 4, padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+        <section aria-labelledby="from-the-maker-heading" style={{ maxWidth: 900, margin: '0 auto 40px', padding: '0 24px' }}>
+          <div style={{ background: 'rgba(196, 151, 59, 0.12)', border: '1px solid var(--border)', borderRadius: 4, padding: '24px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+            <div>
+              <div id="from-the-maker-heading" style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', fontFamily: 'var(--font-sans)' }}>
+                {highlightDef.heading || 'From the studio'}
+              </div>
+              <div style={{ fontSize: 15, fontStyle: 'italic', color: 'var(--text-3)', fontFamily: 'var(--font-sans)', marginTop: 5 }}>In their own words</div>
+            </div>
             {textFields.map(f => {
               const value = storedFields[f.key]
               if (f.type === 'list') {
@@ -556,8 +573,11 @@ export default async function VenuePage({ params }) {
                 ))}
               </div>
             )}
+            <div style={{ fontSize: 12, color: 'var(--text-3)', fontFamily: 'var(--font-sans)', borderTop: '1px solid var(--border)', paddingTop: 12, lineHeight: 1.5 }}>
+              {venue.name && <span style={{ fontWeight: 600, color: 'var(--text)' }}>{venue.name}</span>}{venue.name ? ' · ' : ''}Words supplied by the operator.
+            </div>
           </div>
-        </div>
+        </section>
       )}
 
       {/* NOW HIRING */}
@@ -606,20 +626,6 @@ export default async function VenuePage({ params }) {
             />
           </div>
         </section>
-      )}
-
-      {/* GALLERY — portal-primary, local fallback */}
-      {galleryUrls.length > 0 && (
-        <div style={{ maxWidth: 900, margin: '0 auto 40px', padding: '0 24px' }}>
-          <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 12, fontFamily: 'var(--font-sans)' }}>Gallery</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 8 }}>
-            {galleryUrls.map((url, i) => (
-              <Image key={i} src={url} alt={`${venue.name} ${i + 1}`}
-                width={400} height={400} loading="lazy"
-                style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: 4, display: 'block' }} />
-            ))}
-          </div>
-        </div>
       )}
 
       {/* CLASSES & WORKSHOPS */}
@@ -948,6 +954,9 @@ export default async function VenuePage({ params }) {
         </div>
       )}
 
+      {/* OPERATOR-SUGGESTED TRAIL — the operator's published day-trip (live from portal) */}
+      <OperatorTrailSection trail={operatorTrail} operatorName={venue.name} color={color} />
+
       {/* CROSS-VERTICAL NEARBY */}
       {venue.latitude != null && venue.longitude != null && (
         <CrossVerticalNearby
@@ -987,6 +996,8 @@ export default async function VenuePage({ params }) {
         </section>
       )}
 
+      {/* Rendered unconditionally so the route stays ISR-cacheable; the badge
+          self-gates client-side (admin stats endpoint 401s for anon). */}
       <VerificationBadge
         listingId={venue.portal_id}
         listingName={venue.name}

@@ -76,7 +76,7 @@ export default function NewsletterAdmin() {
     setGenerating(true)
     setMessage(null)
     try {
-      const res = await fetch(`/api/newsletter/generate-draft?key=${prompt('Admin password:')}`, {
+      const res = await fetch(`/api/newsletter/generate-draft`, {
         method: 'POST',
       })
       const data = await res.json()
@@ -99,7 +99,7 @@ export default function NewsletterAdmin() {
     setSending(true)
     setMessage(null)
     try {
-      const res = await fetch(`/api/newsletter/send?key=${prompt('Admin password:')}`, {
+      const res = await fetch(`/api/newsletter/send`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ issueId: draft.id }),

@@ -1,3 +1,4 @@
+import { newsletterConfirmToken } from '@/lib/newsletter-token'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import { randomUUID } from 'crypto'
@@ -13,7 +14,7 @@ export async function POST(request) {
     }
 
     const unsubscribe_token = randomUUID()
-    const confirmToken = randomUUID()
+    const confirmToken = newsletterConfirmToken(email)
     const confirmUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/api/newsletter/confirm?token=${confirmToken}&email=${encodeURIComponent(email)}`
 
     // Upsert subscriber — if already exists, just resend confirmation

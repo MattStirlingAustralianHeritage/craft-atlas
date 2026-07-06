@@ -1,3 +1,5 @@
+import { verifyAdminToken } from '@/lib/admin-token'
+import { cookies } from 'next/headers'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 
@@ -68,8 +70,9 @@ export async function POST(request) {
     const resend = new Resend(process.env.RESEND_API_KEY)
 
     const { searchParams } = new URL(request.url)
-    const password = searchParams.get('key')
-    if (password !== process.env.ADMIN_PASSWORD) {
+    const adminAuth = (await cookies()).get('admin_auth')
+    const cronSecret = request.headers.get('authorization')?.replace('Bearer ', '')
+    if (!(await verifyAdminToken(adminAuth?.value)) && cronSecret !== process.env.CRON_SECRET) {
       return Response.json({ error: 'Unauthorised' }, { status: 401 })
     }
 
