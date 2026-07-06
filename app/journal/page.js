@@ -8,6 +8,9 @@ export const metadata = {
 }
 
 export const revalidate = 60
+// supabase-js reads carry auth headers that Next would otherwise treat as
+// no-store, silently forcing this route dynamic. 'default-cache' lets ISR cache.
+export const fetchCache = 'default-cache'
 
 async function getArticles() {
   const portal = getPortalClient()

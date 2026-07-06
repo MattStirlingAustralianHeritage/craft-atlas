@@ -6,6 +6,9 @@ import { isApprovedImageSource } from '@/lib/image-utils'
 // the live vertical feed (every approved + published event tagged `craft`) so an
 // event published on the portal appears here automatically.
 export const revalidate = 300
+// supabase-js reads carry auth headers that Next would otherwise treat as
+// no-store, silently forcing this route dynamic. 'default-cache' lets ISR cache.
+export const fetchCache = 'default-cache'
 
 const PORTAL_BASE = 'https://www.australianatlas.com.au'
 const ACCENT = 'var(--primary)'

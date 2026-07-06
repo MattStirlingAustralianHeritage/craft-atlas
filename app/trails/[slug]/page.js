@@ -1,13 +1,23 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { createServerSupabase } from '@/lib/supabase'
+import { getSupabase } from '@/lib/supabase'
 import TrailMap from './TrailMap'
 import TypographicCard from '@/components/TypographicCard'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300
+// supabase-js reads carry auth headers that Next would otherwise treat as
+// no-store, silently forcing this route dynamic. 'default-cache' lets ISR cache.
+export const fetchCache = 'default-cache'
+
+// Trail slugs live in the DB — return [] so the route is still registered for
+// ISR and the cache fills on demand. Without generateStaticParams the route
+// renders per-request forever.
+export async function generateStaticParams() {
+  return []
+}
 
 export async function generateMetadata({ params }) {
-  const supabase = await createServerSupabase()
+  const supabase = getSupabase()
   const { data: trail } = await supabase.from('trails').select('name, description').eq('slug', params.slug).eq('published', true).single()
   if (!trail) return {}
   return {
@@ -17,7 +27,7 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function TrailPage({ params }) {
-  const supabase = await createServerSupabase()
+  const supabase = getSupabase()
   const { data: trail } = await supabase.from('trails').select('*').eq('slug', params.slug).eq('published', true).single()
   if (!trail) notFound()
 

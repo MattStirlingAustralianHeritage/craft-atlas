@@ -1,5 +1,8 @@
 import Link from 'next/link'
 export const revalidate = 60
+// supabase-js reads carry auth headers that Next would otherwise treat as
+// no-store, silently forcing this route dynamic. 'default-cache' lets ISR cache.
+export const fetchCache = 'default-cache'
 import { getSupabase } from '@/lib/supabase'
 import { listPortalListings, listPortalFeatured, getPortalVerticalEvents, listPortalRecent } from '@/lib/portal-data'
 import RegionCarousel from '@/components/RegionCarousel'

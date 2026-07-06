@@ -4,6 +4,16 @@ import { getPortalClient } from '@/lib/portal-client'
 import TypographicCard from '@/components/TypographicCard'
 
 export const revalidate = 60
+// supabase-js reads carry auth headers that Next would otherwise treat as
+// no-store, silently forcing this route dynamic. 'default-cache' lets ISR cache.
+export const fetchCache = 'default-cache'
+
+// Article slugs live in the portal DB — return [] so the route is still
+// registered for ISR and the cache fills on demand. Without
+// generateStaticParams the route renders per-request forever.
+export async function generateStaticParams() {
+  return []
+}
 
 function mdToHtml(md) {
   if (!md) return ''

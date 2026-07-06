@@ -6,6 +6,15 @@ import RegionFilters from '@/components/RegionFilters'
 import Link from 'next/link'
 
 export const revalidate = 86400
+// supabase-js reads carry auth headers that Next would otherwise treat as
+// no-store, silently forcing this route dynamic. 'default-cache' lets ISR cache.
+export const fetchCache = 'default-cache'
+
+// Region slugs are a fixed local map — prerender them all. Without
+// generateStaticParams the route renders per-request forever.
+export function generateStaticParams() {
+  return Object.keys(REGION_INFO).map((slug) => ({ slug }))
+}
 
 export async function generateMetadata({ params }) {
   const { slug } = await params

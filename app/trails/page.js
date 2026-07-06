@@ -1,9 +1,12 @@
 import Link from 'next/link'
-import { createServerSupabase } from '@/lib/supabase'
+import { getSupabase } from '@/lib/supabase'
 import BuildTrailButton from '@/components/BuildTrailButton'
 import TypographicCard from '@/components/TypographicCard'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300
+// supabase-js reads carry auth headers that Next would otherwise treat as
+// no-store, silently forcing this route dynamic. 'default-cache' lets ISR cache.
+export const fetchCache = 'default-cache'
 
 export const metadata = {
   title: 'Maker Trails | Craft Atlas',
@@ -11,7 +14,7 @@ export const metadata = {
 }
 
 export default async function TrailsPage() {
-  const supabase = await createServerSupabase()
+  const supabase = getSupabase()
 
   const { data: trails } = await supabase
     .from('trails')
@@ -26,16 +29,10 @@ export default async function TrailsPage() {
     .order('created_at', { ascending: false })
     .limit(12)
 
-  const { data: { user } } = await supabase.auth.getUser()
-  let myTrails = null
-  if (user) {
-    const { data } = await supabase
-      .from('user_trails')
-      .select('id,name,short_code,description,visibility,created_at,user_trail_venues(count)')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-    myTrails = data
-  }
+  // getSupabase() is cookie-free on the server, so auth.getUser() could never
+  // resolve a session here — kept null so this page can ISR-cache (a cached
+  // public page must never render per-user content anyway).
+  const myTrails = null
 
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
