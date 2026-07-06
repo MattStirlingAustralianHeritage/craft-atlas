@@ -6,6 +6,11 @@ import Footer from '@/components/Footer'
 import PageTracker from '@/components/PageTracker'
 import AtlasAnalytics from '@/components/AtlasAnalytics'
 import AtlasHandoffBar from '@/components/AtlasHandoffBar'
+import { websiteJsonLd, organizationJsonLd } from '@/lib/jsonLd'
+
+// Some Vercel env values carry a trailing newline — trim, or metadataBase
+// (and every canonical/OG URL resolved against it) is corrupted.
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.craftatlas.com.au').trim()
 
 // Self-hosted via next/font — replaces the render-blocking Google Fonts
 // @import that used to sit at the top of globals.css.
@@ -35,11 +40,12 @@ export const metadata = {
     template: '%s | Craft Atlas',
   },
   description: "Discover Australian makers, artists and studios. Ceramics, visual art, jewellery, textiles, woodwork, glass and printmaking — curated, independent, beautifully mapped.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.craftatlas.com.au'),
+  metadataBase: new URL(SITE_URL),
   openGraph: {
     type: 'website',
     siteName: 'Craft Atlas',
     locale: 'en_AU',
+    url: SITE_URL,
     title: "Craft Atlas — Australian Makers & Studios",
     description: "Discover Australian makers, artists and studios. Ceramics, visual art, jewellery, textiles, woodwork, glass and printmaking — curated, independent, beautifully mapped.",
   },
@@ -64,6 +70,8 @@ export default function RootLayout({ children }) {
     <html lang="en" className={`${playfair.variable} ${dmSans.variable}`}>
 
       <body>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd()) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }} />
         <PageTracker />
         <AtlasAnalytics />
         <AtlasHandoffBar />

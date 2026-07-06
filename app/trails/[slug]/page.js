@@ -20,9 +20,20 @@ export async function generateMetadata({ params }) {
   const supabase = getSupabase()
   const { data: trail } = await supabase.from('trails').select('name, description').eq('slug', params.slug).eq('published', true).single()
   if (!trail) return {}
+  const title = `${trail.name} | Craft Atlas`
+  const description = trail.description || `A curated Australian maker trail — ${trail.name}.`
   return {
-    title: `${trail.name} | Craft Atlas`,
-    description: trail.description || `A curated Australian maker trail — ${trail.name}.`,
+    title,
+    description,
+    alternates: { canonical: `/trails/${params.slug}` },
+    openGraph: {
+      title,
+      description,
+      url: `/trails/${params.slug}`,
+      siteName: 'Craft Atlas',
+      locale: 'en_AU',
+      type: 'website',
+    },
   }
 }
 

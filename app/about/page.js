@@ -1,6 +1,7 @@
 export const metadata = {
   title: 'About | Craft Atlas',
   description: 'Craft Atlas is an independent, place-based directory of Australian makers, artists, and studios — built for people who value handmade craft and want to discover creative spaces across the country.',
+  alternates: { canonical: '/about' },
 }
 
 export default function AboutPage() {

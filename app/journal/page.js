@@ -5,6 +5,7 @@ import TypographicCard from '@/components/TypographicCard'
 export const metadata = {
   title: 'Journal — Craft Atlas',
   description: 'Stories, guides and maker trails from Australia\'s craft regions.',
+  alternates: { canonical: '/journal' },
 }
 
 export const revalidate = 60

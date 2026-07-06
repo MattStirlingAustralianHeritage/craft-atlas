@@ -11,6 +11,7 @@ export const fetchCache = 'default-cache'
 export const metadata = {
   title: 'Maker Trails | Craft Atlas',
   description: 'Curated Australian maker trails across Australia.',
+  alternates: { canonical: '/trails' },
 }
 
 export default async function TrailsPage() {

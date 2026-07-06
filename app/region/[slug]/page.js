@@ -23,6 +23,7 @@ export async function generateMetadata({ params }) {
   return {
     title: `${regionName} — Makers & Studios`,
     description: region ? region.description : `Explore makers and studios in ${regionName}, Australia.`,
+    alternates: { canonical: `/region/${slug}` },
   }
 }
 

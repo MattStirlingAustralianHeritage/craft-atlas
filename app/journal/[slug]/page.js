@@ -59,9 +59,20 @@ async function getArticle(slug) {
 export async function generateMetadata({ params }) {
   const article = await getArticle(params.slug)
   if (!article) return { title: 'Not Found' }
+  const title = article.meta_title || `${article.title} — Craft Atlas`
+  const description = article.meta_description || article.deck
   return {
-    title: article.meta_title || `${article.title} — Craft Atlas`,
-    description: article.meta_description || article.deck,
+    title,
+    description,
+    alternates: { canonical: `/journal/${params.slug}` },
+    openGraph: {
+      title,
+      description,
+      url: `/journal/${params.slug}`,
+      siteName: 'Craft Atlas',
+      locale: 'en_AU',
+      type: 'website',
+    },
   }
 }
 

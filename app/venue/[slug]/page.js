@@ -2,7 +2,7 @@ import { cache } from 'react'
 import dynamic from 'next/dynamic'
 import { createClient } from '@supabase/supabase-js'
 import { isApprovedImageSource } from '@/lib/image-utils'
-import { venueJsonLd, classesJsonLd } from '@/lib/jsonLd'
+import { venueJsonLd, classesJsonLd, breadcrumbJsonLd } from '@/lib/jsonLd'
 import { TYPE_COLORS, TYPE_LABELS } from '@/lib/constants'
 import {
   getVenue as getPortalVenueWithFallback, getPortalGallery, getPortalEvents, getPortalPicks,
@@ -149,10 +149,21 @@ export async function generateMetadata({ params }) {
   const { venue } = await getVenue(slug)
   if (!venue) return { title: 'Venue not found' }
   const label = venue.subcategories || TYPE_LABELS[venue.category] || venue.category
+  const title = `${venue.name} — ${label} in ${venue.sub_region || venue.suburb || venue.state}`
+  const description = venue.description || `Visit ${venue.name}, a ${label} in ${venue.sub_region || venue.suburb || venue.state}, Australia.`
   return {
-    title: `${venue.name} — ${label} in ${venue.sub_region || venue.suburb || venue.state}`,
-    description: venue.description || `Visit ${venue.name}, a ${label} in ${venue.sub_region || venue.suburb || venue.state}, Australia.`,
-    openGraph: { images: isApprovedImageSource(venue.hero_image_url) ? [venue.hero_image_url] : [] },
+    title,
+    description,
+    alternates: { canonical: `/venue/${slug}` },
+    openGraph: {
+      title,
+      description,
+      url: `/venue/${slug}`,
+      siteName: 'Craft Atlas',
+      locale: 'en_AU',
+      type: 'website',
+      images: isApprovedImageSource(venue.hero_image_url) ? [venue.hero_image_url] : [],
+    },
   }
 }
 
@@ -230,6 +241,11 @@ export default async function VenuePage({ params }) {
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(venueJsonLd(venue)) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd([
+        { name: 'Home', url: '/' },
+        { name: 'Explore', url: '/explore' },
+        { name: venue.name, url: `/venue/${venue.slug}` },
+      ])) }} />
       {classesJsonLd(venue) && (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(classesJsonLd(venue)) }} />
       )}

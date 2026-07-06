@@ -41,6 +41,13 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        // Apex → www: one canonical host for SEO (mirrors the portal).
+        source: '/:path*',
+        has: [{ type: 'host', value: 'craftatlas.com.au' }],
+        destination: 'https://www.craftatlas.com.au/:path*',
+        permanent: true,
+      },
+      {
         source: '/vendor',
         destination: '/vendor/login',
         permanent: false,

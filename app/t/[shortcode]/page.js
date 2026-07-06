@@ -13,6 +13,7 @@ export async function generateMetadata({ params }) {
   return {
     title: `${trail.name} | Craft Atlas`,
     description: trail.description || `A user-curated maker trail on Craft Atlas.`,
+    alternates: { canonical: `/t/${params.shortcode}` },
   }
 }
 

@@ -6,6 +6,7 @@ export const dynamic = 'force-dynamic'
 export const metadata = {
   title: "Map — Every Maker & Studio in Australia",
   description: "Explore Australian makers and studios on an interactive map. Find makers, artists and studios near you.",
+  alternates: { canonical: '/map' },
 }
 
 export default function MapPage() {

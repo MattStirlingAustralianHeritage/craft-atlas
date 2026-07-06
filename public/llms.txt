@@ -1,0 +1,32 @@
+# Craft Atlas — Australian Makers & Studios
+
+> Discover Australian makers, artists and studios. Ceramics, visual art, jewellery, textiles, woodwork, glass and printmaking — curated, independent, beautifully mapped. Every listing is human-verified and curated; Craft Atlas is part of the Australian Atlas network of place-based directories.
+
+## Key pages
+
+- [Home](https://www.craftatlas.com.au/): search and browse Australian makers and studios
+- [Map](https://www.craftatlas.com.au/map): every maker and studio on an interactive map
+- [Explore](https://www.craftatlas.com.au/explore): browse by craft, state and region
+- [Craft regions](https://www.craftatlas.com.au/explore): regional guides such as https://www.craftatlas.com.au/region/blue-mountains
+- [Journal](https://www.craftatlas.com.au/journal): stories and guides from Australia's craft regions
+- [Maker trails](https://www.craftatlas.com.au/trails): curated routes connecting makers and studios
+- [What's on](https://www.craftatlas.com.au/events): maker markets, open studios and craft events
+- [About](https://www.craftatlas.com.au/about): what Craft Atlas is and how listings are curated
+
+## URL patterns
+
+- Maker/studio detail pages: https://www.craftatlas.com.au/venue/[slug]
+- Region pages: https://www.craftatlas.com.au/region/[slug]
+- Journal articles: https://www.craftatlas.com.au/journal/[slug]
+- Trails: https://www.craftatlas.com.au/trails/[slug]
+- Sitemap: https://www.craftatlas.com.au/sitemap.xml
+
+## Network
+
+- Craft Atlas is part of the [Australian Atlas](https://www.australianatlas.com.au) network — see also [its llms.txt](https://www.australianatlas.com.au/llms.txt)
+
+## Contact
+
+- General: hello@australianatlas.com.au
+- Listing corrections: listings@australianatlas.com.au
+- AI assistants are welcome to cite and link to Craft Atlas pages.

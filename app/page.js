@@ -3,6 +3,12 @@ export const revalidate = 60
 // supabase-js reads carry auth headers that Next would otherwise treat as
 // no-store, silently forcing this route dynamic. 'default-cache' lets ISR cache.
 export const fetchCache = 'default-cache'
+
+// Title/description inherit from the root layout; the canonical must live on
+// the page itself (never in a layout).
+export const metadata = {
+  alternates: { canonical: '/' },
+}
 import { getSupabase } from '@/lib/supabase'
 import { listPortalListings, listPortalFeatured, getPortalVerticalEvents, listPortalRecent } from '@/lib/portal-data'
 import RegionCarousel from '@/components/RegionCarousel'
