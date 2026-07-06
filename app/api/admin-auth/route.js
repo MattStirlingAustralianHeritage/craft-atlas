@@ -1,3 +1,4 @@
+import { mintAdminToken } from '@/lib/admin-token'
 import { NextResponse } from 'next/server'
 
 export async function POST(request) {
@@ -8,7 +9,7 @@ export async function POST(request) {
   }
 
   const response = NextResponse.json({ ok: true })
-  response.cookies.set('admin_auth', 'admin_authenticated', {
+  response.cookies.set('admin_auth', await mintAdminToken(), {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',

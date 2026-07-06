@@ -1,3 +1,4 @@
+import { verifyAdminToken } from '@/lib/admin-token'
 import { cache } from 'react'
 import dynamic from 'next/dynamic'
 import { createServerSupabase } from '@/lib/supabase'
@@ -149,7 +150,7 @@ export default async function VenuePage({ params }) {
   try {
     const cookieStore = await cookies()
     const adminAuth = cookieStore.get('admin_auth')
-    isAdmin = adminAuth?.value === 'admin_authenticated'
+    isAdmin = await verifyAdminToken(adminAuth?.value)
   } catch {}
 
   // Pins for the embedded "Nearby on Craft Atlas" map — local read.
