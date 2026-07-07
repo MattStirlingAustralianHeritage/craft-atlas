@@ -118,8 +118,8 @@ function SearchResults() {
         <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '32px 24px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
             {venues.map(venue => {
-              const typeColor = { ceramics_clay: '#C1603A', visual_art: '#7A8C7E', jewellery_metalwork: '#C49A3C', textile_fibre: '#8B6B8A', wood_furniture: '#8A7055', glass: '#5A8A9A', printmaking: '#6B7A5A', leathermaker: '#8A5A3C', shoemaker: '#5F4339', clothing: '#B0736E', fragrance_candles: '#D08A45' }[venue.type] || '#C1603A'
-              const typeLabel = { ceramics_clay: 'Ceramics & Clay', visual_art: 'Visual Art', jewellery_metalwork: 'Jewellery & Metalwork', textile_fibre: 'Textile & Fibre', wood_furniture: 'Wood & Furniture', glass: 'Glass', printmaking: 'Printmaking', leathermaker: 'Leatherwork', shoemaker: 'Shoemaking', clothing: 'Clothing', fragrance_candles: 'Fragrance & Candles' }[venue.type] || venue.type
+              const typeColor = { ceramics_clay: '#C1603A', visual_art: '#7A8C7E', jewellery_metalwork: '#C49A3C', textile_fibre: '#8B6B8A', wood_furniture: '#8A7055', glass: '#5A8A9A', printmaking: '#6B7A5A', leathermaker: '#8A5A3C', shoemaker: '#5F4339', clothing: '#B0736E', fragrance_candles: '#D08A45', knifemaker: '#4E5D6C' }[venue.type] || '#C1603A'
+              const typeLabel = { ceramics_clay: 'Ceramics & Clay', visual_art: 'Visual Art', jewellery_metalwork: 'Jewellery & Metalwork', textile_fibre: 'Textile & Fibre', wood_furniture: 'Wood & Furniture', glass: 'Glass', printmaking: 'Printmaking', leathermaker: 'Leatherwork', shoemaker: 'Shoemaking', clothing: 'Clothing', fragrance_candles: 'Fragrance & Candles', knifemaker: 'Knifemaking' }[venue.type] || venue.type
               return (
                 <div key={venue.id}>
                   <Link href={`/venue/${venue.slug}`} style={{ textDecoration: 'none', display: 'block' }}>

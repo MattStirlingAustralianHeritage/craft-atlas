@@ -29,6 +29,7 @@ const TYPE_EMOJI = {
   shoemaker:            '👞',
   clothing:             '👗',
   fragrance_candles:    '🕯️',
+  knifemaker:           '🔪',
   default:              '🎨',
 }
 

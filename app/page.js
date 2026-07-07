@@ -47,6 +47,7 @@ const TYPE_DESCRIPTORS = {
   shoemaker: 'Shoemakers and cobblers — bespoke footwear and boots, made and repaired by hand.',
   clothing: 'Dressmakers, tailors, and garment makers — bespoke clothing cut, sewn, and finished by hand.',
   fragrance_candles: 'Candlemakers and perfumers — hand-poured candles and small-batch fragrance, blended and finished by hand.',
+  knifemaker: "Knifemakers and bladesmiths — chef's knives, outdoor and hunting blades, forged, ground, and handled by hand.",
 }
 
 const REGION_DESCRIPTORS = {

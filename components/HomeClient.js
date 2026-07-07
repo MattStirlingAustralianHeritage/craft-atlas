@@ -55,6 +55,7 @@ export function HeroMap({ venues }) {
                 'shoemaker', '#5F4339',
                 'clothing', '#B0736E',
                 'fragrance_candles', '#D08A45',
+                'knifemaker', '#4E5D6C',
                 '#C1603A',
               ],
               'circle-opacity': 0.6,
